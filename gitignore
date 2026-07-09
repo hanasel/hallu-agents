@@ -1,0 +1,80 @@
+# ---------------------------------------------------------------------------
+# Secrets & environment  —  NEVER commit these
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.key
+secrets.*
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+build/
+dist/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Virtual environments (the 'hallu' venv shown in your prompt, and common names)
+hallu/
+.venv/
+venv/
+env/
+ENV/
+
+# ---------------------------------------------------------------------------
+# Project data & generated artifacts
+# ---------------------------------------------------------------------------
+# Agent response cache (JSONL written by agents/cache.py)
+cache/
+.cache/
+*_cache/
+
+# Pilot / evaluation outputs
+outputs/
+*.jsonl
+# ...but keep small curated fixtures if you ever add them under tests/fixtures/
+!tests/fixtures/*.jsonl
+
+# Downloaded datasets (HF cache can also live under ~/.cache/huggingface)
+data/raw/
+*.parquet
+
+# ---------------------------------------------------------------------------
+# Model weights & ML caches (DeBERTa NLI, sentence-transformers, HF hub)
+# These are large and re-downloadable — never commit them.
+# ---------------------------------------------------------------------------
+models/
+*.safetensors
+*.bin
+*.pt
+*.onnx
+.hf_cache/
+huggingface/
+sentence_transformers/
+torch_cache/
+
+# ---------------------------------------------------------------------------
+# Editors / OS
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------------------
+# Logs & scratch
+# ---------------------------------------------------------------------------
+*.log
+scratch/
+tmp/

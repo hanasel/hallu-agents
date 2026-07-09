@@ -1,0 +1,22 @@
+# Hallucination Detection via Inter-Agent Disagreement
+# Install with: pip install -r requirements.txt
+
+# ── Dataset loading ────────────────────────────────────────────
+datasets>=2.18.0          # HuggingFace datasets (TruthfulQA, RAGTruth)
+
+# ── Agent APIs ────────────────────────────────────────────────
+openai>=1.30.0            # OpenAI-compatible client (works for Groq, Together, OpenAI, ...)
+together>=1.2.0           # Together.ai (optional; kept for later phases)
+huggingface_hub>=0.22.0   # HF Inference API
+
+# ── Disagreement measures (Stage 2/3) ─────────────────────────
+sentence-transformers>=2.7.0   # semantic embeddings
+transformers>=4.40.0           # NLI models (cross-encoder/nli-deberta-v3-*)
+torch>=2.2.0                   # required by transformers / sentence-transformers
+
+# ── Utilities ─────────────────────────────────────────────────
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.4.0       # AUC-PR, F1, classification metrics
+tqdm>=4.66.0              # progress bars
+python-dotenv>=1.0.0      # load API keys from .env file
