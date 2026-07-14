@@ -82,11 +82,14 @@ def parse_verdict(text: str) -> Optional[bool]:
     return None
 
 
-def judge_one(judge, question, correct, incorrect, candidate) -> Optional[bool]:
+def judge_one(judge, question, correct, incorrect, candidate):
     if not str(candidate).strip():
         return None
     r = judge.query(build_prompt(question, correct, incorrect, candidate))
-    return parse_verdict(r.text)
+    v = parse_verdict(r.text)
+    if v is None:
+        print(f"      [unparsed] error={r.error!r} text={r.text[:60]!r}")
+    return v
 
 
 def majority(grades: List[Optional[bool]]) -> Optional[bool]:

@@ -110,9 +110,63 @@ def fmt(x) -> str:
     return "n/a" if x is None else f"{x:.3f}"
 
 
+def _percentile(sorted_vals, p: float) -> float:
+    """Linear-interpolated percentile of an already-sorted list. p in [0,100]."""
+    if not sorted_vals:
+        return float("nan")
+    if len(sorted_vals) == 1:
+        return sorted_vals[0]
+    k = (len(sorted_vals) - 1) * (p / 100.0)
+    lo = int(k)
+    hi = min(lo + 1, len(sorted_vals) - 1)
+    frac = k - lo
+    return sorted_vals[lo] * (1 - frac) + sorted_vals[hi] * frac
+
+
+def bootstrap_compare(scores_a, scores_b, labels, B=2000, seed=0, alpha=0.05):
+    """Paired bootstrap comparing two predictors on the SAME labeled questions.
+
+    Resamples questions with replacement B times; each resample recomputes both
+    AUROCs on the identical resampled set (paired), so the difference isolates
+    predictor quality from question-sampling luck. Returns percentile CIs for
+    each AUROC and for the difference (a - b), plus the fraction of resamples in
+    which a > b.
+    """
+    import random
+    rng = random.Random(seed)
+    n = len(labels)
+    idx_all = list(range(n))
+    a_vals, b_vals, diffs = [], [], []
+    for _ in range(B):
+        idx = [rng.choice(idx_all) for _ in range(n)]
+        lab = [labels[i] for i in idx]
+        if sum(lab) == 0 or sum(lab) == n:      # need both classes to score
+            continue
+        aa = auroc([scores_a[i] for i in idx], lab)
+        bb = auroc([scores_b[i] for i in idx], lab)
+        if aa is None or bb is None:
+            continue
+        a_vals.append(aa); b_vals.append(bb); diffs.append(aa - bb)
+    if not diffs:
+        return None
+    lo_p, hi_p = 100 * alpha / 2, 100 * (1 - alpha / 2)
+    a_s, b_s, d_s = sorted(a_vals), sorted(b_vals), sorted(diffs)
+    frac_a_gt_b = sum(d > 0 for d in diffs) / len(diffs)
+    return {
+        "a_ci": (_percentile(a_s, lo_p), _percentile(a_s, hi_p)),
+        "b_ci": (_percentile(b_s, lo_p), _percentile(b_s, hi_p)),
+        "diff_ci": (_percentile(d_s, lo_p), _percentile(d_s, hi_p)),
+        "frac_a_gt_b": frac_a_gt_b,
+        "n_boot": len(diffs),
+    }
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--file", default="outputs/pilot_results.jsonl")
+    ap.add_argument("--bootstrap", type=int, default=2000,
+                    help="number of bootstrap resamples for CIs (0 to disable)")
+    ap.add_argument("--seed", type=int, default=0)
     args = ap.parse_args()
 
     path = Path(args.file)
@@ -136,11 +190,38 @@ def main() -> None:
             continue
 
         print(f"\n  {'predictor':<20}{'AUROC':>8}{'mean(halluc)':>14}{'mean(clean)':>13}")
+        aligned_scores = {}
+        aligned_labels = [label_fn(r) for r in labeled]
         for key, nice in (("semantic_entropy", "semantic entropy"),
                           ("jaccard", "jaccard (baseline)")):
             r = evaluate_predictor(labeled, key, label_fn)
+            aligned_scores[key] = [row[key] for row in labeled]
             print(f"  {nice:<20}{fmt(r['auroc']):>8}{fmt(r['mean_pos']):>14}"
                   f"{fmt(r['mean_neg']):>13}")
+
+        # Bootstrap CIs + paired difference (semantic entropy vs jaccard).
+        bs = bootstrap_compare(aligned_scores["semantic_entropy"],
+                               aligned_scores["jaccard"],
+                               aligned_labels, B=args.bootstrap, seed=args.seed)
+        if bs:
+            se_lo, se_hi = bs["a_ci"]
+            jc_lo, jc_hi = bs["b_ci"]
+            d_lo, d_hi = bs["diff_ci"]
+            print(f"\n  95% CIs ({bs['n_boot']} bootstraps):")
+            print(f"    semantic entropy AUROC : [{se_lo:.3f}, {se_hi:.3f}]")
+            print(f"    jaccard AUROC          : [{jc_lo:.3f}, {jc_hi:.3f}]")
+            print(f"    difference (SE - Jac)  : [{d_lo:+.3f}, {d_hi:+.3f}]")
+            crosses_zero = d_lo <= 0 <= d_hi
+            p = bs["frac_a_gt_b"]
+            if crosses_zero:
+                print(f"    -> difference CI includes 0: NO significant difference "
+                      f"(SE>Jac in {p:.0%} of resamples).")
+            elif d_lo > 0:
+                print(f"    -> semantic entropy significantly higher "
+                      f"(SE>Jac in {p:.0%} of resamples).")
+            else:
+                print(f"    -> jaccard significantly higher "
+                      f"(SE>Jac in {p:.0%} of resamples).")
         print("\n  AUROC > 0.5 means the score is higher on hallucinated questions.")
 
     # -- shared-bias false negatives: the recall ceiling --------------------
@@ -157,6 +238,29 @@ def main() -> None:
     print("  signal as a complement.")
     for r in sbfn[:8]:
         print(f"    - {r['uid']} [{r['category']}]  sem={r['semantic_entropy']:.2f}")
+
+    # Per-category breakdown: is the blind spot predictable from category?
+    # (Only meaningful at scale — needs enough questions per category.)
+    from collections import Counter
+    cats = sorted({r.get("category", "?") for r in rows})
+    if len(rows) >= 100 and len(cats) > 1:
+        section("Shared-bias blind spot by category (is it predictable?)")
+        per_cat = []
+        for c in cats:
+            crows = [r for r in rows if r.get("category") == c]
+            fails = [r for r in crows if label_majority_wrong(r) == 1]
+            fn = [r for r in crows if r.get("panel_agrees") and r.get("panel_majority_wrong")]
+            if not fails:
+                continue
+            per_cat.append((c, len(crows), len(fails), len(fn), len(fn) / len(fails)))
+        # Sort by share of failures that are invisible (the blind-spot rate).
+        per_cat.sort(key=lambda x: x[4], reverse=True)
+        print(f"  {'category':<28}{'n':>5}{'fails':>7}{'invis':>7}{'invis/fail':>12}")
+        for c, n_c, n_f, n_fn, rate in per_cat:
+            print(f"  {c[:28]:<28}{n_c:>5}{n_f:>7}{n_fn:>7}{rate:>11.0%}")
+        print("\n  A skewed distribution (some categories ~100% invisible, others ~0%)")
+        print("  means the blind spot IS predictable from question type — the")
+        print("  actionable finding. A flat distribution means it isn't.")
 
     print()
 

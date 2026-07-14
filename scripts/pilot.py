@@ -249,8 +249,8 @@ def main() -> None:
         # grade inconsistency check (scripts/audit_grader.py).
         cluster_of = {}
         for cid, members in enumerate(sem.details["clusters"]):
-            for idx in members:
-                cluster_of[agents[idx].name] = cid
+            for member_idx in members:
+                cluster_of[agents[member_idx].name] = cid
 
         row = {
             "uid": s.uid,
