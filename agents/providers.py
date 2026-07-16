@@ -1,0 +1,85 @@
+"""Provider registry — run the same agent code against any OpenAI-compatible API.
+
+`GroqAgent` is an OpenAI-compatible client with Groq defaults; swapping
+`base_url` + key env points it at another provider with no other changes. This
+module holds the endpoint table and a small factory.
+
+Why this exists
+---------------
+1. Judge independence. The panel is Meta (Llama) + OpenAI (GPT-OSS), so every
+   cheap Groq model is *in* the panel — grading with one is self-evaluation.
+   A Google (Gemini) judge is outside the panel entirely.
+2. Free-tier headroom. Groq's free tier caps tokens-per-day per model; Gemini's
+   free tier is capped on requests-per-day instead, so a batched judge run fits.
+3. The diversity experiment (RQ3) needs models from genuinely different
+   developers, which means multi-provider regardless.
+
+Gemini exposes an OpenAI-compatible endpoint, so it needs no special client.
+Set the relevant key in `.env`:  GROQ_API_KEY=... / GEMINI_API_KEY=...
+
+    from agents.providers import make_provider_agent
+    judge = make_provider_agent("gemini-2.5-flash", temperature=0.0)
+    judge = make_provider_agent("openai/gpt-oss-120b")   # -> groq
+"""
+
+from __future__ import annotations
+
+from typing import Optional
+
+from .groq_agent import GroqAgent, GROQ_BASE_URL
+
+# Provider tag -> (base_url, api-key env var)
+PROVIDERS: dict[str, tuple[str, str]] = {
+    "groq": (GROQ_BASE_URL, "GROQ_API_KEY"),
+    # Google's OpenAI-compatibility layer for the Gemini API.
+    "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/",
+               "GEMINI_API_KEY"),
+    "openai": ("https://api.openai.com/v1", "OPENAI_API_KEY"),
+}
+
+
+def infer_provider(model: str) -> str:
+    """Guess the provider from a model id.
+
+    NOTE the trap: Groq namespaces its OpenAI open-weights models as
+    'openai/gpt-oss-20b'. That leading 'openai/' is a Groq model id, NOT the
+    OpenAI API — so anything that isn't clearly Gemini defaults to Groq, which
+    is where this project's panel lives.
+    """
+    m = model.lower()
+    if m.startswith("gemini") or m.startswith("models/gemini"):
+        return "gemini"
+    return "groq"
+
+
+def make_provider_agent(
+    model: str,
+    provider: Optional[str] = None,
+    *,
+    apply_reasoning_defaults: bool = True,
+    **kwargs,
+) -> GroqAgent:
+    """Build an agent for `model` on the right provider.
+
+    `provider` is inferred from the model id when not given. Groq reasoning
+    models (GPT-OSS / Qwen3) get their reasoning-suppression params applied;
+    other providers don't, since those params are Groq-specific.
+    """
+    prov = provider or infer_provider(model)
+    if prov not in PROVIDERS:
+        raise ValueError(f"Unknown provider {prov!r}. Known: {sorted(PROVIDERS)}")
+    base_url, key_env = PROVIDERS[prov]
+
+    extra: dict = {}
+    if prov == "groq" and apply_reasoning_defaults:
+        # Imported lazily to keep this module free of experiment-specific config.
+        from .panels import _reasoning_kwargs
+        extra = _reasoning_kwargs(model)
+
+    return GroqAgent(
+        model=model,
+        base_url=base_url,
+        provider=prov,
+        api_key_env=key_env,
+        **{**extra, **kwargs},
+    )

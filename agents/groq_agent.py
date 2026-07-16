@@ -66,6 +66,9 @@ class GroqAgent:
         cache_dir: Optional[str] = None,
         system_prompt: Optional[str] = None,
         extra_params: Optional[dict] = None,
+        base_url: Optional[str] = None,
+        provider: Optional[str] = None,
+        api_key_env: Optional[str] = None,
     ):
         """
         Parameters
@@ -92,6 +95,13 @@ class GroqAgent:
                          Without this, the reasoning trace leaks into the answer
                          body and corrupts every disagreement measure. Baked into
                          the cache key so runs with different params don't collide.
+        base_url       : OpenAI-compatible endpoint. Defaults to Groq's. Set this
+                         to point the same code at another provider (Gemini,
+                         OpenAI, Together, ...) — see `agents/providers.py`.
+        provider       : Short provider tag used in `.name` (and hence the cache
+                         filename), e.g. 'groq', 'gemini'. Defaults to 'groq'.
+        api_key_env    : Environment variable holding the key. Defaults to
+                         'GROQ_API_KEY'.
         """
         # Lazy import so the package can be imported without `openai` installed
         # (useful for anyone only using the data layer).
@@ -116,16 +126,22 @@ class GroqAgent:
         self.system_prompt = system_prompt
         self.extra_params = dict(extra_params) if extra_params else {}
 
-        resolved_key = api_key or os.environ.get("GROQ_API_KEY")
+        # Provider wiring. Defaults reproduce the original Groq-only behaviour
+        # exactly; overriding these points the same client at any other
+        # OpenAI-compatible endpoint.
+        self.provider = provider or type(self).provider
+        self._api_key_env = api_key_env or "GROQ_API_KEY"
+        self._base_url = base_url or GROQ_BASE_URL
+
+        resolved_key = api_key or os.environ.get(self._api_key_env)
         if not resolved_key:
             raise RuntimeError(
-                "GROQ_API_KEY not set. Get one at https://console.groq.com "
-                "and either set the env var or add it to a `.env` file at "
-                "your project root:\n"
-                "  GROQ_API_KEY=gsk_..."
+                f"{self._api_key_env} not set. Set the env var or add it to a "
+                f"`.env` file at your project root:\n"
+                f"  {self._api_key_env}=..."
             )
 
-        self._client = OpenAI(base_url=GROQ_BASE_URL, api_key=resolved_key)
+        self._client = OpenAI(base_url=self._base_url, api_key=resolved_key)
 
         if cache is not None:
             self._cache = cache
