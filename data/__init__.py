@@ -49,6 +49,7 @@ def load_ragtruth(
     source_models: Optional[list[str]] = None,
     hallucinated_only: bool = False,
     clean_only: bool = False,
+    quality: Optional[str] = None,
     cache_dir: Optional[str] = None,
 ) -> list[RAGTruthSample]:
     """Load RAGTruth. Defaults to the test split (2,700 responses)."""
@@ -57,6 +58,7 @@ def load_ragtruth(
         split=split, n=n, seed=seed,
         task_types=task_types, source_models=source_models,
         hallucinated_only=hallucinated_only, clean_only=clean_only,
+        quality=quality,
     )
 
 
