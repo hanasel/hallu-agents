@@ -151,14 +151,14 @@ def claim_disagreement(verdicts: List[str]) -> float:
 # Pipeline steps (unchanged)
 # ---------------------------------------------------------------------------
 
-def decompose(decomposer, response_text: str, max_claims: int) -> List[str]:
+def decompose(decomposer, response_text: str, max_claims: int):
     prompt = (
         "Decompose the following response into atomic factual claims.\n\n"
         f"<response>\n{response_text}\n</response>"
     )
     r = decomposer.query(prompt, temperature=0.0)
     if r.is_error:
-        return []
+        return None            # None = call failed; [] = genuinely no claims
     return parse_claims(r.text, max_claims)
 
 
@@ -258,6 +258,10 @@ def main() -> None:
     full_unsup_diagnostics = []                                              # NEW
     for idx, s in enumerate(samples, start=1):
         claims = decompose(decomposer, s.response, args.max_claims)
+        if claims is None:
+            print(f"  [{idx}/{len(samples)}] {s.uid}  DECOMPOSER ERROR "
+                  f"(likely rate/quota limit) — stopping so cache is preserved.")
+            break              # everything up to here is cached; resume later
 
         claim_rows = []
         for claim in claims:
@@ -335,7 +339,9 @@ def main() -> None:
     # Analysis
     # ------------------------------------------------------------------ #
     section("Signals vs RAGTruth label (example-level, with bootstrap 95% CI)")
-    y = np.array([1.0 if r["is_hallucinated"] else 0.0 for r in rows])
+    scored = [r for r in rows if r["n_claims"] > 0]
+    y = np.array([1.0 if r["is_hallucinated"] else 0.0 for r in scored])
+    # ... compute AUCs over `scored`, and report len(rows) - len(scored) as excluded
     print(f"  responses: {len(y)}   hallucinated: {int(y.sum())} ({y.mean():.1%})")
     empty = sum(1 for r in rows if r["n_claims"] == 0)
     if empty:
