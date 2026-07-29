@@ -1,25 +1,32 @@
 """RAGTruth response-conditioned verification pilot (framing "c", claim-level).
 
-[unchanged docstring — see prior version. Key idea: decompose each labelled
-corpus response into atomic claims, have a diverse judge panel rule each claim
-SUPPORTED/UNSUPPORTED/UNVERIFIABLE against the source, and compare ensemble
-fact-checking against inter-judge disagreement as hallucination signals.]
+Decompose each labelled corpus response into atomic claims, have a diverse
+judge panel rule each claim SUPPORTED/UNSUPPORTED/UNVERIFIABLE against the
+source, and compare ensemble fact-checking against inter-judge disagreement.
 
-This revision (v2):
-  - 5-judge panel by default (finer disagreement resolution than 3).
-  - max_disagreement and n_contested_claims promoted to reported signals;
-    the n=20 pilot showed mean_disagreement washes out over ~12 claims while
-    the MAX (any genuinely-contested claim) tracked the label as well as the
-    ensemble. We report both and let the full run arbitrate.
-  - bootstrap 95% CIs on every AUC, so results come with error bars — at
-    n=20 the point estimates were not separable; this makes that explicit.
-  - --diagnose-full dumps RAGTruth span annotations (label_type, implicit_true,
-    due_to_null) for responses the ensemble calls fully-unsupported, to tell
-    genuine catches from implicit_true / due_to_null false positives.
+v3 changes
+----------
+  - ERROR PROPAGATION. A rate-limited judge used to return empty text, which
+    parse_verdict() mapped to UNVERIFIABLE — a silent vote that inflated both
+    ens_unsup and n_contested. Quota exhaustion therefore produced plausible
+    numbers instead of stopping. Now any errored call aborts the run with the
+    cache intact, so a partial run is honest and resumable.
+  - BATCHED VERIFICATION (--batch-claims). One call per judge per RESPONSE
+    (all claims in a numbered list) instead of one per judge per CLAIM:
+    ~5 calls/response instead of ~60. Includes strict alignment validation and
+    a per-claim fallback if a judge's reply can't be parsed.
+  - --compare-batching runs both modes on the first K responses and reports
+    verdict agreement, so batching is validated rather than assumed.
+  - Responses that yield 0 claims are EXCLUDED from scoring rather than counted
+    as confident negatives.
 
 Run:
-    python scripts/rgt_verify_pilot.py --task data2txt --n 200 --diagnose-full
-    python scripts/rgt_verify_pilot.py --task summarization --n 150
+    # 1. validate batching is faithful (uses cached per-claim verdicts)
+    python scripts/rgt_verify_pilot.py --task data2txt --compare-batching 10
+
+    # 2. then scale
+    python scripts/rgt_verify_pilot.py --task data2txt --n 200 \
+        --batch-claims --max-claims 25 --diagnose-full
 """
 
 from __future__ import annotations
@@ -42,18 +49,13 @@ from sklearn.metrics import roc_auc_score, average_precision_score     # noqa: E
 from data import load_ragtruth                                        # noqa: E402
 from agents import query_agents                                       # noqa: E402
 from agents.panels import (                                           # noqa: E402
-    make_agent,
-    CROSS_FAMILY,
-    GPT_OSS_LARGE,
-    GPT_OSS_SMALL,
-    LLAMA_SMALL,
-    LLAMA_LARGE,
-    QWEN,
+    make_agent, GPT_OSS_LARGE, GPT_OSS_SMALL,
+    LLAMA_SMALL, LLAMA_LARGE, QWEN,
 )
 
 
 # ---------------------------------------------------------------------------
-# Prompts (unchanged)
+# Prompts
 # ---------------------------------------------------------------------------
 
 DECOMPOSER_SYSTEM = (
@@ -76,6 +78,23 @@ VERIFIER_SYSTEM = (
     "word and nothing else."
 )
 
+# NEW: batched variant. Deliberately mirrors the per-claim wording so the only
+# difference is presentation, not the decision criterion.
+BATCH_VERIFIER_SYSTEM = (
+    "You are a careful fact-checker. You are given SOURCE material and a "
+    "numbered list of CLAIMS. Judge each claim INDEPENDENTLY against the "
+    "source; do not let one claim's verdict influence another.\n"
+    "For each claim output exactly one line of the form:\n"
+    "  <number>. SUPPORTED\n"
+    "  <number>. UNSUPPORTED\n"
+    "  <number>. UNVERIFIABLE\n"
+    "SUPPORTED = the source clearly supports the claim. UNSUPPORTED = the "
+    "source contradicts it, or it states information not present in the "
+    "source. UNVERIFIABLE = the source is insufficient to judge.\n"
+    "Judge only against the source; ignore outside knowledge. Output one line "
+    "per claim, in order, for every claim, and nothing else."
+)
+
 
 def section(title: str) -> None:
     print("\n" + "=" * 70)
@@ -83,37 +102,37 @@ def section(title: str) -> None:
     print("=" * 70)
 
 
-# ---------------------------------------------------------------------------
-# NEW: 5-judge cross-family verification panel
-# ---------------------------------------------------------------------------
+# VERIFY_PANEL_MODELS = [LLAMA_SMALL, LLAMA_LARGE, GPT_OSS_SMALL, GPT_OSS_LARGE, QWEN]
 
-# Five judges spanning four model lineages (Meta / OpenAI-OSS / Alibaba), so
-# disagreement reflects genuine cross-family divergence rather than sampling.
-# All run at temperature 0 in the scoring loop. Falls back gracefully if a
-# model id is unavailable — see build_judges().
-VERIFY_PANEL_MODELS = [LLAMA_SMALL, LLAMA_LARGE, GPT_OSS_SMALL, GPT_OSS_LARGE, QWEN]
+from agents.openai_compatible import OpenAICompatibleAgent   # NEW
 
+TOGETHER_PANEL = [
+    "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "Qwen/Qwen3.5-9B",      
+    "Qwen/Qwen3.7-Plus",
+]
 
-def build_judges(model_ids: List[str], system_prompt: str):
-    """Instantiate judges, skipping any model that fails to construct."""
+def build_judges(model_ids, system_prompt):
     judges = []
     for m in model_ids:
         try:
-            judges.append(make_agent(m, system_prompt=system_prompt))
-        except Exception as exc:                                       # noqa: BLE001
+            judges.append(OpenAICompatibleAgent(
+                model=m, provider="together", system_prompt=system_prompt))
+        except Exception as exc:                                 # noqa: BLE001
             print(f"  [skip] judge {m}: {exc}")
     if len(judges) < 3:
-        raise RuntimeError(
-            f"Only {len(judges)} judges available; need >=3. Check panel model ids."
-        )
+        raise RuntimeError(f"Only {len(judges)} judges available; need >=3.")
     return judges
 
 
 # ---------------------------------------------------------------------------
-# Parsing helpers (unchanged)
+# Parsing
 # ---------------------------------------------------------------------------
 
 _BULLET_RE = re.compile(r"^\s*(?:[-*\u2022]|\d+[.)])\s*")
+_NUM_LINE_RE = re.compile(r"^\s*(\d{1,3})\s*[.):\-]\s*(.+)$")          # NEW
 
 
 def parse_claims(text: str, max_claims: int) -> List[str]:
@@ -129,6 +148,7 @@ def parse_claims(text: str, max_claims: int) -> List[str]:
 
 
 def parse_verdict(text: str) -> str:
+    """Order matters: 'UNSUPPORTED' contains 'SUPPORTED' as a substring."""
     t = (text or "").strip().upper()
     if "UNVERIFIABLE" in t:
         return "UNVERIFIABLE"
@@ -139,8 +159,84 @@ def parse_verdict(text: str) -> str:
     return "UNVERIFIABLE"
 
 
+def parse_batch_verdicts(text: str, n_claims: int) -> Optional[List[str]]:   # NEW
+    """Parse a judge's numbered reply into n_claims verdicts.
+
+    Returns None if the reply cannot be ALIGNED to the claim list — i.e. any
+    index is missing or out of range. Alignment failure must never be papered
+    over: a silently shifted list would attach verdicts to the wrong claims,
+    which is worse than an extra API call.
+    """
+    found: dict[int, str] = {}
+    for line in (text or "").splitlines():
+        m = _NUM_LINE_RE.match(line.strip())
+        if not m:
+            continue
+        idx = int(m.group(1))
+        if 1 <= idx <= n_claims and idx not in found:
+            found[idx] = parse_verdict(m.group(2))
+    if len(found) != n_claims:
+        return None
+    return [found[i] for i in range(1, n_claims + 1)]
+
+
+# ---------------------------------------------------------------------------
+# Pipeline steps
+# ---------------------------------------------------------------------------
+
+def decompose(decomposer, response_text: str, max_claims: int) -> Optional[List[str]]:
+    prompt = ("Decompose the following response into atomic factual claims.\n\n"
+              f"<response>\n{response_text}\n</response>")
+    r = decomposer.query(prompt, temperature=0.0)
+    if r.is_error:
+        return None                      # CHANGED: None = call failed, [] = no claims
+    return parse_claims(r.text, max_claims)
+
+
+def verify_per_claim(judges, source_text: str, claims: List[str]) -> Optional[List[List[str]]]:
+    """One call per (judge, claim). Returns [n_claims][n_judges] or None on error."""
+    out = []
+    for claim in claims:
+        prompt = f"SOURCE:\n{source_text}\n\nCLAIM: {claim}\n\nVerdict:"
+        responses = query_agents(judges, prompt, temperature=0.0)
+        if any(r.is_error for r in responses):                          # CHANGED
+            return None
+        out.append([parse_verdict(r.text) for r in responses])
+    return out
+
+
+def verify_batched(judges, source_text: str, claims: List[str],          # NEW
+                   stats: dict) -> Optional[List[List[str]]]:
+    """One call per judge for ALL claims. Falls back to per-claim for a judge
+    whose reply can't be aligned. Returns [n_claims][n_judges] or None on error."""
+    numbered = "\n".join(f"{i}. {c}" for i, c in enumerate(claims, start=1))
+    prompt = (f"SOURCE:\n{source_text}\n\nCLAIMS:\n{numbered}\n\n"
+              f"Output exactly {len(claims)} lines, one verdict per claim.")
+
+    per_judge: List[List[str]] = []
+    for j in judges:
+        r = j.query(prompt, temperature=0.0)
+        if r.is_error:
+            return None
+        verdicts = parse_batch_verdicts(r.text, len(claims))
+        if verdicts is None:
+            # Alignment failed for this judge only — pay for per-claim calls
+            # rather than guess. Counted so a high rate is visible.
+            stats["fallbacks"] = stats.get("fallbacks", 0) + 1
+            verdicts = []
+            for claim in claims:
+                p = f"SOURCE:\n{source_text}\n\nCLAIM: {claim}\n\nVerdict:"
+                rr = j.query(p, temperature=0.0)
+                if rr.is_error:
+                    return None
+                verdicts.append(parse_verdict(rr.text))
+        per_judge.append(verdicts)
+
+    # transpose [n_judges][n_claims] -> [n_claims][n_judges]
+    return [list(col) for col in zip(*per_judge)]
+
+
 def claim_disagreement(verdicts: List[str]) -> float:
-    """1 - modal-verdict fraction. With 5 judges: 0, .2, .4, .6 resolution."""
     if not verdicts:
         return 0.0
     modal = Counter(verdicts).most_common(1)[0][1]
@@ -148,37 +244,10 @@ def claim_disagreement(verdicts: List[str]) -> float:
 
 
 # ---------------------------------------------------------------------------
-# Pipeline steps (unchanged)
+# Stats
 # ---------------------------------------------------------------------------
 
-def decompose(decomposer, response_text: str, max_claims: int):
-    prompt = (
-        "Decompose the following response into atomic factual claims.\n\n"
-        f"<response>\n{response_text}\n</response>"
-    )
-    r = decomposer.query(prompt, temperature=0.0)
-    if r.is_error:
-        return None            # None = call failed; [] = genuinely no claims
-    return parse_claims(r.text, max_claims)
-
-
-def verify_claim(judges, source_text: str, claim: str) -> List[str]:
-    prompt = f"SOURCE:\n{source_text}\n\nCLAIM: {claim}\n\nVerdict:"
-    responses = query_agents(judges, prompt, temperature=0.0)
-    return [parse_verdict(r.text) for r in responses]
-
-
-# ---------------------------------------------------------------------------
-# NEW: bootstrap CI for AUC
-# ---------------------------------------------------------------------------
-
-def auc_with_ci(y: np.ndarray, x: np.ndarray, n_boot: int = 2000,
-                seed: int = 0) -> tuple:
-    """Return (auc, lo, hi) with a percentile bootstrap 95% CI.
-
-    Resamples (x, y) pairs with replacement. Skips resamples that end up
-    single-class (AUC undefined). Reports the point estimate on the full data.
-    """
+def auc_with_ci(y, x, n_boot=2000, seed=0):
     auc = roc_auc_score(y, x)
     rng = np.random.default_rng(seed)
     n = len(y)
@@ -195,25 +264,57 @@ def auc_with_ci(y: np.ndarray, x: np.ndarray, n_boot: int = 2000,
     return auc, lo, hi
 
 
+def summarise(claim_rows):
+    """Response-level signals from per-claim verdicts."""
+    n = len(claim_rows)
+    if n == 0:
+        return dict(ensemble_unsupported=0.0, mean_disagreement=0.0,
+                    max_disagreement=0.0, n_contested_claims=0,
+                    frac_high_disagreement=0.0)
+    dis = [c["disagreement"] for c in claim_rows]
+    n_contested = sum(1 for d in dis if d > 0)
+    return dict(
+        ensemble_unsupported=sum(1 for c in claim_rows if c["majority"] != "SUPPORTED") / n,
+        mean_disagreement=statistics.mean(dis),
+        max_disagreement=max(dis),
+        n_contested_claims=n_contested,
+        frac_high_disagreement=n_contested / n,
+    )
+
+
+def build_claim_rows(claims, verdict_matrix, judges):
+    rows = []
+    for claim, verdicts in zip(claims, verdict_matrix):
+        rows.append({
+            "claim": claim,
+            "verdicts": {j.name: v for j, v in zip(judges, verdicts)},
+            "majority": Counter(verdicts).most_common(1)[0][0],
+            "disagreement": claim_disagreement(verdicts),
+        })
+    return rows
+
+
 # ---------------------------------------------------------------------------
-# Pilot
+# Main
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="RAGTruth response-conditioned verification pilot (v2).")
+    ap = argparse.ArgumentParser(description="RAGTruth verification pilot (v3).")
     ap.add_argument("--task", default="data2txt",
                     choices=["qa", "summarization", "data2txt"])
-    ap.add_argument("--n", type=int, default=200, help="candidate responses to verify")  # CHANGED default
+    ap.add_argument("--n", type=int, default=200)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--decomposer", default=GPT_OSS_LARGE)
     ap.add_argument("--max-claims", type=int, default=12)
+    ap.add_argument("--batch-claims", action="store_true",                   # NEW
+                    help="one call per judge per response instead of per claim "
+                         "(~12x fewer calls)")
+    ap.add_argument("--compare-batching", type=int, default=0,               # NEW
+                    help="run BOTH modes on the first K responses and report "
+                         "verdict agreement, then exit")
     ap.add_argument("--peek", type=int, default=0)
-    ap.add_argument("--diagnose-full", action="store_true",                  # NEW
-                    help="dump RAGTruth span annotations for responses the "
-                         "ensemble calls FULLY unsupported (ens_unsup==1.0), "
-                         "to separate genuine catches from implicit_true / "
-                         "due_to_null false positives.")
-    ap.add_argument("--n-boot", type=int, default=2000, help="bootstrap resamples for AUC CIs")  # NEW
+    ap.add_argument("--diagnose-full", action="store_true")
+    ap.add_argument("--n-boot", type=int, default=2000)
     ap.add_argument("--out", default="outputs/rgt_verify_results.jsonl")
     args = ap.parse_args()
 
@@ -221,107 +322,105 @@ def main() -> None:
     samples = load_ragtruth(split="test", task_types=[args.task],
                             n=args.n, seed=args.seed, quality="good")
     print(f"  Loaded {len(samples)} candidate responses.")
-    base = statistics.mean(1.0 if s.is_hallucinated else 0.0 for s in samples)
-    print(f"  hallucination base rate in this subset: {base:.1%}")
+    print(f"  hallucination base rate: "
+          f"{statistics.mean(1.0 if s.is_hallucinated else 0.0 for s in samples):.1%}")
 
     section("Building agents")
     try:
         decomposer = make_agent(args.decomposer, system_prompt=DECOMPOSER_SYSTEM)
-        judges = build_judges(VERIFY_PANEL_MODELS, VERIFIER_SYSTEM)          # NEW
+        sys_prompt = BATCH_VERIFIER_SYSTEM if args.batch_claims else VERIFIER_SYSTEM
+        judges = build_judges(VERIFY_PANEL_MODELS, sys_prompt)
     except RuntimeError as exc:
         print(f"\n  {exc}\n")
         sys.exit(1)
     print(f"  decomposer : {decomposer.name}")
     for j in judges:
         print(f"  judge      : {j.name}")
-    print(f"  ({len(judges)} judges — disagreement resolution "
-          f"{', '.join(f'{k/len(judges):.2f}' for k in range(len(judges)//2 + 1))})")
+    mode = "BATCHED" if args.batch_claims else "per-claim"
+    per_resp = len(judges) + 1 if args.batch_claims else len(judges) * args.max_claims + 1
+    print(f"  mode: {mode}  (~{per_resp} calls/response, "
+          f"~{per_resp * len(samples):,} for this run if uncached)")
 
-    # Preflight (unchanged logic)
-    section("Preflight — decomposer + judges on a canary")
-    canary_claims = decompose(decomposer, "Paris is the capital of France. It has 2 million residents.", 5)
-    print(f"  decomposer produced {len(canary_claims)} claims: {canary_claims}")
-    if not canary_claims:
-        print("  [ABORT] decomposer returned no claims.")
-        sys.exit(2)
-    v = verify_claim(judges, "Paris is the capital of France.", canary_claims[0])
-    print(f"  judge verdicts on claim 1: {v}")
-    if all(x == "UNVERIFIABLE" for x in v):
-        print("  [WARN] all judges UNVERIFIABLE — check verifier prompt / parsing.")
+    # ------------------------------------------------------------------ #
+    # NEW: batching validation
+    # ------------------------------------------------------------------ #
+    if args.compare_batching:
+        section(f"Comparing batched vs per-claim verdicts on {args.compare_batching} responses")
+        judges_pc = build_judges(VERIFY_PANEL_MODELS, VERIFIER_SYSTEM)
+        judges_b = build_judges(VERIFY_PANEL_MODELS, BATCH_VERIFIER_SYSTEM)
+        stats = {}
+        agree = total = 0
+        for s in samples[:args.compare_batching]:
+            claims = decompose(decomposer, s.response, args.max_claims)
+            if not claims:
+                continue
+            a = verify_per_claim(judges_pc, s.source_info_text, claims)
+            b = verify_batched(judges_b, s.source_info_text, claims, stats)
+            if a is None or b is None:
+                print("  [stop] API error during comparison.")
+                break
+            for ra, rb in zip(a, b):
+                for va, vb in zip(ra, rb):
+                    total += 1
+                    agree += (va == vb)
+            sa, sb = summarise(build_claim_rows(claims, a, judges_pc)), \
+                     summarise(build_claim_rows(claims, b, judges_b))
+            print(f"  {s.uid}: ens_unsup {sa['ensemble_unsupported']:.2f} -> "
+                  f"{sb['ensemble_unsupported']:.2f}   n_contested "
+                  f"{sa['n_contested_claims']} -> {sb['n_contested_claims']}")
+        if total:
+            print(f"\n  verdict agreement: {agree}/{total} ({agree/total:.1%})")
+            print(f"  alignment fallbacks: {stats.get('fallbacks', 0)}")
+            print("  >=95% => batching is faithful; scale with --batch-claims.")
+            print("  <90%  => batching changes the decision; keep per-claim.")
+        return
 
     section("Scoring")
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("", encoding="utf-8")
 
-    rows = []
-    full_unsup_diagnostics = []                                              # NEW
+    rows, diagnostics, stats = [], [], {}
+    aborted = False
     for idx, s in enumerate(samples, start=1):
         claims = decompose(decomposer, s.response, args.max_claims)
-        if claims is None:
+        if claims is None:                                              # CHANGED
             print(f"  [{idx}/{len(samples)}] {s.uid}  DECOMPOSER ERROR "
-                  f"(likely rate/quota limit) — stopping so cache is preserved.")
-            break              # everything up to here is cached; resume later
+                  f"(likely rate/quota limit) — stopping; cache preserved.")
+            aborted = True
+            break
 
-        claim_rows = []
-        for claim in claims:
-            verdicts = verify_claim(judges, s.source_info_text, claim)
-            majority = Counter(verdicts).most_common(1)[0][0]
-            claim_rows.append({
-                "claim": claim,
-                "verdicts": {j.name: v for j, v in zip(judges, verdicts)},
-                "majority": majority,
-                "disagreement": claim_disagreement(verdicts),
-            })
-
-        n_claims = len(claim_rows)
-        if n_claims == 0:
-            ensemble_unsupported = mean_dis = max_dis = 0.0
-            n_contested = 0
-            frac_high = 0.0
+        if claims:
+            vm = (verify_batched(judges, s.source_info_text, claims, stats)
+                  if args.batch_claims
+                  else verify_per_claim(judges, s.source_info_text, claims))
+            if vm is None:                                              # CHANGED
+                print(f"  [{idx}/{len(samples)}] {s.uid}  JUDGE ERROR "
+                      f"(likely rate/quota limit) — stopping; cache preserved.")
+                aborted = True
+                break
+            claim_rows = build_claim_rows(claims, vm, judges)
         else:
-            ensemble_unsupported = sum(
-                1 for c in claim_rows if c["majority"] != "SUPPORTED"
-            ) / n_claims
-            dis = [c["disagreement"] for c in claim_rows]
-            mean_dis = statistics.mean(dis)
-            max_dis = max(dis)
-            n_contested = sum(1 for d in dis if d > 0)                       # NEW
-            frac_high = n_contested / n_claims
+            claim_rows = []
 
-        row = {
-            "uid": s.uid,
-            "source_model": s.source_model,
-            "is_hallucinated": s.is_hallucinated,
-            "n_spans": len(s.hallucination_spans),
-            "n_claims": n_claims,
-            "ensemble_unsupported": ensemble_unsupported,
-            "mean_disagreement": mean_dis,
-            "max_disagreement": max_dis,                                     # promoted
-            "n_contested_claims": n_contested,                              # NEW
-            "frac_high_disagreement": frac_high,
-            "claims": claim_rows,
-        }
+        sig = summarise(claim_rows)
+        row = {"uid": s.uid, "source_model": s.source_model,
+               "is_hallucinated": s.is_hallucinated,
+               "n_spans": len(s.hallucination_spans),
+               "n_claims": len(claim_rows), **sig, "claims": claim_rows}
         rows.append(row)
         with out_path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
-        # NEW: diagnose fully-unsupported responses against the gold spans.
-        if args.diagnose_full and n_claims > 0 and ensemble_unsupported == 1.0:
-            spans = [{
-                "text": sp.text,
-                "label_type": sp.label_type,
-                "implicit_true": sp.implicit_true,
-                "due_to_null": sp.due_to_null,
-            } for sp in s.hallucination_spans]
-            full_unsup_diagnostics.append({
-                "uid": s.uid,
-                "gold_hallucinated": s.is_hallucinated,
-                "n_gold_spans": len(spans),
-                "any_implicit_true": any(sp["implicit_true"] for sp in spans),
-                "any_due_to_null": any(sp["due_to_null"] for sp in spans),
-                "spans": spans,
-            })
+        if args.diagnose_full and claim_rows and sig["ensemble_unsupported"] == 1.0:
+            spans = [{"text": sp.text, "label_type": sp.label_type,
+                      "implicit_true": sp.implicit_true,
+                      "due_to_null": sp.due_to_null}
+                     for sp in s.hallucination_spans]
+            diagnostics.append({"uid": s.uid, "gold_hallucinated": s.is_hallucinated,
+                                "any_implicit_true": any(x["implicit_true"] for x in spans),
+                                "any_due_to_null": any(x["due_to_null"] for x in spans),
+                                "spans": spans})
 
         if idx <= args.peek:
             print(f"\n  --- peek {idx}: {s.uid} [{s.source_model}] "
@@ -331,75 +430,60 @@ def main() -> None:
                 print(f"      [{c['majority']:<12} dis={c['disagreement']:.2f}] "
                       f"{c['claim'][:90]}{flag}")
 
-        print(f"  [{idx:>3}/{len(samples)}] {s.uid}  claims={n_claims:>2}  "
-              f"ens_unsup={ensemble_unsupported:.2f}  max_dis={max_dis:.2f}  "
-              f"n_contested={n_contested:>2}  gold={'H' if s.is_hallucinated else '.'}")
+        print(f"  [{idx:>3}/{len(samples)}] {s.uid}  claims={len(claim_rows):>2}  "
+              f"ens_unsup={sig['ensemble_unsupported']:.2f}  "
+              f"max_dis={sig['max_disagreement']:.2f}  "
+              f"n_contested={sig['n_contested_claims']:>2}  "
+              f"gold={'H' if s.is_hallucinated else '.'}")
 
     # ------------------------------------------------------------------ #
     # Analysis
     # ------------------------------------------------------------------ #
-    section("Signals vs RAGTruth label (example-level, with bootstrap 95% CI)")
-    scored = [r for r in rows if r["n_claims"] > 0]
+    section("Signals vs RAGTruth label (example-level, bootstrap 95% CI)")
+    if aborted:
+        print(f"  [!] RUN INCOMPLETE — {len(rows)}/{len(samples)} scored before an "
+              f"API error. Re-run after the quota resets; cached work replays.")
+    if args.batch_claims and stats.get("fallbacks"):
+        print(f"  [!] {stats['fallbacks']} judge replies needed per-claim fallback "
+              f"(batch parse failed).")
+
+    scored = [r for r in rows if r["n_claims"] > 0]                     # CHANGED
+    excluded = len(rows) - len(scored)
+    if excluded:
+        print(f"  [!] {excluded} responses yielded 0 claims — EXCLUDED from scoring.")
     y = np.array([1.0 if r["is_hallucinated"] else 0.0 for r in scored])
-    # ... compute AUCs over `scored`, and report len(rows) - len(scored) as excluded
-    print(f"  responses: {len(y)}   hallucinated: {int(y.sum())} ({y.mean():.1%})")
-    empty = sum(1 for r in rows if r["n_claims"] == 0)
-    if empty:
-        print(f"  [!] {empty} responses yielded 0 claims (still scored; check decomposer).")
+    print(f"  scored: {len(y)}   hallucinated: {int(y.sum())} "
+          f"({y.mean():.1%} of scored)" if len(y) else "  nothing scored.")
 
-    if y.min() == y.max():
-        print("  (degenerate: all responses same label; AUC undefined — widen --n / --seed)")
-    else:
+    if len(y) >= 10 and y.min() != y.max():
         print(f"\n  {'signal':<26}{'AUC-ROC':>9}{'95% CI':>18}{'AUC-PR':>9}{'Spearman':>11}")
-        signal_names = (                                                     # CHANGED order/set
-            "ensemble_unsupported",
-            "max_disagreement",
-            "n_contested_claims",
-            "mean_disagreement",
-            "frac_high_disagreement",
-        )
-        for name in signal_names:
-            x = np.array([r[name] for r in rows], dtype=float)
+        for name in ("ensemble_unsupported", "max_disagreement",
+                     "n_contested_claims", "mean_disagreement",
+                     "frac_high_disagreement"):
+            x = np.array([r[name] for r in scored], dtype=float)
             auc, lo, hi = auc_with_ci(y, x, n_boot=args.n_boot)
-            apr = average_precision_score(y, x)
-            rho, _ = spearmanr(x, y)
             print(f"  {name:<26}{auc:>9.3f}   [{lo:.3f}, {hi:.3f}]"
-                  f"{apr:>9.3f}{rho:>+11.3f}")
+                  f"{average_precision_score(y, x):>9.3f}"
+                  f"{spearmanr(x, y)[0]:>+11.3f}")
         print(f"\n  base rate (AUC-PR reference): {y.mean():.3f}")
-        print("  Read CIs first: if a disagreement signal's CI overlaps the")
-        print("  ensemble's, they're statistically indistinguishable at this n.")
-
-        # Redundancy: does disagreement add over the ensemble verdict?
-        ens = np.array([r["ensemble_unsupported"] for r in rows])
-        for name in ("max_disagreement", "mean_disagreement"):
-            md = np.array([r[name] for r in rows])
+        ens = np.array([r["ensemble_unsupported"] for r in scored])
+        for name in ("max_disagreement", "mean_disagreement", "n_contested_claims"):
+            md = np.array([r[name] for r in scored], dtype=float)
             rho, p = spearmanr(ens, md)
-            print(f"\n  Spearman(ensemble_unsupported, {name}): "
-                  f"rho={rho:+.3f}  p={p:.3g}")
-        print("  (low corr + competitive AUC => a distinct axis worth combining)")
+            print(f"  Spearman(ensemble_unsupported, {name}): rho={rho:+.3f} p={p:.3g}")
+    else:
+        print("  too few scored responses (or single-class) for AUCs.")
 
-    # NEW: fully-unsupported diagnostics
     if args.diagnose_full:
-        section("Diagnostic — responses the ensemble called FULLY unsupported")
-        if not full_unsup_diagnostics:
+        section("Diagnostic — responses called FULLY unsupported")
+        if not diagnostics:
             print("  none.")
-        else:
-            n_fp = sum(1 for d in full_unsup_diagnostics if not d["gold_hallucinated"])
-            n_it = sum(1 for d in full_unsup_diagnostics if d["any_implicit_true"])
-            n_dn = sum(1 for d in full_unsup_diagnostics if d["any_due_to_null"])
-            print(f"  {len(full_unsup_diagnostics)} responses at ens_unsup=1.00")
-            print(f"    of which gold-CLEAN (false positives) : {n_fp}")
-            print(f"    with any implicit_true span           : {n_it}")
-            print(f"    with any due_to_null span             : {n_dn}")
-            print("  (a gold-clean full-unsupported response is the method calling")
-            print("   grounded content unfaithful — inspect its spans below)")
-            for d in full_unsup_diagnostics[:8]:
-                tag = "CLEAN(FP)" if not d["gold_hallucinated"] else "hallu"
-                print(f"\n    {d['uid']} [{tag}] gold_spans={d['n_gold_spans']} "
-                      f"implicit_true={d['any_implicit_true']} "
-                      f"due_to_null={d['any_due_to_null']}")
-                for sp in d["spans"][:3]:
-                    print(f"      - [{sp['label_type']}] {sp['text'][:80]}")
+        for d in diagnostics[:8]:
+            tag = "CLEAN(FP)" if not d["gold_hallucinated"] else "hallu"
+            print(f"    {d['uid']} [{tag}] implicit_true={d['any_implicit_true']} "
+                  f"due_to_null={d['any_due_to_null']}")
+            for sp in d["spans"][:3]:
+                print(f"      - [{sp['label_type']}] {sp['text'][:80]}")
 
     section("Done")
     print(f"  Rows written to: {out_path}\n")
