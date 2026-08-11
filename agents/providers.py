@@ -62,8 +62,12 @@ def make_provider_agent(
     """Build an agent for `model` on the right provider.
 
     `provider` is inferred from the model id when not given. Groq reasoning
-    models (GPT-OSS / Qwen3) get their reasoning-suppression params applied;
-    other providers don't, since those params are Groq-specific.
+    models (GPT-OSS / Qwen3) get their reasoning-suppression params applied
+    automatically inside GroqAgent (from `groq_agent.REASONING_PARAMS`) —
+    nothing to do here for the `apply_reasoning_defaults=True` case.
+    `apply_reasoning_defaults=False` opts a Groq agent out of that (e.g. an
+    ablation run) by forcing an empty override. Non-Groq providers never get
+    reasoning params, since those params are Groq-specific.
     """
     prov = provider or infer_provider(model)
     if prov not in PROVIDERS:
@@ -71,10 +75,8 @@ def make_provider_agent(
     base_url, key_env = PROVIDERS[prov]
 
     extra: dict = {}
-    if prov == "groq" and apply_reasoning_defaults:
-        # Imported lazily to keep this module free of experiment-specific config.
-        from .panels import _reasoning_kwargs
-        extra = _reasoning_kwargs(model)
+    if prov == "groq" and not apply_reasoning_defaults:
+        extra = {"reasoning_params": {}}
 
     return GroqAgent(
         model=model,

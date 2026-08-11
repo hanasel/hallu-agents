@@ -53,11 +53,16 @@ from scipy.stats import spearmanr                                      # noqa: E
 from sklearn.metrics import roc_auc_score, average_precision_score     # noqa: E402
 
 from data import load_ragtruth_by_source                              # noqa: E402
-from agents import query_agents                                       # noqa: E402
+from agents import (                                                  # noqa: E402
+    query_agents,
+    assert_models_available,
+    PermanentAgentError,
+    PERMANENT_ERROR_PREFIX,
+)
 from agents.panels import (                                           # noqa: E402
     cross_family_panel,
     same_family_panel,
-    CROSS_FAMILY,
+    family_of,
 )
 from disagreement import (                                            # noqa: E402
     JaccardDisagreement,
@@ -108,9 +113,18 @@ def main() -> None:
         print(f"\n  {exc}\n")
         sys.exit(1)
     for a in agents:
-        tag = "cross-family" if a.model == CROSS_FAMILY else "same-family"
-        print(f"  - {a.name:<40} [{tag}]")
+        print(f"  - {a.name:<40} [{family_of(a.model)}]")
     has_cross = not args.no_cross
+
+    # Preflight — model IDs, same as scripts/pilot.py: catch a dead/typo'd
+    # model in one API call instead of after MAX_RETRIES of backoff on source 1.
+    section("Preflight — model IDs")
+    try:
+        assert_models_available(agents)
+    except PermanentAgentError as exc:
+        print(f"\n  [ABORT] {exc}\n")
+        sys.exit(2)
+    print("  All panel models are live.")
 
     # Preflight — same canary logic as scripts/pilot.py.
     section("Preflight — checking every agent actually answers")
@@ -142,6 +156,7 @@ def main() -> None:
     out_path.write_text("", encoding="utf-8")
 
     rows = []
+    n_question_errors = 0
     for idx, (sid, responses) in enumerate(sources, start=1):
         ref = responses[0]                       # all six share prompt/question
         prompt = ref.prompt
@@ -152,6 +167,25 @@ def main() -> None:
         any_hallucinated = n_hallucinated > 0
 
         panel = query_agents(agents, prompt)
+        errored = [(a, r) for a, r in zip(agents, panel) if r.is_error]
+        if errored:
+            # Same reasoning as scripts/pilot.py: don't score a row built from
+            # a failed call, and don't let a systematic failure run silently
+            # to the end and produce a results file short of `n` rows.
+            n_question_errors += 1
+            for a, r in errored:
+                print(f"  [{idx:>2}/{len(sources)}] {sid}  [!] {a.name}: {r.error}")
+            permanent = any(r.error.startswith(PERMANENT_ERROR_PREFIX) for _, r in errored)
+            if permanent or n_question_errors > 3:
+                raise RuntimeError(
+                    f"Aborting after {n_question_errors} source(s) with agent "
+                    f"errors (latest: {errored[-1][0].name}: {errored[-1][1].error}). "
+                    f"{len(rows)} good row(s) already written to {out_path} — "
+                    f"cached answers won't be re-billed on re-run, so fix the "
+                    f"underlying issue and re-run."
+                )
+            continue
+
         texts = [r.text for r in panel]
         empties = [not t.strip() for t in texts]
 

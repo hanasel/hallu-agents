@@ -5,17 +5,26 @@ Quick start
 -----------
     from data import load_truthfulqa, load_ragtruth
 
-    # TruthfulQA — all 817 MC1 questions
+    # TruthfulQA — all 790 MC1 questions (Jan 2025 github source, default)
     tqa = load_truthfulqa()
 
     # TruthfulQA — 100-sample subset, specific categories
     tqa_sub = load_truthfulqa(n=100, categories=["Misconceptions", "Health"])
+
+    # TruthfulQA — pre-2025 HuggingFace hub snapshot (817 questions), for
+    # reproducing older runs
+    tqa_legacy = load_truthfulqa(source="hf")
 
     # RAGTruth test split — QA task only
     rgt = load_ragtruth(split="test", task_types=["qa"])
 
     # RAGTruth grouped by source (mirrors multi-agent structure)
     grouped = load_ragtruth_by_source(split="test", n=200)
+
+    # Per-dataset agent-query settings (max_tokens/system_prompt/temperature)
+    # — agents.GroqAgent itself stays dataset-neutral; pass these explicitly.
+    from data import TRUTHFULQA_QUERY_CONFIG, RAGTRUTH_QUERY_CONFIG
+    agent = GroqAgent(**TRUTHFULQA_QUERY_CONFIG)
 """
 
 from __future__ import annotations
@@ -27,17 +36,26 @@ from typing import Optional
 from .schema import Sample, DatasetName, TaskType
 from .truthfulqa import TruthfulQALoader, TruthfulQASample
 from .ragtruth import RAGTruthLoader, RAGTruthSample, HallucinationSpan
+from .query_config import TRUTHFULQA_QUERY_CONFIG, RAGTRUTH_QUERY_CONFIG
 
 
 def load_truthfulqa(
     n: Optional[int] = None,
     seed: int = 42,
     categories: Optional[list[str]] = None,
+    question_types: Optional[list[str]] = None,
     cache_dir: Optional[str] = None,
+    source: str = "github",
 ) -> list[TruthfulQASample]:
-    """Load TruthfulQA MC1. Optionally subset and/or filter by category."""
-    return TruthfulQALoader(cache_dir=cache_dir).load(
-        n=n, seed=seed, categories=categories
+    """Load TruthfulQA MC1. Optionally subset and/or filter by category.
+
+    `source="github"` (default) uses the Jan 2025 sylinrl/TruthfulQA update
+    (790 questions, 37 categories). `source="hf"` uses the frozen pre-2025
+    HuggingFace hub snapshot (817 questions, 38 categories), for reproducing
+    older runs.
+    """
+    return TruthfulQALoader(cache_dir=cache_dir, source=source).load(
+        n=n, seed=seed, categories=categories, question_types=question_types
     )
 
 

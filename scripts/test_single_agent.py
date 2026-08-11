@@ -19,8 +19,8 @@ from pathlib import Path
 # Make imports work when run as `python scripts/test_single_agent.py`
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from data import load_truthfulqa                         # noqa: E402
-from agents import GroqAgent                             # noqa: E402
+from data import load_truthfulqa, TRUTHFULQA_QUERY_CONFIG  # noqa: E402
+from agents import GroqAgent                                # noqa: E402
 
 
 def section(title: str) -> None:
@@ -50,9 +50,9 @@ def main() -> None:
     for s in samples:
         print(f"  {s.uid}  [{s.category}]  {s.question[:70]}")
 
-    section("Instantiating GroqAgent (Llama-3.1-8B-Instant, T=0.0)")
+    section("Instantiating GroqAgent (Llama-3.1-8B-Instant, TruthfulQA config)")
     try:
-        agent = GroqAgent()          # defaults: llama-3.1-8b-instant, T=0.0
+        agent = GroqAgent(**TRUTHFULQA_QUERY_CONFIG)   # model defaults to llama-3.1-8b-instant
     except RuntimeError as exc:
         print(f"\n  {exc}\n")
         sys.exit(1)

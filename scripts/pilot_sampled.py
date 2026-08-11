@@ -2,13 +2,18 @@
 
 Motivation
 ----------
-With one answer per model (the plain pilot), semantic entropy over 3 responses
-can only take {0, 0.58, 1.0}. That coarse quantisation flattens the rank
-statistic AUROC rewards, so the metric's real class separation is hidden. This
-script draws k samples from each of the 3 base models (temperature>0, seeded
-for reproducibility), pools the 3·k responses, and clusters the pool — giving
-semantic entropy a continuous range (0 … ln(3k)). This is the standard
-Farquhar/Kuhn multi-sample estimator, applied across an inter-agent panel.
+With one answer per model (the plain pilot), semantic entropy over few
+responses can only take a handful of discrete values. That coarse
+quantisation flattens the rank statistic AUROC rewards, so the metric's real
+class separation is hidden. This script draws k samples from each of 4 base
+models (temperature>0, seeded for reproducibility) — LLAMA_SMALL + the
+cross-family panel's 3 (LLAMA_LARGE, GPT-OSS, Qwen) — pools the 4·k
+responses, and clusters the pool — giving semantic entropy a continuous
+range (0 … ln(4k)). This is the standard Farquhar/Kuhn multi-sample
+estimator, applied across an inter-agent panel. LLAMA_SMALL is included
+alongside cross_family_panel's models (rather than sampling only those 3) so
+the same-family (2-Llama) diversity contrast below has a genuine same-family
+pair to compare against, identified by model id — not by list position.
 
 Output rows are schema-compatible with scripts/evaluate.py and
 scripts/audit_grader.py, so the same evaluation runs unchanged:
@@ -21,7 +26,7 @@ Labels
 Disagreement is measured over the pooled samples. The hallucination LABEL is
 kept at the base-model level for comparability with the plain pilot: each base
 model is graded by MAJORITY VOTE over its k samples (more robust than a single
-draw), then any_wrong / majority_wrong are computed over the 3 base grades.
+draw), then any_wrong / majority_wrong are computed over the 4 base grades.
 
 Requires GROQ_API_KEY + torch + sentence-transformers. Samples are cached per
 (model, prompt, temperature, seed), so re-runs are free and reproducible.
@@ -39,43 +44,19 @@ from typing import List, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from data import load_truthfulqa                                       # noqa: E402
+from data import load_truthfulqa, TRUTHFULQA_QUERY_CONFIG              # noqa: E402
 from agents import query_agents                                        # noqa: E402
-from agents.panels import sampling_panel, SAMPLING_BASE_MODELS         # noqa: E402
+from agents.panels import (                                            # noqa: E402
+    sampling_panel, SAMPLING_BASE_MODELS, LLAMA_SMALL, LLAMA_LARGE)
 from disagreement import (                                             # noqa: E402
     JaccardDisagreement, SemanticEntropyDisagreement, CrossEncoderNLI)
-
-SHORT_ANSWER_SYSTEM = (
-    "Answer the question directly in a single short sentence. "
-    "State your best factual answer plainly, with no preamble, no explanation, "
-    "and no hedging."
-)
+from evaluation import grade_correct                                   # noqa: E402
 
 
 def section(t: str) -> None:
     print("\n" + "=" * 70)
     print(f"  {t}")
     print("=" * 70)
-
-
-def grade_correct(nli, response_text: str, sample) -> Optional[bool]:
-    """Directional NLI grade of one answer vs gold (see pilot.py for rationale)."""
-    if not response_text.strip():
-        return None
-    q = sample.question
-    resp, gold = f"{q} {response_text}", f"{q} {sample.correct_answer}"
-    r2g, g2r = nli.predict_batch([(resp, gold), (gold, resp)])
-    labels = (r2g, g2r)
-    if "entailment" in labels and "contradiction" not in labels:
-        return True
-    if "contradiction" in labels:
-        return False
-    for wrong in sample.incorrect_answers:
-        wc = f"{q} {wrong}"
-        r2w, w2r = nli.predict_batch([(resp, wc), (wc, resp)])
-        if "entailment" in (r2w, w2r) and "contradiction" not in (r2w, w2r):
-            return False
-    return None
 
 
 def majority_grade(grades: List[Optional[bool]]) -> Optional[bool]:
@@ -105,11 +86,22 @@ def main() -> None:
 
     section(f"Loading {args.n} questions; k={args.k} samples/model @ T={args.temperature}")
     samples = load_truthfulqa(n=args.n, seed=args.seed)
+    # TRUTHFULQA_QUERY_CONFIG minus 'temperature': this script's whole point is
+    # k samples at args.temperature > 0 (sampling_panel's own parameter), which
+    # would collide with (and be overridden by) the config's deterministic 0.0.
+    tqa_kwargs = {k: v for k, v in TRUTHFULQA_QUERY_CONFIG.items() if k != "temperature"}
+    # LLAMA_SMALL + cross_family_panel's 3 (union, not concatenation — Llama
+    # large is only in the latter): gives the same-family contrast below a
+    # genuine 2-Llama pair to compare against.
+    sampled_base_models = [LLAMA_SMALL] + SAMPLING_BASE_MODELS
     groups, base_models = sampling_panel(args.k, temperature=args.temperature,
-                                         system_prompt=SHORT_ANSWER_SYSTEM)
+                                          base_models=sampled_base_models, **tqa_kwargs)
     flat_agents = [a for g in groups for a in g]
     print(f"  {len(samples)} questions x {len(flat_agents)} agents "
           f"({len(base_models)} models x {args.k} samples)")
+    # Identity, not position: base_models[:2] no longer means "the Llama
+    # pair" once cross_family_panel's models are folded in.
+    llama_positions = [i for i, m in enumerate(base_models) if m in (LLAMA_SMALL, LLAMA_LARGE)]
 
     # Preflight on the first sample of each model.
     section("Preflight")
@@ -153,8 +145,10 @@ def main() -> None:
         jac = jaccard.score(pooled).score
 
         # Base-model grades by majority vote over that model's k samples.
+        # This pilot only ever samples the open-ended prompt, so grading
+        # routes through the NLI proxy, not letter extraction.
         base_grades = {
-            m: majority_grade([grade_correct(nli, t, s) for t in grp])
+            m: majority_grade([grade_correct(nli, t, s, prompt_format="open") for t in grp])
             for m, grp in zip(base_models, per_model_texts)
         }
         grades_list = list(base_grades.values())
@@ -162,8 +156,9 @@ def main() -> None:
         any_wrong = any(g is False for g in grades_list)
         majority_wrong = bool(graded) and sum(g is False for g in graded) > len(graded) / 2
 
-        # Same-family (2 Llamas) pooled samples for the diversity contrast.
-        same_pool = [t for grp in per_model_texts[:2] for t in grp]
+        # Same-family (2 Llamas) pooled samples for the diversity contrast,
+        # found by model id (llama_positions) — not by list position.
+        same_pool = [t for i in llama_positions for t in per_model_texts[i]]
         sem_same = semantic.score(same_pool, question=s.question)
 
         panel_agrees = sem.details["n_clusters"] == 1
@@ -203,7 +198,8 @@ def main() -> None:
     distinct = sorted({round(r["semantic_entropy"], 3) for r in rows})
     print(f"  mean semantic entropy : {mean_sem:.3f}")
     print(f"  distinct sem values   : {len(distinct)} "
-          f"(was 3 with k=1) -> {'CONTINUOUS' if len(distinct) > 5 else 'still coarse'}")
+          f"(was {len(base_models)} with k=1) -> "
+          f"{'CONTINUOUS' if len(distinct) > 5 else 'still coarse'}")
     grade_ctr = Counter()
     for r in rows:
         for g in r["grades"].values():

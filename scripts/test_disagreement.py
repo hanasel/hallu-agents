@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from data import load_truthfulqa                                  # noqa: E402
+from data import load_truthfulqa, TRUTHFULQA_QUERY_CONFIG         # noqa: E402
 from agents import GroqAgent, query_agents                        # noqa: E402
 from disagreement import JaccardDisagreement                       # noqa: E402
 
@@ -90,8 +90,8 @@ def part_2_real_agents() -> None:
     section("Part 2 — two Groq agents on 3 TruthfulQA samples")
 
     try:
-        agent_a = GroqAgent(model="llama-3.1-8b-instant")
-        agent_b = GroqAgent(model="llama-3.3-70b-versatile")
+        agent_a = GroqAgent(model="llama-3.1-8b-instant", **TRUTHFULQA_QUERY_CONFIG)
+        agent_b = GroqAgent(model="llama-3.3-70b-versatile", **TRUTHFULQA_QUERY_CONFIG)
     except RuntimeError as exc:
         print(f"\n  {exc}\n")
         sys.exit(1)

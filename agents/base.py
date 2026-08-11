@@ -34,10 +34,26 @@ class AgentResponse:
     usage: Dict[str, int] = field(default_factory=dict)   # prompt/completion/total tokens
     error: Optional[str] = None  # set only if the call ultimately failed after retries
     provider: str = ""           # "groq", "together", "openai", ...
+    reasoning: Optional[str] = None  # a reasoning model's chain-of-thought, if the
+                                      # API returned one in a separate field. Captured
+                                      # for inspection only — never part of `text`,
+                                      # never scored.
+    error_kind: Optional[str] = None  # "permanent" | "transient" | None. The field
+                                       # callers should branch on; `error` (above) is
+                                       # still populated with a human-readable string,
+                                       # PERMANENT-prefixed for permanent failures.
 
     @property
     def is_error(self) -> bool:
         return self.error is not None
+
+    @property
+    def is_permanent(self) -> bool:
+        return self.error_kind == "permanent"
+
+    @property
+    def is_transient(self) -> bool:
+        return self.error_kind == "transient"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -52,6 +68,8 @@ class AgentResponse:
             "usage": dict(self.usage),
             "error": self.error,
             "provider": self.provider,
+            "reasoning": self.reasoning,
+            "error_kind": self.error_kind,
         }
 
     @classmethod
@@ -68,6 +86,8 @@ class AgentResponse:
             usage=dict(d.get("usage", {})),
             error=d.get("error"),
             provider=d.get("provider", ""),
+            reasoning=d.get("reasoning"),
+            error_kind=d.get("error_kind"),
         )
 
 

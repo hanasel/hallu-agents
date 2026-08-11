@@ -1,0 +1,627 @@
+=== run started Thu Jul 30 15:03:33 BST 2026 ===
+
+########## TASK: summarization -> outputs/rgt_verify_together_summarization.jsonl ##########
+--- summarization attempt 1 at Thu Jul 30 15:03:33 BST 2026 ---
+
+======================================================================
+  Loading RAGTruth SUMMARIZATION [test] — 100 responses (seed=0)
+======================================================================
+  Loaded 100 candidate responses.
+  hallucination base rate: 21.0%
+
+======================================================================
+  Building agents
+======================================================================
+  decomposer : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/openai/gpt-oss-120b
+  judge      : together/openai/gpt-oss-20b
+  mode: per-claim  (~76 calls/response, ~7,600 for this run if uncached)
+
+======================================================================
+  Scoring
+======================================================================
+  [  1/100] ragtruth-1456  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [  2/100] ragtruth-3768  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [  3/100] ragtruth-4197  claims=15  ens_unsup=0.07  max_dis=0.67  n_contested= 3  gold=.
+  [  4/100] ragtruth-2362  claims=13  ens_unsup=0.08  max_dis=0.00  n_contested= 0  gold=.
+  [  5/100] ragtruth-5392  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 3  gold=H
+  [  6/100] ragtruth-5416  claims= 6  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [  7/100] ragtruth-3914  claims= 8  ens_unsup=0.25  max_dis=0.33  n_contested= 1  gold=.
+  [  8/100] ragtruth-1569  claims=19  ens_unsup=0.11  max_dis=0.33  n_contested= 2  gold=.
+  [  9/100] ragtruth-658  claims=14  ens_unsup=0.21  max_dis=0.33  n_contested= 5  gold=H
+  [ 10/100] ragtruth-2657  claims= 5  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 11/100] ragtruth-350  claims=13  ens_unsup=0.08  max_dis=0.00  n_contested= 0  gold=.
+  [ 12/100] ragtruth-926  claims=19  ens_unsup=0.11  max_dis=0.50  n_contested= 2  gold=H
+  [ 13/100] ragtruth-3867  claims=15  ens_unsup=0.00  max_dis=0.50  n_contested= 1  gold=.
+  [ 14/100] ragtruth-909  claims=14  ens_unsup=0.07  max_dis=0.33  n_contested= 1  gold=H
+  [ 15/100] ragtruth-5526  claims=10  ens_unsup=0.10  max_dis=0.67  n_contested= 1  gold=.
+  [ 16/100] ragtruth-1237  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 17/100] ragtruth-1184  claims=13  ens_unsup=0.15  max_dis=0.50  n_contested= 3  gold=H
+  [ 18/100] ragtruth-1156  claims=10  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 19/100] ragtruth-2457  claims=11  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 20/100] ragtruth-2252  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 21/100] ragtruth-600  claims=15  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 22/100] ragtruth-2239  claims=19  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 23/100] ragtruth-5060  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 24/100] ragtruth-4472  claims= 9  ens_unsup=0.11  max_dis=0.00  n_contested= 0  gold=H
+  [ 25/100] ragtruth-5567  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 26/100] ragtruth-5479  claims= 8  ens_unsup=0.12  max_dis=0.00  n_contested= 0  gold=.
+  [ 27/100] ragtruth-1154  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 28/100] ragtruth-2123  claims= 4  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 29/100] ragtruth-587  claims= 9  ens_unsup=0.00  max_dis=0.50  n_contested= 2  gold=.
+  [ 30/100] ragtruth-4015  claims=10  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 31/100] ragtruth-2799  claims=12  ens_unsup=0.42  max_dis=0.33  n_contested= 4  gold=.
+  [ 32/100] ragtruth-1729  claims=25  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 33/100] ragtruth-121  claims=14  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=H
+  [ 34/100] ragtruth-2069  claims=19  ens_unsup=0.11  max_dis=0.33  n_contested= 1  gold=H
+  [ 35/100] ragtruth-836  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 36/100] ragtruth-3250  claims= 8  ens_unsup=0.12  max_dis=0.33  n_contested= 2  gold=.
+  [ 37/100] ragtruth-445  claims=25  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 38/100] ragtruth-2238  claims=19  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 39/100] ragtruth-835  claims=13  ens_unsup=0.15  max_dis=0.33  n_contested= 2  gold=.
+  [ 40/100] ragtruth-44  claims=15  ens_unsup=0.07  max_dis=0.00  n_contested= 0  gold=H
+  [ 41/100] ragtruth-3940  claims=10  ens_unsup=0.10  max_dis=0.50  n_contested= 3  gold=.
+  [ 42/100] ragtruth-3978  claims=10  ens_unsup=0.30  max_dis=0.33  n_contested= 3  gold=.
+  [ 43/100] ragtruth-4473  claims= 7  ens_unsup=0.14  max_dis=0.33  n_contested= 1  gold=.
+  [ 44/100] ragtruth-616  claims=11  ens_unsup=0.18  max_dis=0.33  n_contested= 1  gold=.
+  [ 45/100] ragtruth-4440  claims=13  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 46/100] ragtruth-1604  claims=10  ens_unsup=0.10  max_dis=0.33  n_contested= 1  gold=H
+  [ 47/100] ragtruth-2253  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 1  gold=H
+  [ 48/100] ragtruth-3981  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 49/100] ragtruth-4746  claims= 9  ens_unsup=0.11  max_dis=0.00  n_contested= 0  gold=.
+  [ 50/100] ragtruth-603  claims=12  ens_unsup=0.17  max_dis=0.50  n_contested= 3  gold=H
+  [ 51/100] ragtruth-4480  claims=10  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 52/100] ragtruth-841  claims= 7  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 53/100] ragtruth-2064  claims=13  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 54/100] ragtruth-272  claims=15  ens_unsup=0.07  max_dis=0.67  n_contested= 3  gold=.
+  [ 55/100] ragtruth-3249  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 56/100] ragtruth-4263  claims=10  ens_unsup=0.20  max_dis=0.33  n_contested= 1  gold=H
+  [ 57/100] ragtruth-5036  claims=16  ens_unsup=0.12  max_dis=0.67  n_contested= 4  gold=.
+  [ 58/100] ragtruth-484  claims= 7  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 59/100] ragtruth-5086  claims=12  ens_unsup=0.08  max_dis=0.67  n_contested= 2  gold=.
+  [ 60/100] ragtruth-2467  claims=14  ens_unsup=0.07  max_dis=0.33  n_contested= 1  gold=.
+  [ 61/100] ragtruth-4589  claims=14  ens_unsup=0.07  max_dis=0.67  n_contested= 3  gold=.
+  [62/100] ragtruth-204  JUDGE ERROR (likely rate/quota limit) — stopping; cache preserved.
+
+======================================================================
+  Signals vs RAGTruth label (example-level, bootstrap 95% CI)
+======================================================================
+  [!] RUN INCOMPLETE — 61/100 scored so far. Re-run the same command after quota resets; it resumes.
+  empty (dropped) votes per judge:
+    together/meta-llama/Llama-3.3-70B-Instruct-Turbo     0/712    (0.0%)
+    together/openai/gpt-oss-120b                         0/712    (0.0%)
+    together/openai/gpt-oss-20b                         28/712    (3.9%)
+  scored: 61   hallucinated: 13 (21.3% of scored)
+
+  signal                      AUC-ROC            95% CI   AUC-PR   Spearman
+  ensemble_unsupported          0.790   [0.646, 0.908]    0.445     +0.436
+  max_disagreement              0.614   [0.469, 0.756]    0.270     +0.174
+  n_contested_claims            0.638   [0.472, 0.786]    0.346     +0.207
+  mean_disagreement             0.628   [0.456, 0.783]    0.310     +0.191
+  frac_high_disagreement        0.639   [0.466, 0.794]    0.369     +0.207
+
+  base rate (AUC-PR reference): 0.213
+  Spearman(ensemble_unsupported, max_disagreement): rho=+0.504 p=3.43e-05
+  Spearman(ensemble_unsupported, mean_disagreement): rho=+0.600 p=3.14e-07
+  Spearman(ensemble_unsupported, n_contested_claims): rho=+0.595 p=4.28e-07
+
+======================================================================
+  Diagnostic — responses called FULLY unsupported
+======================================================================
+  none.
+
+======================================================================
+  Done
+======================================================================
+  Rows written to: outputs/rgt_verify_together_summarization.jsonl
+
+--- summarization: scored       61 / 100 ---
+--- summarization incomplete (likely quota); sleeping 90s ---
+--- summarization attempt 2 at Thu Jul 30 16:04:27 BST 2026 ---
+=== run started Thu Jul 30 17:35:50 BST 2026 ===
+
+########## TASK: summarization -> outputs/rgt_verify_together_summarization.jsonl ##########
+--- summarization attempt 1 at Thu Jul 30 17:35:50 BST 2026 ---
+
+======================================================================
+  Loading RAGTruth SUMMARIZATION [test] — 100 responses (seed=0)
+======================================================================
+  Loaded 100 candidate responses.
+  hallucination base rate: 21.0%
+
+======================================================================
+  Building agents
+======================================================================
+  decomposer : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/openai/gpt-oss-120b
+  judge      : together/openai/gpt-oss-20b
+  mode: per-claim  (~76 calls/response, ~7,600 for this run if uncached)
+
+======================================================================
+  Scoring
+======================================================================
+  Resuming: 61 already scored; 39 remaining.
+  [ 62/100] ragtruth-204  claims=15  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 63/100] ragtruth-4587  claims= 9  ens_unsup=0.11  max_dis=0.33  n_contested= 2  gold=.
+  [ 64/100] ragtruth-4470  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 65/100] ragtruth-1700  claims=18  ens_unsup=0.22  max_dis=0.67  n_contested= 3  gold=H
+  [ 66/100] ragtruth-4195  claims=16  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 67/100] ragtruth-1112  claims= 7  ens_unsup=0.57  max_dis=0.33  n_contested= 3  gold=H
+  [ 68/100] ragtruth-2671  claims=18  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 69/100] ragtruth-542  claims=23  ens_unsup=0.26  max_dis=0.67  n_contested= 8  gold=.
+  [ 70/100] ragtruth-1342  claims=13  ens_unsup=0.38  max_dis=0.33  n_contested= 5  gold=H
+  [ 71/100] ragtruth-2533  claims=17  ens_unsup=0.06  max_dis=0.33  n_contested= 3  gold=.
+  [ 72/100] ragtruth-1827  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 3  gold=H
+  [ 73/100] ragtruth-876  claims= 6  ens_unsup=0.17  max_dis=0.00  n_contested= 0  gold=.
+  [ 74/100] ragtruth-3860  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 75/100] ragtruth-142  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 76/100] ragtruth-5481  claims= 9  ens_unsup=0.22  max_dis=0.00  n_contested= 0  gold=.
+  [ 77/100] ragtruth-589  claims=16  ens_unsup=0.00  max_dis=0.50  n_contested= 1  gold=.
+  [ 78/100] ragtruth-143  claims=11  ens_unsup=0.18  max_dis=0.50  n_contested= 1  gold=.
+  [ 79/100] ragtruth-4027  claims=19  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 80/100] ragtruth-351  claims=14  ens_unsup=0.14  max_dis=0.50  n_contested= 3  gold=.
+  [ 81/100] ragtruth-125  claims=12  ens_unsup=0.00  max_dis=0.67  n_contested= 1  gold=.
+  [ 82/100] ragtruth-1519  claims=12  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 83/100] ragtruth-1892  claims=18  ens_unsup=0.11  max_dis=0.33  n_contested= 2  gold=.
+  [ 84/100] ragtruth-1679  claims=10  ens_unsup=0.20  max_dis=0.00  n_contested= 0  gold=.
+  [ 85/100] ragtruth-210  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 86/100] ragtruth-483  claims=12  ens_unsup=0.17  max_dis=0.33  n_contested= 1  gold=.
+  [ 87/100] ragtruth-485  claims=14  ens_unsup=0.36  max_dis=0.33  n_contested= 5  gold=H
+  [ 88/100] ragtruth-273  claims=11  ens_unsup=0.09  max_dis=0.33  n_contested= 1  gold=H
+  [ 89/100] ragtruth-886  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 90/100] ragtruth-5082  claims= 8  ens_unsup=0.25  max_dis=0.00  n_contested= 0  gold=.
+  [ 91/100] ragtruth-5478  claims=10  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 92/100] ragtruth-1891  claims=15  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 93/100] ragtruth-543  claims=14  ens_unsup=0.14  max_dis=0.33  n_contested= 1  gold=H
+  [ 94/100] ragtruth-4034  claims=11  ens_unsup=0.09  max_dis=0.50  n_contested= 4  gold=.
+  [ 95/100] ragtruth-3948  claims=13  ens_unsup=0.08  max_dis=0.33  n_contested= 2  gold=.
+  [ 96/100] ragtruth-1733  claims=19  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 97/100] ragtruth-2668  claims=12  ens_unsup=0.17  max_dis=0.33  n_contested= 1  gold=H
+  [ 98/100] ragtruth-1339  claims=20  ens_unsup=0.10  max_dis=0.50  n_contested= 3  gold=.
+  [ 99/100] ragtruth-853  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [100/100] ragtruth-2664  claims=12  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+
+======================================================================
+  Signals vs RAGTruth label (example-level, bootstrap 95% CI)
+======================================================================
+  empty (dropped) votes per judge:
+    together/meta-llama/Llama-3.3-70B-Instruct-Turbo     0/1200   (0.0%)
+    together/openai/gpt-oss-120b                         1/1200   (0.1%)
+    together/openai/gpt-oss-20b                         45/1200   (3.8%)
+  scored: 100   hallucinated: 21 (21.0% of scored)
+
+  signal                      AUC-ROC            95% CI   AUC-PR   Spearman
+  ensemble_unsupported          0.821   [0.723, 0.905]    0.541     +0.477
+  max_disagreement              0.632   [0.527, 0.734]    0.271     +0.200
+  n_contested_claims            0.697   [0.575, 0.814]    0.392     +0.291
+  mean_disagreement             0.697   [0.568, 0.820]    0.448     +0.289
+  frac_high_disagreement        0.705   [0.579, 0.829]    0.482     +0.300
+
+  base rate (AUC-PR reference): 0.210
+  Spearman(ensemble_unsupported, max_disagreement): rho=+0.423 p=1.13e-05
+  Spearman(ensemble_unsupported, mean_disagreement): rho=+0.568 p=7.31e-10
+  Spearman(ensemble_unsupported, n_contested_claims): rho=+0.560 p=1.4e-09
+
+======================================================================
+  Diagnostic — responses called FULLY unsupported
+======================================================================
+  none.
+
+======================================================================
+  Done
+======================================================================
+  Rows written to: outputs/rgt_verify_together_summarization.jsonl
+
+--- summarization: scored      136 / 100 ---
+=== summarization COMPLETE at Thu Jul 30 18:20:48 BST 2026:      136 responses ===
+
+########## TASK: qa -> outputs/rgt_verify_together_qa.jsonl ##########
+--- qa attempt 1 at Thu Jul 30 18:20:48 BST 2026 ---
+
+======================================================================
+  Loading RAGTruth SUMMARIZATION [test] — 100 responses (seed=0)
+======================================================================
+  Loaded 100 candidate responses.
+  hallucination base rate: 21.0%
+
+======================================================================
+  Building agents
+======================================================================
+  decomposer : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/openai/gpt-oss-120b
+  judge      : together/openai/gpt-oss-20b
+  mode: per-claim  (~76 calls/response, ~7,600 for this run if uncached)
+
+======================================================================
+  Scoring
+======================================================================
+  Resuming: 61 already scored; 39 remaining.
+  [ 62/100] ragtruth-204  claims=15  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 63/100] ragtruth-4587  claims= 9  ens_unsup=0.11  max_dis=0.67  n_contested= 2  gold=.
+  [ 64/100] ragtruth-4470  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 65/100] ragtruth-1700  claims=14  ens_unsup=0.21  max_dis=0.67  n_contested= 2  gold=H
+  [ 66/100] ragtruth-4195  claims=16  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 67/100] ragtruth-1112  claims= 5  ens_unsup=0.40  max_dis=0.33  n_contested= 2  gold=H
+  [ 68/100] ragtruth-2671  claims=18  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 69/100] ragtruth-542  claims=23  ens_unsup=0.30  max_dis=0.50  n_contested= 8  gold=.
+  [ 70/100] ragtruth-1342  claims=13  ens_unsup=0.31  max_dis=0.33  n_contested= 6  gold=H
+  [ 71/100] ragtruth-2533  claims=17  ens_unsup=0.06  max_dis=0.33  n_contested= 3  gold=.
+  [ 72/100] ragtruth-1827  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 1  gold=H
+  [ 73/100] ragtruth-876  claims= 6  ens_unsup=0.17  max_dis=0.00  n_contested= 0  gold=.
+  [ 74/100] ragtruth-3860  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 75/100] ragtruth-142  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 76/100] ragtruth-5481  claims= 9  ens_unsup=0.22  max_dis=0.00  n_contested= 0  gold=.
+  [ 77/100] ragtruth-589  claims=16  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 78/100] ragtruth-143  claims=10  ens_unsup=0.20  max_dis=0.50  n_contested= 1  gold=.
+  [ 79/100] ragtruth-4027  claims=18  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 80/100] ragtruth-351  claims=14  ens_unsup=0.14  max_dis=0.33  n_contested= 3  gold=.
+  [ 81/100] ragtruth-125  claims=12  ens_unsup=0.00  max_dis=0.67  n_contested= 1  gold=.
+  [ 82/100] ragtruth-1519  claims=13  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 83/100] ragtruth-1892  claims=17  ens_unsup=0.12  max_dis=0.33  n_contested= 2  gold=.
+  [ 84/100] ragtruth-1679  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 1  gold=.
+  [ 85/100] ragtruth-210  claims=12  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 86/100] ragtruth-483  claims=12  ens_unsup=0.17  max_dis=0.33  n_contested= 1  gold=.
+  [ 87/100] ragtruth-485  claims=16  ens_unsup=0.31  max_dis=0.50  n_contested= 4  gold=H
+  [ 88/100] ragtruth-273  claims=11  ens_unsup=0.09  max_dis=0.67  n_contested= 1  gold=H
+  [ 89/100] ragtruth-886  claims= 9  ens_unsup=0.11  max_dis=0.33  n_contested= 2  gold=.
+  [ 90/100] ragtruth-5082  claims= 8  ens_unsup=0.25  max_dis=0.33  n_contested= 2  gold=.
+  [ 91/100] ragtruth-5478  claims=10  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 92/100] ragtruth-1891  claims=15  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 93/100] ragtruth-543  claims=14  ens_unsup=0.14  max_dis=0.50  n_contested= 2  gold=H
+  [ 94/100] ragtruth-4034  claims=11  ens_unsup=0.00  max_dis=0.50  n_contested= 4  gold=.
+  [ 95/100] ragtruth-3948  claims=13  ens_unsup=0.08  max_dis=0.33  n_contested= 2  gold=.
+  [ 96/100] ragtruth-1733  claims=19  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 97/100] ragtruth-2668  claims=12  ens_unsup=0.17  max_dis=0.33  n_contested= 1  gold=H
+  [ 98/100] ragtruth-1339  claims=20  ens_unsup=0.10  max_dis=0.67  n_contested= 4  gold=.
+  [ 99/100] ragtruth-853  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [100/100] ragtruth-2664  claims=12  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+
+======================================================================
+  Signals vs RAGTruth label (example-level, bootstrap 95% CI)
+======================================================================
+  empty (dropped) votes per judge:
+    together/meta-llama/Llama-3.3-70B-Instruct-Turbo     0/1196   (0.0%)
+    together/openai/gpt-oss-120b                         2/1196   (0.2%)
+    together/openai/gpt-oss-20b                         39/1196   (3.3%)
+  scored: 100   hallucinated: 21 (21.0% of scored)
+
+  signal                      AUC-ROC            95% CI   AUC-PR   Spearman
+  ensemble_unsupported          0.815   [0.719, 0.899]    0.510     +0.468
+  max_disagreement              0.660   [0.549, 0.764]    0.280     +0.241
+  n_contested_claims            0.662   [0.549, 0.777]    0.318     +0.240
+  mean_disagreement             0.681   [0.566, 0.800]    0.374     +0.265
+  frac_high_disagreement        0.678   [0.561, 0.799]    0.407     +0.260
+
+  base rate (AUC-PR reference): 0.210
+  Spearman(ensemble_unsupported, max_disagreement): rho=+0.472 p=7.19e-07
+  Spearman(ensemble_unsupported, mean_disagreement): rho=+0.593 p=8.1e-11
+  Spearman(ensemble_unsupported, n_contested_claims): rho=+0.562 p=1.17e-09
+
+======================================================================
+  Diagnostic — responses called FULLY unsupported
+======================================================================
+  none.
+
+======================================================================
+  Done
+======================================================================
+  Rows written to: outputs/rgt_verify_together_summarization.jsonl
+
+--- summarization: scored      139 / 100 ---
+=== summarization COMPLETE at Thu Jul 30 18:22:32 BST 2026:      139 responses ===
+
+########## TASK: qa -> outputs/rgt_verify_together_qa.jsonl ##########
+--- qa attempt 1 at Thu Jul 30 18:22:32 BST 2026 ---
+
+======================================================================
+  Loading RAGTruth QA [test] — 100 responses (seed=0)
+======================================================================
+  Loaded 100 candidate responses.
+  hallucination base rate: 19.0%
+
+======================================================================
+  Building agents
+======================================================================
+  decomposer : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/openai/gpt-oss-120b
+  judge      : together/openai/gpt-oss-20b
+  mode: per-claim  (~76 calls/response, ~7,600 for this run if uncached)
+
+======================================================================
+  Scoring
+======================================================================
+  [  1/100] ragtruth-14713  claims=25  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [  2/100] ragtruth-16662  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [  3/100] ragtruth-15009  claims=12  ens_unsup=0.08  max_dis=0.33  n_contested= 2  gold=.
+  [  4/100] ragtruth-13367  claims=16  ens_unsup=0.19  max_dis=0.33  n_contested= 3  gold=H
+  [  5/100] ragtruth-14295  claims=13  ens_unsup=0.08  max_dis=0.33  n_contested= 1  gold=H
+  [  6/100] ragtruth-13153  claims= 8  ens_unsup=0.25  max_dis=0.33  n_contested= 1  gold=.
+  [  7/100] ragtruth-14511  claims= 8  ens_unsup=0.25  max_dis=0.50  n_contested= 3  gold=H
+  [  8/100] ragtruth-16058  claims= 4  ens_unsup=0.25  max_dis=0.50  n_contested= 2  gold=.
+  [  9/100] ragtruth-14326  claims=13  ens_unsup=0.23  max_dis=0.33  n_contested= 3  gold=.
+  [ 10/100] ragtruth-17255  claims=25  ens_unsup=0.68  max_dis=0.67  n_contested=14  gold=H
+  [ 11/100] ragtruth-12220  claims=12  ens_unsup=0.17  max_dis=0.00  n_contested= 0  gold=.
+  [ 12/100] ragtruth-13431  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 13/100] ragtruth-15272  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 14/100] ragtruth-12015  claims= 5  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 15/100] ragtruth-16148  claims= 8  ens_unsup=0.62  max_dis=0.50  n_contested= 5  gold=.
+  [ 16/100] ragtruth-14297  claims=11  ens_unsup=0.55  max_dis=0.33  n_contested= 6  gold=H
+  [ 17/100] ragtruth-15483  claims= 5  ens_unsup=0.20  max_dis=0.33  n_contested= 1  gold=.
+  [ 18/100] ragtruth-14693  claims= 8  ens_unsup=0.38  max_dis=0.33  n_contested= 3  gold=.
+  [ 19/100] ragtruth-16565  claims=12  ens_unsup=0.00  max_dis=0.33  n_contested= 3  gold=.
+  [ 20/100] ragtruth-15789  claims=10  ens_unsup=0.60  max_dis=0.33  n_contested= 5  gold=.
+  [ 21/100] ragtruth-14747  claims=18  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 22/100] ragtruth-12692  claims= 7  ens_unsup=0.29  max_dis=0.33  n_contested= 1  gold=H
+  [ 23/100] ragtruth-15715  claims=12  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 24/100] ragtruth-13442  claims= 4  ens_unsup=0.25  max_dis=0.00  n_contested= 0  gold=H
+  [ 25/100] ragtruth-15179  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 26/100] ragtruth-12457  claims= 7  ens_unsup=0.29  max_dis=0.33  n_contested= 3  gold=.
+  [ 27/100] ragtruth-15672  claims=10  ens_unsup=0.20  max_dis=0.00  n_contested= 0  gold=.
+  [ 28/100] ragtruth-16118  claims= 6  ens_unsup=0.17  max_dis=0.33  n_contested= 2  gold=.
+  [ 29/100] ragtruth-14054  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 2  gold=.
+  [ 30/100] ragtruth-13744  claims= 5  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 31/100] ragtruth-16146  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 32/100] ragtruth-15553  claims=15  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 33/100] ragtruth-16689  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 34/100] ragtruth-14846  claims=16  ens_unsup=0.31  max_dis=0.33  n_contested= 5  gold=H
+  [ 35/100] ragtruth-12294  claims= 2  ens_unsup=0.50  max_dis=0.33  n_contested= 1  gold=.
+  [ 36/100] ragtruth-16690  claims= 7  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 37/100] ragtruth-14748  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 38/100] ragtruth-14353  claims= 7  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 39/100] ragtruth-15735  claims= 8  ens_unsup=0.38  max_dis=0.33  n_contested= 5  gold=H
+  [ 40/100] ragtruth-16799  claims=13  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 41/100] ragtruth-15755  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 2  gold=H
+  [ 42/100] ragtruth-12433  claims=18  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 43/100] ragtruth-15008  claims=15  ens_unsup=0.13  max_dis=0.33  n_contested= 1  gold=H
+  [ 44/100] ragtruth-17519  claims=17  ens_unsup=0.06  max_dis=0.00  n_contested= 0  gold=.
+  [ 45/100] ragtruth-13039  claims=10  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 46/100] ragtruth-13156  claims=19  ens_unsup=0.47  max_dis=0.50  n_contested= 7  gold=H
+  [ 47/100] ragtruth-16893  claims= 4  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 48/100] ragtruth-15780  claims=10  ens_unsup=0.10  max_dis=0.67  n_contested= 2  gold=.
+  [ 49/100] ragtruth-15652  claims= 6  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 50/100] ragtruth-13263  claims= 6  ens_unsup=0.33  max_dis=0.50  n_contested= 1  gold=H
+  [ 51/100] ragtruth-12434  claims=14  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 52/100] ragtruth-14365  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 53/100] ragtruth-17517  claims= 8  ens_unsup=0.12  max_dis=0.33  n_contested= 2  gold=.
+  [ 54/100] ragtruth-13531  claims= 4  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 55/100] ragtruth-14700  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 56/100] ragtruth-16418  claims=19  ens_unsup=0.63  max_dis=0.50  n_contested= 8  gold=H
+  [ 57/100] ragtruth-13919  claims=17  ens_unsup=0.35  max_dis=0.67  n_contested= 7  gold=H
+  [ 58/100] ragtruth-13365  claims= 9  ens_unsup=0.11  max_dis=0.00  n_contested= 0  gold=.
+  [ 59/100] ragtruth-15784  claims= 5  ens_unsup=0.00  max_dis=0.50  n_contested= 1  gold=.
+  [ 60/100] ragtruth-15131  claims=12  ens_unsup=0.08  max_dis=0.33  n_contested= 1  gold=.
+  [ 61/100] ragtruth-17564  claims=20  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 62/100] ragtruth-17052  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 63/100] ragtruth-12132  claims=16  ens_unsup=0.00  max_dis=0.33  n_contested= 3  gold=.
+  [ 64/100] ragtruth-15343  claims=14  ens_unsup=0.07  max_dis=0.50  n_contested= 1  gold=.
+  [ 65/100] ragtruth-13433  claims=14  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 66/100] ragtruth-14130  claims=15  ens_unsup=0.00  max_dis=0.50  n_contested= 3  gold=.
+  [ 67/100] ragtruth-14775  claims= 9  ens_unsup=0.33  max_dis=0.33  n_contested= 1  gold=.
+  [ 68/100] ragtruth-12231  claims=10  ens_unsup=0.10  max_dis=0.33  n_contested= 1  gold=.
+  [ 69/100] ragtruth-14512  claims= 5  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 70/100] ragtruth-12295  claims= 2  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 71/100] ragtruth-13563  claims=19  ens_unsup=0.11  max_dis=0.33  n_contested= 4  gold=.
+  [ 72/100] ragtruth-15459  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 73/100] ragtruth-13364  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 1  gold=.
+  [ 74/100] ragtruth-16416  claims= 8  ens_unsup=0.12  max_dis=0.33  n_contested= 2  gold=.
+  [ 75/100] ragtruth-12604  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 2  gold=.
+  [ 76/100] ragtruth-16633  claims= 8  ens_unsup=0.12  max_dis=0.50  n_contested= 2  gold=.
+  [ 77/100] ragtruth-15458  claims= 8  ens_unsup=0.12  max_dis=0.33  n_contested= 1  gold=.
+  [ 78/100] ragtruth-14200  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 79/100] ragtruth-14504  claims= 8  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 80/100] ragtruth-17250  claims=12  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 81/100] ragtruth-12244  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 1  gold=.
+  [ 82/100] ragtruth-17757  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 83/100] ragtruth-12844  claims=15  ens_unsup=0.13  max_dis=0.50  n_contested= 2  gold=.
+  [ 84/100] ragtruth-12524  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 85/100] ragtruth-15786  claims=18  ens_unsup=0.78  max_dis=0.33  n_contested=18  gold=.
+  [ 86/100] ragtruth-13163  claims=18  ens_unsup=0.56  max_dis=0.33  n_contested=11  gold=H
+  [ 87/100] ragtruth-15727  claims= 9  ens_unsup=0.11  max_dis=0.00  n_contested= 0  gold=.
+  [ 88/100] ragtruth-13161  claims=21  ens_unsup=0.48  max_dis=0.33  n_contested=10  gold=H
+  [ 89/100] ragtruth-15970  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 1  gold=.
+  [ 90/100] ragtruth-17516  claims=14  ens_unsup=0.07  max_dis=0.33  n_contested= 2  gold=.
+  [ 91/100] ragtruth-12526  claims= 7  ens_unsup=0.14  max_dis=0.33  n_contested= 2  gold=.
+  [ 92/100] ragtruth-16883  claims=12  ens_unsup=0.08  max_dis=0.33  n_contested= 4  gold=H
+  [ 93/100] ragtruth-15688  claims=11  ens_unsup=0.18  max_dis=0.33  n_contested= 2  gold=H
+  [ 94/100] ragtruth-14211  claims= 7  ens_unsup=0.14  max_dis=0.33  n_contested= 1  gold=.
+  [ 95/100] ragtruth-15791  claims= 7  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 96/100] ragtruth-13492  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 97/100] ragtruth-16455  claims= 9  ens_unsup=0.56  max_dis=0.33  n_contested= 3  gold=.
+  [ 98/100] ragtruth-15103  claims=11  ens_unsup=0.09  max_dis=0.33  n_contested= 1  gold=.
+  [ 99/100] ragtruth-12707  claims=11  ens_unsup=0.09  max_dis=0.33  n_contested= 3  gold=.
+  [100/100] ragtruth-15905  claims=10  ens_unsup=0.50  max_dis=0.50  n_contested= 4  gold=.
+
+======================================================================
+  Signals vs RAGTruth label (example-level, bootstrap 95% CI)
+======================================================================
+  empty (dropped) votes per judge:
+    together/meta-llama/Llama-3.3-70B-Instruct-Turbo     0/1052   (0.0%)
+    together/openai/gpt-oss-120b                         8/1052   (0.8%)
+    together/openai/gpt-oss-20b                         27/1052   (2.6%)
+  scored: 100   hallucinated: 19 (19.0% of scored)
+
+  signal                      AUC-ROC            95% CI   AUC-PR   Spearman
+  ensemble_unsupported          0.842   [0.757, 0.915]    0.467     +0.482
+  max_disagreement              0.710   [0.593, 0.806]    0.329     +0.316
+  n_contested_claims            0.810   [0.682, 0.916]    0.546     +0.435
+  mean_disagreement             0.766   [0.634, 0.878]    0.417     +0.367
+  frac_high_disagreement        0.764   [0.634, 0.877]    0.421     +0.365
+
+  base rate (AUC-PR reference): 0.190
+  Spearman(ensemble_unsupported, max_disagreement): rho=+0.542 p=5.9e-09
+  Spearman(ensemble_unsupported, mean_disagreement): rho=+0.712 p=9.95e-17
+  Spearman(ensemble_unsupported, n_contested_claims): rho=+0.675 p=1.29e-14
+
+======================================================================
+  Diagnostic — responses called FULLY unsupported
+======================================================================
+  none.
+
+======================================================================
+  Done
+======================================================================
+  Rows written to: outputs/rgt_verify_together_qa.jsonl
+
+--- qa: scored      199 / 100 ---
+=== qa COMPLETE at Thu Jul 30 19:56:32 BST 2026:      199 responses ===
+
+=== ALL TASKS DONE at Thu Jul 30 19:56:32 BST 2026 ===
+
+======================================================================
+  Loading RAGTruth QA [test] — 100 responses (seed=0)
+======================================================================
+  Loaded 100 candidate responses.
+  hallucination base rate: 19.0%
+
+======================================================================
+  Building agents
+======================================================================
+  decomposer : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/meta-llama/Llama-3.3-70B-Instruct-Turbo
+  judge      : together/openai/gpt-oss-120b
+  judge      : together/openai/gpt-oss-20b
+  mode: per-claim  (~76 calls/response, ~7,600 for this run if uncached)
+
+======================================================================
+  Scoring
+======================================================================
+  [  1/100] ragtruth-14713  claims=25  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [  2/100] ragtruth-16662  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [  3/100] ragtruth-15009  claims=12  ens_unsup=0.08  max_dis=0.33  n_contested= 2  gold=.
+  [  4/100] ragtruth-13367  claims=19  ens_unsup=0.21  max_dis=0.33  n_contested= 4  gold=H
+  [  5/100] ragtruth-14295  claims=13  ens_unsup=0.15  max_dis=0.33  n_contested= 3  gold=H
+  [  6/100] ragtruth-13153  claims= 8  ens_unsup=0.25  max_dis=0.33  n_contested= 2  gold=.
+  [  7/100] ragtruth-14511  claims= 8  ens_unsup=0.25  max_dis=0.67  n_contested= 3  gold=H
+  [  8/100] ragtruth-16058  claims= 4  ens_unsup=0.25  max_dis=0.67  n_contested= 2  gold=.
+  [  9/100] ragtruth-14326  claims=14  ens_unsup=0.21  max_dis=0.67  n_contested= 3  gold=.
+  [ 10/100] ragtruth-17255  claims=25  ens_unsup=0.68  max_dis=0.33  n_contested=14  gold=H
+  [ 11/100] ragtruth-12220  claims=12  ens_unsup=0.17  max_dis=0.33  n_contested= 1  gold=.
+  [ 12/100] ragtruth-13431  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 13/100] ragtruth-15272  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 14/100] ragtruth-12015  claims= 5  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 15/100] ragtruth-16148  claims= 8  ens_unsup=0.62  max_dis=0.33  n_contested= 5  gold=.
+  [ 16/100] ragtruth-14297  claims=11  ens_unsup=0.55  max_dis=0.67  n_contested= 7  gold=H
+  [ 17/100] ragtruth-15483  claims= 5  ens_unsup=0.20  max_dis=0.33  n_contested= 1  gold=.
+  [ 18/100] ragtruth-14693  claims= 9  ens_unsup=0.33  max_dis=0.50  n_contested= 3  gold=.
+  [ 19/100] ragtruth-16565  claims=10  ens_unsup=0.00  max_dis=0.33  n_contested= 3  gold=.
+  [ 20/100] ragtruth-15789  claims=10  ens_unsup=0.70  max_dis=0.67  n_contested= 5  gold=.
+  [ 21/100] ragtruth-14747  claims=18  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 22/100] ragtruth-12692  claims= 7  ens_unsup=0.29  max_dis=0.33  n_contested= 1  gold=H
+  [ 23/100] ragtruth-15715  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 24/100] ragtruth-13442  claims= 4  ens_unsup=0.25  max_dis=0.00  n_contested= 0  gold=H
+  [ 25/100] ragtruth-15179  claims= 9  ens_unsup=0.11  max_dis=0.33  n_contested= 1  gold=.
+  [ 26/100] ragtruth-12457  claims= 7  ens_unsup=0.29  max_dis=0.33  n_contested= 3  gold=.
+  [ 27/100] ragtruth-15672  claims=10  ens_unsup=0.20  max_dis=0.67  n_contested= 2  gold=.
+  [ 28/100] ragtruth-16118  claims= 6  ens_unsup=0.17  max_dis=0.50  n_contested= 2  gold=.
+  [ 29/100] ragtruth-14054  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 2  gold=.
+  [ 30/100] ragtruth-13744  claims= 5  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 31/100] ragtruth-16146  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 32/100] ragtruth-15553  claims=15  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 33/100] ragtruth-16689  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 34/100] ragtruth-14846  claims=19  ens_unsup=0.32  max_dis=0.67  n_contested= 6  gold=H
+  [ 35/100] ragtruth-12294  claims= 2  ens_unsup=0.50  max_dis=0.33  n_contested= 2  gold=.
+  [ 36/100] ragtruth-16690  claims= 7  ens_unsup=0.14  max_dis=0.33  n_contested= 2  gold=.
+  [ 37/100] ragtruth-14748  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 38/100] ragtruth-14353  claims= 7  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 39/100] ragtruth-15735  claims= 8  ens_unsup=0.50  max_dis=0.33  n_contested= 4  gold=H
+  [ 40/100] ragtruth-16799  claims=13  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 41/100] ragtruth-15755  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 2  gold=H
+  [ 42/100] ragtruth-12433  claims=18  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 43/100] ragtruth-15008  claims=15  ens_unsup=0.13  max_dis=0.33  n_contested= 1  gold=H
+  [ 44/100] ragtruth-17519  claims=16  ens_unsup=0.06  max_dis=0.00  n_contested= 0  gold=.
+  [ 45/100] ragtruth-13039  claims=10  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 46/100] ragtruth-13156  claims=20  ens_unsup=0.50  max_dis=0.33  n_contested= 8  gold=H
+  [ 47/100] ragtruth-16893  claims= 5  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 48/100] ragtruth-15780  claims=10  ens_unsup=0.10  max_dis=0.67  n_contested= 2  gold=.
+  [ 49/100] ragtruth-15652  claims= 6  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 50/100] ragtruth-13263  claims= 6  ens_unsup=0.33  max_dis=0.00  n_contested= 0  gold=H
+  [ 51/100] ragtruth-12434  claims=14  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 52/100] ragtruth-14365  claims= 5  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 53/100] ragtruth-17517  claims= 8  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 54/100] ragtruth-13531  claims= 4  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 55/100] ragtruth-14700  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 56/100] ragtruth-16418  claims=19  ens_unsup=0.68  max_dis=0.67  n_contested=10  gold=H
+  [ 57/100] ragtruth-13919  claims=17  ens_unsup=0.29  max_dis=0.33  n_contested= 5  gold=H
+  [ 58/100] ragtruth-13365  claims= 9  ens_unsup=0.11  max_dis=0.00  n_contested= 0  gold=.
+  [ 59/100] ragtruth-15784  claims= 5  ens_unsup=0.00  max_dis=0.50  n_contested= 1  gold=.
+  [ 60/100] ragtruth-15131  claims=11  ens_unsup=0.09  max_dis=0.33  n_contested= 1  gold=.
+  [ 61/100] ragtruth-17564  claims=20  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 62/100] ragtruth-17052  claims= 8  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 63/100] ragtruth-12132  claims=15  ens_unsup=0.00  max_dis=0.33  n_contested= 4  gold=.
+  [ 64/100] ragtruth-15343  claims=14  ens_unsup=0.07  max_dis=0.33  n_contested= 1  gold=.
+  [ 65/100] ragtruth-13433  claims=14  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 66/100] ragtruth-14130  claims=15  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 67/100] ragtruth-14775  claims= 8  ens_unsup=0.25  max_dis=0.33  n_contested= 2  gold=.
+  [ 68/100] ragtruth-12231  claims=10  ens_unsup=0.20  max_dis=0.33  n_contested= 2  gold=.
+  [ 69/100] ragtruth-14512  claims= 5  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 70/100] ragtruth-12295  claims= 2  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 71/100] ragtruth-13563  claims=19  ens_unsup=0.16  max_dis=0.67  n_contested= 7  gold=.
+  [ 72/100] ragtruth-15459  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 73/100] ragtruth-13364  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 1  gold=.
+  [ 74/100] ragtruth-16416  claims= 8  ens_unsup=0.00  max_dis=0.67  n_contested= 1  gold=.
+  [ 75/100] ragtruth-12604  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 2  gold=.
+  [ 76/100] ragtruth-16633  claims= 8  ens_unsup=0.00  max_dis=0.33  n_contested= 3  gold=.
+  [ 77/100] ragtruth-15458  claims= 8  ens_unsup=0.12  max_dis=0.00  n_contested= 0  gold=.
+  [ 78/100] ragtruth-14200  claims= 9  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 79/100] ragtruth-14504  claims= 8  ens_unsup=0.00  max_dis=0.33  n_contested= 1  gold=.
+  [ 80/100] ragtruth-17250  claims=12  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 81/100] ragtruth-12244  claims= 9  ens_unsup=0.22  max_dis=0.33  n_contested= 1  gold=.
+  [ 82/100] ragtruth-17757  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 83/100] ragtruth-12844  claims=15  ens_unsup=0.13  max_dis=0.50  n_contested= 2  gold=.
+  [ 84/100] ragtruth-12524  claims= 9  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 85/100] ragtruth-15786  claims=18  ens_unsup=0.78  max_dis=0.67  n_contested=16  gold=.
+  [ 86/100] ragtruth-13163  claims=18  ens_unsup=0.61  max_dis=0.33  n_contested=10  gold=H
+  [ 87/100] ragtruth-15727  claims= 9  ens_unsup=0.11  max_dis=0.00  n_contested= 0  gold=.
+  [ 88/100] ragtruth-13161  claims=21  ens_unsup=0.52  max_dis=0.33  n_contested=11  gold=H
+  [ 89/100] ragtruth-15970  claims= 6  ens_unsup=0.33  max_dis=0.33  n_contested= 1  gold=.
+  [ 90/100] ragtruth-17516  claims=14  ens_unsup=0.00  max_dis=0.33  n_contested= 2  gold=.
+  [ 91/100] ragtruth-12526  claims= 7  ens_unsup=0.29  max_dis=0.50  n_contested= 3  gold=.
+  [ 92/100] ragtruth-16883  claims=12  ens_unsup=0.08  max_dis=0.33  n_contested= 3  gold=H
+  [ 93/100] ragtruth-15688  claims=10  ens_unsup=0.10  max_dis=0.33  n_contested= 1  gold=H
+  [ 94/100] ragtruth-14211  claims= 9  ens_unsup=0.11  max_dis=0.33  n_contested= 1  gold=.
+  [ 95/100] ragtruth-15791  claims= 7  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 96/100] ragtruth-13492  claims=11  ens_unsup=0.00  max_dis=0.00  n_contested= 0  gold=.
+  [ 97/100] ragtruth-16455  claims= 9  ens_unsup=0.56  max_dis=0.33  n_contested= 3  gold=.
+  [ 98/100] ragtruth-15103  claims=11  ens_unsup=0.00  max_dis=0.67  n_contested= 1  gold=.
+  [ 99/100] ragtruth-12707  claims=10  ens_unsup=0.00  max_dis=0.33  n_contested= 4  gold=.
+  [100/100] ragtruth-15905  claims=10  ens_unsup=0.50  max_dis=0.50  n_contested= 4  gold=.
+
+======================================================================
+  Signals vs RAGTruth label (example-level, bootstrap 95% CI)
+======================================================================
+  empty (dropped) votes per judge:
+    together/meta-llama/Llama-3.3-70B-Instruct-Turbo     0/1051   (0.0%)
+    together/openai/gpt-oss-120b                         3/1051   (0.3%)
+    together/openai/gpt-oss-20b                         17/1051   (1.6%)
+  scored: 100   hallucinated: 19 (19.0% of scored)
+
+  signal                      AUC-ROC            95% CI   AUC-PR   Spearman
+  ensemble_unsupported          0.844   [0.760, 0.915]    0.458     +0.491
+  max_disagreement              0.629   [0.517, 0.738]    0.258     +0.190
+  n_contested_claims            0.788   [0.652, 0.903]    0.520     +0.402
+  mean_disagreement             0.712   [0.575, 0.835]    0.345     +0.293
+  frac_high_disagreement        0.730   [0.594, 0.852]    0.380     +0.318
+
+  base rate (AUC-PR reference): 0.190
+  Spearman(ensemble_unsupported, max_disagreement): rho=+0.537 p=8.43e-09
+  Spearman(ensemble_unsupported, mean_disagreement): rho=+0.690 p=2.06e-15
+  Spearman(ensemble_unsupported, n_contested_claims): rho=+0.678 p=9.66e-15
+
+======================================================================
+  Diagnostic — responses called FULLY unsupported
+======================================================================
+  none.
+
+======================================================================
+  Done
+======================================================================
+  Rows written to: outputs/rgt_verify_together_qa.jsonl
+
+--- qa: scored      200 / 100 ---
+=== qa COMPLETE at Thu Jul 30 19:56:41 BST 2026:      200 responses ===
+
+=== ALL TASKS DONE at Thu Jul 30 19:56:41 BST 2026 ===

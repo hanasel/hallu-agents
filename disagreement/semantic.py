@@ -87,8 +87,9 @@ def _extract_text(r: ResponseLike) -> str:
     Also strips reasoning-model chain-of-thought (`<think>...</think>`), which
     GPT-OSS / Qwen3 can leak into the answer body and which would otherwise
     dominate the NLI comparison. Belt-and-braces: agents should suppress
-    reasoning at the API level (see `GroqAgent(extra_params=...)`), but a
-    provider change shouldn't silently corrupt the signal.
+    reasoning at the API level (see `GroqAgent.REASONING_PARAMS` /
+    `AgentResponse.reasoning`), but a provider change shouldn't silently
+    corrupt the signal.
     """
     if isinstance(r, str):
         text = r

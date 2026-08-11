@@ -57,7 +57,7 @@ class OpenAICompatibleAgent:
         self._model = model
         self._provider = provider
         self._system_prompt = system_prompt
-        self._cache = cache if cache is not None else ResponseCache()
+        self._cache = cache if cache is not None else ResponseCache(agent_name=self.name)
         self._max_retries = max_retries
         self._default_max_tokens = default_max_tokens
 
@@ -84,19 +84,23 @@ class OpenAICompatibleAgent:
         temperature = kwargs.get("temperature", 0.0)
         max_tokens = kwargs.get("max_tokens", self._default_max_tokens)
 
-        # Cache key includes the system prompt so editing a verifier/decomposer
-        # prompt correctly invalidates — same contract GroqAgent relies on.
+        # Cache key must cover everything that changes the response — including
+        # the system prompt — so verifier and decomposer runs on the same model
+        # don't collide. Mirrors GroqAgent: system prompt goes in `extra`.
+        key_extra: dict = {}
+        if self._system_prompt:
+            key_extra["system_prompt"] = self._system_prompt
         key = make_cache_key(
             model=self.name,
             prompt=prompt,
             temperature=temperature,
             max_tokens=max_tokens,
-            system_prompt=self._system_prompt or "",
+            extra=key_extra or None,
         )
         cached = self._cache.get(key)
         if cached is not None:
-            return AgentResponse.from_dict(cached)
-
+            return cached
+        
         messages = []
         if self._system_prompt:
             messages.append({"role": "system", "content": self._system_prompt})
@@ -133,7 +137,7 @@ class OpenAICompatibleAgent:
                 # Only cache successful, non-empty results — mirrors the reason
                 # your quota-interrupted runs could resume cleanly.
                 if out.text.strip():
-                    self._cache.set(key, out.to_dict())
+                    self._cache.put(key, out)
                 return out
             except Exception as exc:  # noqa: BLE001
                 last_err = exc

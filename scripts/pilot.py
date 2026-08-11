@@ -5,8 +5,13 @@ pilot and folds in the two new capabilities:
 
   1. Semantic-entropy disagreement (NLI meaning-clustering) alongside Jaccard,
      to show it removes the lexical false positives.
-  2. A cross-family agent (OpenAI GPT-OSS-20B) added to the two Meta Llamas,
-     to test whether genuine model diversity breaks the shared-bias failure.
+  2. Two cross-family agents (OpenAI GPT-OSS-20B, Qwen3.6-27B) added to the
+     two Meta Llamas, to test whether genuine model diversity breaks the
+     shared-bias failure.
+
+In cross mode (default) the query panel is the union of same_family_panel
+(2 Llamas) and cross_family_panel (1 Llama + GPT-OSS + Qwen) — 4 distinct
+agents, not a concatenation, since both panels contain llama-3.3-70b-versatile.
 
 What it reports
 ---------------
@@ -14,7 +19,7 @@ What it reports
      false-positive reduction: questions where Jaccard flags disagreement but
      the agents actually agree in meaning (semantic entropy = 0).
   B. Shared-bias test     — questions where the two Llamas agree (same-family
-     disagreement = 0) but the cross-family agent dissents (full-panel
+     disagreement = 0) but a cross-family model dissents (full-panel
      disagreement > 0), and how often that dissent coincides with the Llamas
      being wrong (NLI-graded against the gold answer).
 
@@ -39,18 +44,22 @@ import json
 import statistics
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from data import load_truthfulqa                                       # noqa: E402
-from agents import query_agents                                        # noqa: E402
+from data import load_truthfulqa, TRUTHFULQA_QUERY_CONFIG              # noqa: E402
+from agents import (                                                   # noqa: E402
+    query_agents,
+    assert_models_available,
+    PermanentAgentError,
+    PERMANENT_ERROR_PREFIX,
+)
 from agents.panels import (                                            # noqa: E402
     cross_family_panel,
     same_family_panel,
+    family_of,
     LLAMA_SMALL,
     LLAMA_LARGE,
-    CROSS_FAMILY,
 )
 from disagreement import (                                             # noqa: E402
     JaccardDisagreement,
@@ -58,24 +67,13 @@ from disagreement import (                                             # noqa: E
     CrossEncoderNLI,
     semantically_equivalent,
 )
+from evaluation import grade_correct                                   # noqa: E402
 
 
 def section(title: str) -> None:
     print("\n" + "=" * 70)
     print(f"  {title}")
     print("=" * 70)
-
-
-# Concise-answer elicitation. Bare open-ended questions make chat models
-# return multi-paragraph, hedged answers, which are out of distribution for a
-# sentence-level NLI cross-encoder — nothing merges and semantic entropy
-# saturates near 1.0. Forcing a short, committed answer brings responses into
-# the NLI model's range AND makes them gradable against the short gold answer.
-SHORT_ANSWER_SYSTEM = (
-    "Answer the question directly in a single short sentence. "
-    "State your best factual answer plainly, with no preamble, no explanation, "
-    "and no hedging."
-)
 
 
 def _peek_nli(semantic, texts, question, names) -> None:
@@ -90,44 +88,6 @@ def _peek_nli(semantic, texts, question, names) -> None:
             label = nli.predict(cond[i], cond[j])
             print(f"        {names[i].split('/')[-1]:>22} -> "
                   f"{names[j].split('/')[-1]:<22} {label}")
-
-
-# ---------------------------------------------------------------------------
-# Correctness proxy (NLI-graded against the gold answer)
-# ---------------------------------------------------------------------------
-
-def grade_correct(nli, response_text: str, sample) -> Optional[bool]:
-    """True/False if the response agrees/conflicts with gold; None if unclear.
-
-    Uses DIRECTIONAL NLI (not strict bidirectional equivalence), because a
-    terse-but-correct answer ("No.") entails the gold only one way. Logic,
-    all question-conditioned:
-      - entailment either direction with gold, no contradiction -> correct
-      - contradiction with gold either direction               -> incorrect
-      - otherwise (neutral vs gold): if it entails a known wrong answer,
-        incorrect; else unclear.
-    Still a proxy — it leans on NLI quality — but far less likely to return
-    'unclear' for plainly right/wrong short answers than strict equivalence.
-    """
-    if not response_text.strip():
-        return None
-    q = sample.question
-    resp = f"{q} {response_text}"
-    gold = f"{q} {sample.correct_answer}"
-
-    r2g, g2r = nli.predict_batch([(resp, gold), (gold, resp)])
-    gold_labels = (r2g, g2r)
-    if "entailment" in gold_labels and "contradiction" not in gold_labels:
-        return True
-    if "contradiction" in gold_labels:
-        return False
-
-    for wrong in sample.incorrect_answers:
-        wc = f"{q} {wrong}"
-        r2w, w2r = nli.predict_batch([(resp, wc), (wc, resp)])
-        if "entailment" in (r2w, w2r) and "contradiction" not in (r2w, w2r):
-            return False
-    return None
 
 
 # ---------------------------------------------------------------------------
@@ -161,19 +121,41 @@ def main() -> None:
     print(f"  Loaded {len(samples)} questions.")
 
     section("Building agent panel")
-    panel_kwargs = {} if args.no_concise else {"system_prompt": SHORT_ANSWER_SYSTEM}
+    panel_kwargs = {} if args.no_concise else dict(TRUTHFULQA_QUERY_CONFIG)
     try:
-        agents = (same_family_panel(**panel_kwargs) if args.no_cross
-                  else cross_family_panel(**panel_kwargs))
+        same_family_agents = same_family_panel(**panel_kwargs)
+        if args.no_cross:
+            agents = same_family_agents
+        else:
+            cross_agents = cross_family_panel(**panel_kwargs)
+            # Union, not concatenation: cross_family_panel already contains
+            # LLAMA_LARGE (one model per family), so re-adding it from
+            # same_family_agents would query — and print — it twice.
+            agents = same_family_agents + [a for a in cross_agents if a.model != LLAMA_LARGE]
     except RuntimeError as exc:
         print(f"\n  {exc}\n")
         sys.exit(1)
     print(f"  answer style: "
           f"{'verbose (baseline)' if args.no_concise else 'concise (forced short answers)'}")
     for a in agents:
-        tag = "cross-family" if a.model == CROSS_FAMILY else "same-family"
-        print(f"  - {a.name:<40} [{tag}]")
+        print(f"  - {a.name:<40} [{family_of(a.model)}]")
     has_cross = not args.no_cross
+    # Identity, not position: cross mode's panel has one Llama mixed in with
+    # two other-family models, so "first two agents" no longer means "the
+    # Llama pair" — see the module docstring.
+    llama_indices = [i for i, a in enumerate(agents) if a.model in (LLAMA_SMALL, LLAMA_LARGE)]
+
+    # Preflight: confirm every panel model id is actually being served, before
+    # spending a single token. A dead or typo'd model id (e.g. a Groq model
+    # decommissioned mid-run) fails here in ~1 API call instead of after
+    # MAX_RETRIES rounds of backoff on question 1 of `args.n`.
+    section("Preflight — model IDs")
+    try:
+        assert_models_available(agents)
+    except PermanentAgentError as exc:
+        print(f"\n  [ABORT] {exc}\n")
+        sys.exit(2)
+    print("  All panel models are live.")
 
     # Preflight: one canary question. Catch a mute/erroring agent here instead
     # of after 50 questions. An empty answer usually means either (a) the call
@@ -198,8 +180,10 @@ def main() -> None:
         print("  - 'ERROR: TypeError ...unexpected keyword argument' => Groq params")
         print("    must go via extra_body, not top-level kwargs (GroqAgent handles")
         print("    this; check you're on the fixed groq_agent.py).")
-        print("  - 'EMPTY, no error' with finish_reason='length' => raise the token")
-        print("    budget (agents/panels.REASONING_MAX_TOKENS).\n")
+        print("  - 'EMPTY, no error' with finish_reason='length' => raise")
+        print("    TRUTHFULQA_QUERY_CONFIG['max_tokens'] in data/query_config.py")
+        print("    (applies uniformly to every panel agent, by design — see")
+        print("    agents/panels._assert_uniform_query_settings).\n")
         sys.exit(2)
     print("  All agents responded.")
 
@@ -222,21 +206,45 @@ def main() -> None:
     out_path.write_text("", encoding="utf-8")   # truncate; avoid appending to a stale run
 
     rows = []
+    n_question_errors = 0
     for idx, s in enumerate(samples, start=1):
         responses = query_agents(agents, s.prompt)
+        errored = [(a, r) for a, r in zip(agents, responses) if r.is_error]
+        if errored:
+            # Don't silently score through a failed call — an agent error
+            # means this row's disagreement numbers would be junk (comparing
+            # real answers against ""), and a run that quietly drops rows
+            # ends up with a results file whose row count doesn't match `n`.
+            n_question_errors += 1
+            for a, r in errored:
+                print(f"  [{idx:>2}/{len(samples)}] {s.uid}  [!] {a.name}: {r.error}")
+            permanent = any(r.error.startswith(PERMANENT_ERROR_PREFIX) for _, r in errored)
+            if permanent or n_question_errors > 3:
+                raise RuntimeError(
+                    f"Aborting after {n_question_errors} question(s) with agent "
+                    f"errors (latest: {errored[-1][0].name}: {errored[-1][1].error}). "
+                    f"{len(rows)} good row(s) already written to {out_path} — "
+                    f"cached answers won't be re-billed on re-run, so fix the "
+                    f"underlying issue and re-run."
+                )
+            continue
+
         texts = [r.text for r in responses]
         empties = [not t.strip() for t in texts]
 
         jac = jaccard.score(responses).score
         sem = semantic.score(responses, question=s.question)
 
-        # Same-family-only view (first two agents = the two Llamas) for the
-        # shared-bias comparison. Only meaningful when a cross-family agent
-        # was actually added.
-        sem_same = semantic.score(responses[:2], question=s.question) if has_cross else None
+        # Same-family-only view (the two Llamas, found by model id via
+        # llama_indices — see above) for the shared-bias comparison. Only
+        # meaningful when cross-family agents were actually added.
+        same_responses = [responses[i] for i in llama_indices]
+        sem_same = semantic.score(same_responses, question=s.question) if has_cross else None
 
-        grades = [grade_correct(nli, t, s) for t in texts]
-        llama_grades = grades[:2]
+        # This pilot only ever queries the open-ended prompt (s.prompt), so
+        # grading routes through the NLI proxy, not letter extraction.
+        grades = [grade_correct(nli, t, s, prompt_format="open") for t in texts]
+        llama_grades = [grades[i] for i in llama_indices]
         both_llamas_wrong = all(g is False for g in llama_grades)
         llamas_agree = sem_same is not None and sem_same.details["n_clusters"] == 1
 
@@ -345,19 +353,19 @@ def main() -> None:
     # B. Shared-bias / cross-family test
     # ------------------------------------------------------------------ #
     if has_cross:
-        section("B. Shared-bias test — does the cross-family agent break ties?")
+        section("B. Shared-bias test — do the cross-family models break ties?")
         tie_broken = [r for r in rows
                       if r["n_clusters_same_family"] == 1 and r["n_clusters"] > 1]
-        print(f"  Two Llamas agree but GPT-OSS dissents: "
+        print(f"  Two Llamas agree but a cross-family model dissents: "
               f"{len(tie_broken)} / {len(rows)} questions.")
 
         # Of those, how many are cases where BOTH Llamas were actually wrong?
-        # These are exactly the shared-bias failures the cross-family agent is
-        # meant to rescue: same-family disagreement said 'agree' (miss), the
-        # cross-family agent reintroduces the signal.
+        # These are exactly the shared-bias failures the cross-family models
+        # are meant to rescue: same-family disagreement said 'agree' (miss),
+        # a cross-family model reintroduces the signal.
         rescued = [r for r in tie_broken if r["both_llamas_wrong"]]
         print(f"  ...of which both Llamas were graded WRONG (shared-bias "
-              f"failures surfaced by the cross-family agent): {len(rescued)}")
+              f"failures surfaced by a cross-family model): {len(rescued)}")
         for r in rescued[:5]:
             print(f"    - {r['uid']} [{r['category']}]")
             print(f"        Q: {r['question'][:80]}")
@@ -368,8 +376,8 @@ def main() -> None:
             r["semantic_entropy_same_family"] for r in rows
             if r["semantic_entropy_same_family"] is not None
         )
-        print(f"\n  mean semantic entropy, same-family (2 Llamas) : {mean_sem_same:.3f}")
-        print(f"  mean semantic entropy, cross-family (3 models): {mean_sem:.3f}")
+        print(f"\n  mean semantic entropy, same-family (2 Llamas)  : {mean_sem_same:.3f}")
+        print(f"  mean semantic entropy, full panel ({len(agents)} models): {mean_sem:.3f}")
         print(f"  → diversity raises the panel's disagreement by "
               f"{mean_sem - mean_sem_same:+.3f} on average.")
 
