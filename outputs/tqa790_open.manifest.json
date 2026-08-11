@@ -1,0 +1,47 @@
+{
+  "models": [
+    "llama-3.1-8b-instant",
+    "llama-3.3-70b-versatile",
+    "openai/gpt-oss-20b",
+    "openai/gpt-oss-120b",
+    "qwen/qwen3.6-27b"
+  ],
+  "prompt_format": "open",
+  "temperature": 0.0,
+  "max_tokens": 300,
+  "system_prompt": "Answer in one short sentence.",
+  "reasoning_params": {
+    "llama-3.1-8b-instant": {},
+    "llama-3.3-70b-versatile": {},
+    "openai/gpt-oss-20b": {
+      "reasoning_effort": "low"
+    },
+    "openai/gpt-oss-120b": {
+      "reasoning_effort": "low"
+    },
+    "qwen/qwen3.6-27b": {
+      "reasoning_effort": "none",
+      "reasoning_format": "hidden"
+    }
+  },
+  "nli_model": "cross-encoder/nli-deberta-v3-base",
+  "semantic_entropy_settings": [
+    {
+      "strict_entailment": true,
+      "linkage": "complete",
+      "normalise": true
+    },
+    {
+      "strict_entailment": false,
+      "linkage": "complete",
+      "normalise": true
+    }
+  ],
+  "dataset": "truthfulqa",
+  "source": "github",
+  "n": null,
+  "seed": 0,
+  "git_commit": "4204b90c4ddf5445c43abb266a46df1fffc37abd",
+  "start_utc": "2026-08-11T18:30:50+00:00",
+  "end_utc": "2026-08-11T19:12:41+00:00"
+}

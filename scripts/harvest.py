@@ -81,7 +81,7 @@ HARVEST_MAX_TOKENS = 300
 CSV_FIELDS = [
     "uid", "category", "question_type", "question",
     "correct_answer", "correct_letter",
-    "n_agents", "n_valid",
+    "n_agents", "n_valid", "hallucinated",
     "jaccard",
     "mc_exact_match",
     "semantic_entropy_strict", "semantic_entropy_strict_nats", "n_clusters_strict",
@@ -108,6 +108,26 @@ def section(title: str) -> None:
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _majority_hallucinated(grades: List[Optional[bool]]) -> Optional[bool]:
+    """True iff the majority of DECIDED (non-None) grades in `grades` are
+    False (wrong). False iff the majority are True (correct). None if there
+    are no decided grades, or the vote is tied — an undecided sample must
+    not be defaulted to either class, the same three-valued discipline as
+    `grade_correct` itself (never collapse None to False).
+
+    Mirrors scripts/pilot_sampled.py's majority_grade, inverted to
+    hallucination polarity: majority-wrong -> True, not majority-correct.
+    """
+    decided = [g for g in grades if g is not None]
+    if not decided:
+        return None
+    n_wrong = sum(1 for g in decided if g is False)
+    n_right = len(decided) - n_wrong
+    if n_wrong == n_right:
+        return None
+    return n_wrong > n_right
 
 
 def _git_sha() -> Optional[str]:
@@ -207,7 +227,12 @@ def _print_breakdown(label: str, csv_rows: List[dict], resp_rows: List[dict]) ->
     grades = [r["grade"] for r in sub_resp]
     graded = [g for g in grades if g is not None]
     n_unclear = sum(1 for g in grades if g is None)
-    pos_rate = (sum(1 for g in graded if g is True) / len(graded)) if graded else None
+    # "Positive" = hallucinated (grade False), matching the disagreement
+    # measures' convention (higher score = more disagreement = elevated
+    # hallucination risk) and how this becomes the AUC-PR label downstream.
+    # This used to count grade is True (i.e. "% correct"), which is the
+    # complement of the intended rate — a straight polarity inversion.
+    pos_rate = (sum(1 for g in graded if g is False) / len(graded)) if graded else None
 
     print(f"\n  -- {label} ({len(csv_rows)} samples) --")
     print(f"  n_scored           : {n_scored}")
@@ -366,6 +391,7 @@ def main() -> None:
             continue
 
         valid_texts: List[str] = []
+        sample_grades: List[Optional[bool]] = []
         n_empty_here = 0
         for a, r in zip(agents, responses):
             text = r.text or ""
@@ -375,6 +401,7 @@ def main() -> None:
                 print(f"  [!] {a.name} truncated on {s.uid} (finish_reason='length')")
 
             grade = grade_correct(nli, text, s, prompt_format=args.prompt_format)
+            sample_grades.append(grade)
             response_row = {
                 "uid": s.uid,
                 "model": a.model,
@@ -398,9 +425,31 @@ def main() -> None:
             # Empty text scores as maximum disagreement under every measure —
             # a silent false positive, not a real response — so it's recorded
             # above but excluded from the panel-level scoring inputs below.
+            # (It also always grades None, via grade_correct's own empty-text
+            # check, so it's automatically excluded from `decided` below too.)
             if text.strip():
                 valid_texts.append(text)
         responses_fh.flush()
+
+        hallucinated = _majority_hallucinated(sample_grades)
+        # Self-check the label's polarity at the point of use, not just in
+        # _majority_hallucinated's implementation — a sign flip here inverts
+        # every AUC-PR downstream, and this is exactly the class of bug that
+        # produced the "positive base rate" inversion this fix corrects.
+        decided = [g for g in sample_grades if g is not None]
+        if decided:
+            n_wrong = sum(1 for g in decided if g is False)
+            n_right = len(decided) - n_wrong
+            assert (hallucinated is None) == (n_wrong == n_right), (
+                f"{s.uid}: hallucinated={hallucinated} inconsistent with tie "
+                f"state (n_wrong={n_wrong}, n_right={n_right})"
+            )
+            assert hallucinated is None or hallucinated == (n_wrong > n_right), (
+                f"{s.uid}: hallucinated={hallucinated} does not match majority "
+                f"of valid grades being False (n_wrong={n_wrong}, n_right={n_right})"
+            )
+        else:
+            assert hallucinated is None
 
         row = {
             "uid": s.uid,
@@ -411,6 +460,7 @@ def main() -> None:
             "correct_letter": s.correct_letter,
             "n_agents": len(agents),
             "n_valid": len(valid_texts),
+            "hallucinated": hallucinated,
             "jaccard": None, "mc_exact_match": None,
             "semantic_entropy_strict": None, "semantic_entropy_strict_nats": None,
             "n_clusters_strict": None,
