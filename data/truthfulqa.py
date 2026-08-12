@@ -108,6 +108,15 @@ class TruthfulQASample:
     binary_choices: list[str] = field(default_factory=list)   # [Best Answer, Best Incorrect Answer], shuffled
     binary_correct_index: int = -1
 
+    # Full correct-answer set (github source: the CSV's semicolon-separated
+    # "Correct Answers" column, median 3 entries, max 14). `correct_answer`
+    # above is just one member of this set — kept as-is since MC grading and
+    # the choices-shuffle logic depend on it being a single string. hf source
+    # doesn't expose this column, so it degrades to [correct_answer] there
+    # (identical to open-ended grading against correct_answer alone, i.e. no
+    # behaviour change for hf-sourced samples).
+    correct_answers: list[str] = field(default_factory=list)
+
     def mc_prompt(self, mc_format: str = "mc1") -> str:
         """Multiple-choice format: question + lettered options, asks for a letter.
 
@@ -197,6 +206,7 @@ class TruthfulQASample:
             "question_type": self.question_type,
             "source_url": self.source_url,
             "correct_answer": self.correct_answer,
+            "correct_answers": list(self.correct_answers),
             "incorrect_answers": list(self.incorrect_answers),
             "choices": list(self.choices),
             "correct_index": self.correct_index,
@@ -211,6 +221,31 @@ class TruthfulQASample:
             "binary_mc_prompt": self.mc_prompt(mc_format="binary"),
             "open_prompt": self.open_prompt(),
         }
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "TruthfulQASample":
+        """Reconstruct from a to_dict()-shaped dict.
+
+        Derived entries (uid, correct_letter, binary_correct_letter, prompt,
+        mc_prompt, binary_mc_prompt, open_prompt, type) are recomputed from
+        the stored fields, not read back — they aren't constructor args.
+        """
+        return cls(
+            question_id=d["question_id"],
+            question=d["question"],
+            category=d["category"],
+            correct_answer=d["correct_answer"],
+            incorrect_answers=list(d["incorrect_answers"]),
+            choices=list(d["choices"]),
+            correct_index=d["correct_index"],
+            question_type=d.get("question_type", "Unknown"),
+            source_url=d.get("source_url", ""),
+            best_answer=d.get("best_answer", ""),
+            best_incorrect_answer=d.get("best_incorrect_answer", ""),
+            binary_choices=list(d.get("binary_choices", [])),
+            binary_correct_index=d.get("binary_correct_index", -1),
+            correct_answers=list(d.get("correct_answers", [])),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -369,6 +404,8 @@ class TruthfulQALoader:
         rng.shuffle(binary_choices)
         binary_correct_index = binary_choices.index(best_answer)
 
+        correct_answers = [a.strip() for a in csv_row["Correct Answers"].split(";") if a.strip()]
+
         return TruthfulQASample(
             question_id=idx,
             question=question,
@@ -383,6 +420,7 @@ class TruthfulQALoader:
             best_incorrect_answer=best_incorrect_answer,
             binary_choices=binary_choices,
             binary_correct_index=binary_correct_index,
+            correct_answers=correct_answers,
         )
 
     # ------------------------------------------------------------------
@@ -472,4 +510,7 @@ class TruthfulQALoader:
             best_incorrect_answer=best_incorrect_answer,
             binary_choices=binary_choices,
             binary_correct_index=binary_correct_index,
+            # hf source doesn't expose the CSV's "Correct Answers" list — fall
+            # back to the single answer (see class-level field comment).
+            correct_answers=[correct_answer],
         )
