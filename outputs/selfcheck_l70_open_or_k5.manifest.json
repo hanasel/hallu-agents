@@ -1,0 +1,37 @@
+{
+  "model": "meta-llama/llama-3.3-70b-instruct",
+  "provider": "openrouter",
+  "k": 5,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "prompt_format": "open",
+  "temperature": 0.7,
+  "max_tokens": 300,
+  "system_prompt": "Answer in one short sentence.",
+  "reasoning_params": {},
+  "nli_model": "cross-encoder/nli-deberta-v3-base",
+  "semantic_entropy_settings": [
+    {
+      "strict_entailment": true,
+      "linkage": "complete",
+      "normalise": true
+    },
+    {
+      "strict_entailment": false,
+      "linkage": "complete",
+      "normalise": true
+    }
+  ],
+  "dataset": "truthfulqa",
+  "source": "github",
+  "n": null,
+  "seed": 0,
+  "git_commit": "c25037619aa310e9b2664679a588092a2fa215e2",
+  "start_utc": "2026-08-13T14:44:41+00:00",
+  "end_utc": "2026-08-13T18:00:54+00:00"
+}

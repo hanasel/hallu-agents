@@ -35,6 +35,11 @@ PROVIDERS: dict[str, tuple[str, str]] = {
     "gemini": ("https://generativelanguage.googleapis.com/v1beta/openai/",
                "GEMINI_API_KEY"),
     "openai": ("https://api.openai.com/v1", "OPENAI_API_KEY"),
+    # Single OpenAI-compatible endpoint fronting many upstream providers, kept
+    # as its own tag (not folded into any upstream's model-id namespace) since
+    # OpenRouter's own model ids ('meta-llama/...', 'qwen/...', ...) are a
+    # third naming scheme, distinct from both Groq's and each upstream's own.
+    "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
 }
 
 
@@ -75,7 +80,20 @@ def make_provider_agent(
     base_url, key_env = PROVIDERS[prov]
 
     extra: dict = {}
-    if prov == "groq" and not apply_reasoning_defaults:
+    if prov == "groq":
+        if not apply_reasoning_defaults:
+            extra = {"reasoning_params": {}}
+        # else: leave reasoning_params unset, so GroqAgent's own
+        # REASONING_PARAMS-by-model-id lookup applies, as documented above.
+    else:
+        # REASONING_PARAMS is keyed by MODEL ID ONLY, not (provider, model) —
+        # GroqAgent.__init__ falls back to that table whenever reasoning_params
+        # isn't given, regardless of which provider is asking. Left alone, a
+        # non-Groq model id that happens to collide with a Groq table entry
+        # (e.g. 'openai/gpt-oss-20b' exists on both Groq and OpenRouter) would
+        # silently get Groq's reasoning_effort/reasoning_format sent to a
+        # different endpoint. Force it empty here — still overridable via an
+        # explicit `reasoning_params=` kwarg, since that's merged in after.
         extra = {"reasoning_params": {}}
 
     return GroqAgent(

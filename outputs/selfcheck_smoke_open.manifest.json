@@ -1,0 +1,41 @@
+{
+  "model": "llama-3.3-70b-versatile",
+  "k": 10,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "prompt_format": "open",
+  "temperature": 0.7,
+  "max_tokens": 300,
+  "system_prompt": "Answer in one short sentence.",
+  "reasoning_params": {},
+  "nli_model": "cross-encoder/nli-deberta-v3-base",
+  "semantic_entropy_settings": [
+    {
+      "strict_entailment": true,
+      "linkage": "complete",
+      "normalise": true
+    },
+    {
+      "strict_entailment": false,
+      "linkage": "complete",
+      "normalise": true
+    }
+  ],
+  "dataset": "truthfulqa",
+  "source": "github",
+  "n": 10,
+  "seed": 0,
+  "git_commit": "c25037619aa310e9b2664679a588092a2fa215e2",
+  "start_utc": "2026-08-12T17:38:19+00:00",
+  "end_utc": "2026-08-12T17:41:34+00:00"
+}
