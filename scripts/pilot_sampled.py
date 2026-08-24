@@ -28,7 +28,7 @@ kept at the base-model level for comparability with the plain pilot: each base
 model is graded by MAJORITY VOTE over its k samples (more robust than a single
 draw), then any_wrong / majority_wrong are computed over the 4 base grades.
 
-Requires GROQ_API_KEY + torch + sentence-transformers. Samples are cached per
+Requires OPENROUTER_API_KEY + torch + sentence-transformers. Samples are cached per
 (model, prompt, temperature, seed), so re-runs are free and reproducible.
 """
 
@@ -113,7 +113,7 @@ def main() -> None:
         print(f"  {a.name:<40} -> {r.text.strip()[:30]!r}"
               f"{'  <-- EMPTY: ' + str(r.error) if empty else ''}")
     if not ok:
-        print("  [ABORT] an agent returned no text; check groq_agent.py / token budget.")
+        print("  [ABORT] an agent returned no text; check agents/panels.py / token budget.")
         sys.exit(2)
 
     nli = CrossEncoderNLI(model_name=args.nli_model)

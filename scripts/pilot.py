@@ -28,7 +28,7 @@ Correctness is an NLI proxy (same backend as the measure): an answer is
 context. This is a coarse grade, flagged as such — not a substitute for the
 answer-level fuzzy matcher planned for full evaluation.
 
-Requires: GROQ_API_KEY, plus torch + sentence-transformers for the NLI model.
+Requires: OPENROUTER_API_KEY, plus torch + sentence-transformers for the NLI model.
 Responses are cached (agents/) so re-runs are fast and deterministic.
 
 Run from the project root:
@@ -91,7 +91,7 @@ def _peek_nli(semantic, texts, question, names) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Pilot
+1# Pilot
 # ---------------------------------------------------------------------------
 
 def main() -> None:
@@ -146,7 +146,7 @@ def main() -> None:
     llama_indices = [i for i, a in enumerate(agents) if a.model in (LLAMA_SMALL, LLAMA_LARGE)]
 
     # Preflight: confirm every panel model id is actually being served, before
-    # spending a single token. A dead or typo'd model id (e.g. a Groq model
+    # spending a single token. A dead or typo'd model id (e.g. a model
     # decommissioned mid-run) fails here in ~1 API call instead of after
     # MAX_RETRIES rounds of backoff on question 1 of `args.n`.
     section("Preflight — model IDs")
@@ -177,9 +177,9 @@ def main() -> None:
         print(f"  {a.name:<40} -> {r.text.strip()[:40]!r}{note}")
     if not ok:
         print("\n  [ABORT] An agent returned no usable text (see the note above).")
-        print("  - 'ERROR: TypeError ...unexpected keyword argument' => Groq params")
-        print("    must go via extra_body, not top-level kwargs (GroqAgent handles")
-        print("    this; check you're on the fixed groq_agent.py).")
+        print("  - 'ERROR: TypeError ...unexpected keyword argument' => provider-")
+        print("    specific params must go via extra_body, not top-level kwargs")
+        print("    (agents/groq_agent.py's GroqAgent handles this already).")
         print("  - 'EMPTY, no error' with finish_reason='length' => raise")
         print("    TRUTHFULQA_QUERY_CONFIG['max_tokens'] in data/query_config.py")
         print("    (applies uniformly to every panel agent, by design — see")

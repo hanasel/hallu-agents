@@ -1,7 +1,8 @@
 """Shared types and the common Sample interface for dataset loaders.
 
-Both `TruthfulQASample` and `RAGTruthSample` satisfy the `Sample` protocol,
-exposing a stable `uid`, a ready-to-send `prompt`, and a `dataset` discriminator.
+`TruthfulQASample`, `RAGTruthSample`, and `SimpleQAVerifiedSample` all satisfy
+the `Sample` protocol, exposing a stable `uid`, a ready-to-send `prompt`, and
+a `dataset` discriminator.
 
 This keeps the rich, dataset-specific dataclasses (with their domain methods like
 `is_hallucinated`, `hallucination_rate`, `correct_letter`) while letting the
@@ -12,7 +13,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Literal, Protocol, runtime_checkable
 
-DatasetName = Literal["truthfulqa", "ragtruth"]
+DatasetName = Literal["truthfulqa", "ragtruth", "simpleqa"]
 TaskType = Literal["qa", "summarization", "data2txt"]
 
 
@@ -23,6 +24,7 @@ class Sample(Protocol):
     Implementations live in:
       - `data.truthfulqa.TruthfulQASample`
       - `data.ragtruth.RAGTruthSample`
+      - `data.simpleqa.SimpleQAVerifiedSample`
 
     Use this as the type hint anywhere code should work across datasets
     (e.g. agent querying). Evaluation code that branches on dataset can

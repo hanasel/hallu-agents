@@ -29,7 +29,7 @@ disagreement. Pick deliberately; this script implements framing (a).
 
 The near-free lexical floor for comparison is scripts/rgt_corpus_disagreement.py.
 
-Requires: GROQ_API_KEY (+ any panel provider keys), torch + sentence-transformers
+Requires: OPENROUTER_API_KEY (+ any panel provider keys), torch + sentence-transformers
 for the NLI model. Responses are cached, so re-runs are cheap.
 
 Run from the project root:

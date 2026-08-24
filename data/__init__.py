@@ -21,9 +21,12 @@ Quick start
     # RAGTruth grouped by source (mirrors multi-agent structure)
     grouped = load_ragtruth_by_source(split="test", n=200)
 
+    # SimpleQA Verified — 1,000 short-form factuality questions
+    sqa = load_simpleqa(n=100, seed=42)
+
     # Per-dataset agent-query settings (max_tokens/system_prompt/temperature)
     # — agents.GroqAgent itself stays dataset-neutral; pass these explicitly.
-    from data import TRUTHFULQA_QUERY_CONFIG, RAGTRUTH_QUERY_CONFIG
+    from data import TRUTHFULQA_QUERY_CONFIG, RAGTRUTH_QUERY_CONFIG, SIMPLEQA_QUERY_CONFIG
     agent = GroqAgent(**TRUTHFULQA_QUERY_CONFIG)
 """
 
@@ -36,7 +39,8 @@ from typing import Optional
 from .schema import Sample, DatasetName, TaskType
 from .truthfulqa import TruthfulQALoader, TruthfulQASample
 from .ragtruth import RAGTruthLoader, RAGTruthSample, HallucinationSpan
-from .query_config import TRUTHFULQA_QUERY_CONFIG, RAGTRUTH_QUERY_CONFIG
+from .simpleqa import SimpleQAVerifiedLoader, SimpleQAVerifiedSample
+from .query_config import TRUTHFULQA_QUERY_CONFIG, RAGTRUTH_QUERY_CONFIG, SIMPLEQA_QUERY_CONFIG
 
 
 def load_truthfulqa(
@@ -93,6 +97,27 @@ def load_ragtruth_by_source(
     return loader.load_by_source(split=split, **kwargs)
 
 
+def load_simpleqa(
+    n: Optional[int] = None,
+    seed: int = 42,
+    topics: Optional[list[str]] = None,
+    answer_types: Optional[list[str]] = None,
+    multi_step: Optional[bool] = None,
+    requires_reasoning: Optional[bool] = None,
+    cache_dir: Optional[str] = None,
+) -> list[SimpleQAVerifiedSample]:
+    """Load SimpleQA Verified. Optionally subset and/or filter.
+
+    1,000 short-form factuality questions (Google DeepMind's revised,
+    de-duplicated, error-corrected version of OpenAI's SimpleQA). See
+    `data.simpleqa` for details.
+    """
+    return SimpleQAVerifiedLoader(cache_dir=cache_dir).load(
+        n=n, seed=seed, topics=topics, answer_types=answer_types,
+        multi_step=multi_step, requires_reasoning=requires_reasoning,
+    )
+
+
 def print_dataset_stats() -> None:
     """Print summary statistics for both datasets (requires network)."""
     print("=" * 60)
@@ -120,6 +145,19 @@ def print_dataset_stats() -> None:
     print(f"\n  By source model:")
     for model, count in sorted(stats["by_model"].items()):
         print(f"    {model:<30} {count:>5} responses")
+
+    print()
+    print("=" * 60)
+    print("SimpleQA Verified")
+    print("=" * 60)
+    loader_sqa = SimpleQAVerifiedLoader()
+    samples_sqa = loader_sqa.load()
+    by_topic = loader_sqa.load_by_topic()
+    print(f"  Total questions : {len(samples_sqa)}")
+    print(f"  Topics          : {len(by_topic)}")
+    print(f"\n  Topics by size:")
+    for topic, items in sorted(by_topic.items(), key=lambda x: -len(x[1])):
+        print(f"    {topic:<35} {len(items):>3} questions")
 
 
 def export_to_jsonl(samples, path: str | Path) -> Path:

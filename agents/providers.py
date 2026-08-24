@@ -6,20 +6,30 @@ module holds the endpoint table and a small factory.
 
 Why this exists
 ---------------
-1. Judge independence. The panel is Meta (Llama) + OpenAI (GPT-OSS), so every
-   cheap Groq model is *in* the panel — grading with one is self-evaluation.
-   A Google (Gemini) judge is outside the panel entirely.
-2. Free-tier headroom. Groq's free tier caps tokens-per-day per model; Gemini's
-   free tier is capped on requests-per-day instead, so a batched judge run fits.
-3. The diversity experiment (RQ3) needs models from genuinely different
+1. Judge independence. The panel is Meta (Llama), OpenAI (GPT-OSS) and Qwen,
+   so a judge drawn from any of those families is self-evaluation. What makes
+   a judge independent is its training lineage, not which endpoint serves it
+   — a Google (Gemini) model routed through OpenRouter is just as external to
+   the panel as one reached through Google's own endpoint. `--judge-provider`
+   on scripts/simpleqa_pilot.py defaults to "openrouter" for exactly this
+   reason; pass a different provider tag only if the judge model isn't
+   available there.
+2. The diversity experiment (RQ3) needs models from genuinely different
    developers, which means multi-provider regardless.
 
+(Historically also motivated by free-tier request-quota headroom on Gemini's
+own endpoint vs Groq's token-quota; that no longer applies on a paid
+OpenRouter account, but the Gemini provider tag below still works if you ever
+need Google's endpoint directly.)
+
 Gemini exposes an OpenAI-compatible endpoint, so it needs no special client.
-Set the relevant key in `.env`:  GROQ_API_KEY=... / GEMINI_API_KEY=...
+Set the relevant key in `.env`:  OPENROUTER_API_KEY=... / GROQ_API_KEY=... /
+GEMINI_API_KEY=...
 
     from agents.providers import make_provider_agent
     judge = make_provider_agent("gemini-2.5-flash", temperature=0.0)
-    judge = make_provider_agent("openai/gpt-oss-120b")   # -> groq
+    judge = make_provider_agent("openai/gpt-oss-120b", provider="groq")
+    judge = make_provider_agent("meta-llama/llama-3.3-70b-instruct", provider="openrouter")
 """
 
 from __future__ import annotations
@@ -39,7 +49,32 @@ PROVIDERS: dict[str, tuple[str, str]] = {
     # as its own tag (not folded into any upstream's model-id namespace) since
     # OpenRouter's own model ids ('meta-llama/...', 'qwen/...', ...) are a
     # third naming scheme, distinct from both Groq's and each upstream's own.
+    # `agents.panels` builds its panel agents on this provider by default —
+    # Groq's free tier rate-limits and its Llama 3.x deprecation schedule made
+    # it an unreliable panel backend; see agents/panels.py's module docstring.
     "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
+}
+
+# OpenRouter's reasoning-suppression request shape is a single nested
+# `reasoning` object (`{"effort": ..., "exclude": ...}`), NOT Groq's flat
+# `reasoning_effort`/`reasoning_format` keys — a different provider, a
+# different API shape, so this is a separate table from
+# `groq_agent.REASONING_PARAMS`, keyed by OpenRouter's own model ids (which
+# mostly differ from Groq's, e.g. 'meta-llama/llama-3.3-70b-instruct' vs
+# Groq's 'llama-3.3-70b-versatile' — except gpt-oss and this Qwen build,
+# whose ids happen to be identical strings on both providers; see the
+# `make_provider_agent` guard below for why that collision matters).
+# `exclude: true` keeps the trace out of the response entirely (Groq's
+# 'hidden' reasoning_format equivalent); `effort` controls how many tokens
+# the model spends reasoning before answering — kept low/none, same
+# rationale as groq_agent.REASONING_PARAMS: an unbounded hidden trace can
+# eat a short max_tokens budget before any answer text is produced.
+OPENROUTER_REASONING_PARAMS: dict[str, dict] = {
+    "qwen/qwen3.6-27b": {"reasoning": {"effort": "none", "exclude": True}},
+    "qwen/qwen3.6-35b-a3b": {"reasoning": {"effort": "none", "exclude": True}},
+    "openai/gpt-oss-20b": {"reasoning": {"effort": "low", "exclude": True}},
+    "openai/gpt-oss-120b": {"reasoning": {"effort": "low", "exclude": True}},
+    "qwen/qwen3.6-plus": {"reasoning": {"effort": "none", "exclude": True}},
 }
 
 
@@ -48,8 +83,12 @@ def infer_provider(model: str) -> str:
 
     NOTE the trap: Groq namespaces its OpenAI open-weights models as
     'openai/gpt-oss-20b'. That leading 'openai/' is a Groq model id, NOT the
-    OpenAI API — so anything that isn't clearly Gemini defaults to Groq, which
-    is where this project's panel lives.
+    OpenAI API — so anything that isn't clearly Gemini defaults to Groq here.
+    `agents.panels` does NOT rely on this inference — it passes
+    `provider="openrouter"` explicitly (see agents/panels.py) — so this
+    fallback only matters for ad-hoc/CLI-supplied model ids elsewhere in the
+    codebase (e.g. scripts/harvest_selfcheck.py's `--model` without
+    `--provider`).
     """
     m = model.lower()
     if m.startswith("gemini") or m.startswith("models/gemini"):
@@ -66,13 +105,29 @@ def make_provider_agent(
 ) -> GroqAgent:
     """Build an agent for `model` on the right provider.
 
-    `provider` is inferred from the model id when not given. Groq reasoning
-    models (GPT-OSS / Qwen3) get their reasoning-suppression params applied
-    automatically inside GroqAgent (from `groq_agent.REASONING_PARAMS`) —
-    nothing to do here for the `apply_reasoning_defaults=True` case.
-    `apply_reasoning_defaults=False` opts a Groq agent out of that (e.g. an
-    ablation run) by forcing an empty override. Non-Groq providers never get
-    reasoning params, since those params are Groq-specific.
+    `provider` is inferred from the model id when not given. Reasoning models
+    (GPT-OSS / Qwen3) get their reasoning-suppression params resolved here,
+    per provider, for the `apply_reasoning_defaults=True` case:
+      - groq       : nothing to do here — GroqAgent's own
+                     `groq_agent.REASONING_PARAMS`-by-model-id lookup applies
+                     automatically when `reasoning_params` isn't given.
+      - openrouter : resolved from `OPENROUTER_REASONING_PARAMS` above
+                     (a different API shape — see that table's docstring).
+      - anything else : no reasoning params (none defined for other
+                     providers yet).
+    `apply_reasoning_defaults=False` opts out of all of the above (e.g. an
+    ablation run) by forcing an empty override — still overridable per-call
+    via an explicit `reasoning_params=` kwarg, since that's merged in after.
+
+    Table lookups are keyed by MODEL ID ONLY, not (provider, model) —
+    GroqAgent.__init__ falls back to `groq_agent.REASONING_PARAMS` whenever
+    `reasoning_params` isn't given, regardless of which provider is asking.
+    Left unguarded, a model id that collides across providers (e.g.
+    'openai/gpt-oss-20b' and 'qwen/qwen3.6-27b' both exist, under those exact
+    strings, on Groq AND OpenRouter) would silently get one provider's
+    reasoning params sent to the other's endpoint. Every non-groq branch
+    below sets `reasoning_params` explicitly (falling back to `{}` if the
+    model has no table entry) specifically to block that fallthrough.
     """
     prov = provider or infer_provider(model)
     if prov not in PROVIDERS:
@@ -80,20 +135,13 @@ def make_provider_agent(
     base_url, key_env = PROVIDERS[prov]
 
     extra: dict = {}
-    if prov == "groq":
-        if not apply_reasoning_defaults:
-            extra = {"reasoning_params": {}}
-        # else: leave reasoning_params unset, so GroqAgent's own
-        # REASONING_PARAMS-by-model-id lookup applies, as documented above.
+    if not apply_reasoning_defaults:
+        extra = {"reasoning_params": {}}
+    elif prov == "groq":
+        pass  # GroqAgent's own REASONING_PARAMS-by-model-id lookup applies.
+    elif prov == "openrouter":
+        extra = {"reasoning_params": dict(OPENROUTER_REASONING_PARAMS.get(model, {}))}
     else:
-        # REASONING_PARAMS is keyed by MODEL ID ONLY, not (provider, model) —
-        # GroqAgent.__init__ falls back to that table whenever reasoning_params
-        # isn't given, regardless of which provider is asking. Left alone, a
-        # non-Groq model id that happens to collide with a Groq table entry
-        # (e.g. 'openai/gpt-oss-20b' exists on both Groq and OpenRouter) would
-        # silently get Groq's reasoning_effort/reasoning_format sent to a
-        # different endpoint. Force it empty here — still overridable via an
-        # explicit `reasoning_params=` kwarg, since that's merged in after.
         extra = {"reasoning_params": {}}
 
     return GroqAgent(

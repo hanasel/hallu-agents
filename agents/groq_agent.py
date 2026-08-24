@@ -121,6 +121,7 @@ class GroqAgent:
         base_url: Optional[str] = None,
         provider: Optional[str] = None,
         api_key_env: Optional[str] = None,
+        name_suffix: Optional[str] = None,
     ):
         """
         Parameters
@@ -165,6 +166,15 @@ class GroqAgent:
                          filename), e.g. 'groq', 'gemini'. Defaults to 'groq'.
         api_key_env    : Environment variable holding the key. Defaults to
                          'GROQ_API_KEY'.
+        name_suffix    : Appended to `.name` (e.g. "+think"), so two agents
+                         built on the same `model` don't collide under one
+                         `.name` — e.g. a reasoning on/off twin of the same
+                         model id. `.name` determines the cache *filename*
+                         (via `ResponseCache`); the cache *key* itself already
+                         separates such agents through `reasoning_params` (see
+                         the `key_extra` block in `query`), so this parameter
+                         only needs to keep their on-disk cache files and any
+                         `{agent.name: ...}` dict from colliding.
         """
         # Lazy import so the package can be imported without `openai` installed
         # (useful for anyone only using the data layer).
@@ -184,6 +194,7 @@ class GroqAgent:
             pass
 
         self._model = model
+        self._name_suffix = name_suffix or ""
         self.temperature = float(temperature)
         self.max_tokens = int(max_tokens)
         self.system_prompt = system_prompt
@@ -230,7 +241,7 @@ class GroqAgent:
 
     @property
     def name(self) -> str:
-        return f"{self.provider}/{self._model}"
+        return f"{self.provider}/{self._model}{self._name_suffix}"
 
     @property
     def model(self) -> str:
@@ -353,7 +364,13 @@ class GroqAgent:
                     reasoning=reasoning_text,
                     error_kind=None,
                 )
-                if use_cache and self._cache is not None:
+                # Never cache a failed measurement. `is_error` inspects the
+                # `error` field, but a provider can return HTTP 200 with
+                # finish_reason='error' and error=None — that response would
+                # otherwise be stored as a success and replayed on every
+                # subsequent run, making a transient blip permanent.
+                if (use_cache and self._cache is not None
+                        and finish_reason not in ("length", "error")):
                     self._cache.put(cache_key, response)
                 return response
 

@@ -30,3 +30,13 @@ RAGTRUTH_QUERY_CONFIG = {
     "system_prompt": None,
     "temperature": 0.0,
 }
+
+# SimpleQA Verified gold answers are a single short phrase (a number, name,
+# date, or place — see data/simpleqa.py), same rationale as
+# TRUTHFULQA_QUERY_CONFIG above: an unsteered model rambles well past what a
+# grader can compare against a one-phrase gold answer.
+SIMPLEQA_QUERY_CONFIG = {
+    "max_tokens": 2048,
+    "system_prompt": "Answer in one short sentence.",
+    "temperature": 0.0,
+}
