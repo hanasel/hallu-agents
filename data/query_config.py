@@ -17,7 +17,7 @@ from __future__ import annotations
 # model rambles well past the point a grader can compare against the short
 # gold answer).
 TRUTHFULQA_QUERY_CONFIG = {
-    "max_tokens": 100,
+    "max_tokens": 2048,
     "system_prompt": "Answer in one short sentence.",
     "temperature": 0.0,
 }
@@ -26,7 +26,7 @@ TRUTHFULQA_QUERY_CONFIG = {
 # data2txt) as part of the corpus prompt itself, and responses are graded at
 # the span level, so no extra system prompt or short-answer budget is imposed.
 RAGTRUTH_QUERY_CONFIG = {
-    "max_tokens": 512,
+    "max_tokens": 2048,
     "system_prompt": None,
     "temperature": 0.0,
 }

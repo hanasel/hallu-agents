@@ -8,7 +8,17 @@ panel moved to a single OpenRouter endpoint that serves every model here
 under one key/quota. Groq itself is still available for other code via
 `agents.providers` (tag "groq"); it's just no longer what this panel queries.
 
-Two panels matter for the shared-bias question (RQ3):
+The frozen pool is a balanced **3 families × 3 capability tiers** grid
+(`CORE_MODELS`, `MODEL_TIER`) — Meta / OpenAI / Qwen, each at a small / large
+/ strong tier. `pool()` returns exactly these nine agents in grid order.
+Panels (within-family, cross-family, tier-matched, leave-one-out, ...) are
+formed post-hoc over this fixed pool by `scripts/disagreement_pilot.py`, not by
+this module — see that script's `build_panel_specs`. Tier labels are a
+nominal design scaffold for holding family/size constant across ablations,
+NOT a measured capability ranking; see `MODEL_TIER`'s docstring.
+
+`same_family_panel` and `cross_family_panel` below predate the 3×3 grid and
+remain as fixed-composition helpers other scripts import directly:
 
   same_family : two Meta Llama models of different sizes (8B, 70B). They share
                 pretraining lineage, so a misconception baked into the family's
@@ -23,11 +33,12 @@ Two panels matter for the shared-bias question (RQ3):
                 contain two Llamas (same_family_panel is the two-Llama
                 composition, kept separately for the size-ablation contrast).
 
-GPT-OSS and Qwen3 are reasoning models; GroqAgent (used here as a generic
-OpenAI-compatible client, not against Groq — see `make_agent`) keeps their
-chain-of-thought out of `text` (via `providers.OPENROUTER_REASONING_PARAMS`,
-resolved automatically from the model id) — otherwise every disagreement
-measure sees the reasoning trace, not the answer.
+GPT-OSS, Qwen3 and the strong tier (llama-4-maverick, gpt-5.6-sol) are
+reasoning-capable; GroqAgent (used here as a generic OpenAI-compatible
+client, not against Groq — see `make_agent`) keeps their chain-of-thought out
+of `text` (via `providers.OPENROUTER_REASONING_PARAMS`, resolved
+automatically from the model id) — otherwise every disagreement measure sees
+the reasoning trace, not the answer.
 """
 
 from __future__ import annotations
@@ -39,13 +50,19 @@ from .providers import make_provider_agent
 
 
 # --- model IDs (single source of truth; these are OpenRouter model ids) --
-LLAMA_SMALL = "meta-llama/llama-3.1-8b-instruct"   # Meta, ~8B
-LLAMA_LARGE = "meta-llama/llama-3.3-70b-instruct"  # Meta, ~70B
+LLAMA_SMALL = "meta-llama/llama-3.1-8b-instruct"   # Meta, ~8B, generation 3.1
+LLAMA_LARGE = "meta-llama/llama-3.3-70b-instruct"  # Meta, ~70B, generation 3.3
+LLAMA_STRONG = "meta-llama/llama-4-maverick"       # Meta, generation 4 — a different
+                                                    # generation from the 3.1/3.3 pair
+                                                    # above, not just a bigger 3.x
 CROSS_FAMILY = "openai/gpt-oss-20b"       # OpenAI GPT-OSS, ~20B, different lineage
 QWEN = "qwen/qwen3.6-27b"                 # Alibaba, ~27B, different lineage
 
 GPT_OSS_SMALL = "openai/gpt-oss-20b"
 GPT_OSS_LARGE = "openai/gpt-oss-120b"
+GPT_STRONG = "openai/gpt-5.6-sol"         # OpenAI, frontier tier of the GPT-5.6 series
+                                           # (above Terra/Luna) — TODO confirm slug on
+                                           # the live OpenRouter catalog
 
 QWEN_LARGE = "qwen/qwen3.6-35b-a3b"                # Alibaba, larger size than QWEN
 QWEN_PLUS = "qwen/qwen3.6-plus"                    # Alibaba, hosted flagship tier
@@ -57,8 +74,10 @@ QWEN_PLUS = "qwen/qwen3.6-plus"                    # Alibaba, hosted flagship ti
 MODEL_FAMILY: dict[str, str] = {
     LLAMA_SMALL: "Meta",
     LLAMA_LARGE: "Meta",
+    LLAMA_STRONG: "Meta",
     CROSS_FAMILY: "OpenAI",
     GPT_OSS_LARGE: "OpenAI",
+    GPT_STRONG: "OpenAI",
     QWEN: "Qwen",
     QWEN_LARGE: "Qwen",
     QWEN_PLUS: "Qwen",
@@ -68,6 +87,28 @@ MODEL_FAMILY: dict[str, str] = {
 def family_of(model: str) -> str:
     """Family name for `model` (falls back to the raw model id if unknown)."""
     return MODEL_FAMILY.get(model, model)
+
+
+# Nominal capability tier. NOT a measured quantity — the small/large/strong
+# labels are a design scaffold for holding family and panel size constant
+# while capability (nominally) varies; they are not equally spaced and are
+# not claimed to be equivalent across families (gpt-oss-20b, llama-3.1-8b and
+# qwen3.6-27b are not the same capability level just because they all say
+# "small"). Any report built on these tiers must cite each agent's measured
+# error rate rather than assert the tiers match. Used to build the
+# tier-matched panels for the small/large/strong ablation in
+# scripts/disagreement_pilot.py, where one model per family per tier holds family
+# composition and panel size constant while capability tier varies.
+MODEL_TIER: dict[str, str] = {
+    LLAMA_SMALL: "small",   LLAMA_LARGE: "large",    LLAMA_STRONG: "strong",
+    GPT_OSS_SMALL: "small", GPT_OSS_LARGE: "large",  GPT_STRONG: "strong",
+    QWEN: "small",          QWEN_LARGE: "large",     QWEN_PLUS: "strong",
+}
+
+
+def tier_of(model: str) -> str:
+    """Nominal tier for `model` ('small'/'large'/'strong'), or 'unknown'."""
+    return MODEL_TIER.get(model, "unknown")
 
 
 def make_agent(model: str, *, seed: Optional[int] = None, **kwargs) -> GroqAgent:
@@ -135,26 +176,23 @@ def cross_family_panel(**kwargs) -> List[GroqAgent]:
     return agents
 
 
-def pool(**kwargs) -> List[GroqAgent]:
-    """Every model the pilot queries. Panels are formed post-hoc by the caller.
+# The frozen 3×3 core pool, in grid order (family-major: Meta, then OpenAI,
+# then Qwen; small/large/strong within each family). scripts/disagreement_pilot.py
+# identifies core agents by `a.model in CORE_MODELS`, so this list — not the
+# order `pool()` happens to build agents in — is the source of truth.
+CORE_MODELS = [LLAMA_SMALL, LLAMA_LARGE, LLAMA_STRONG,
+               GPT_OSS_SMALL, GPT_OSS_LARGE, GPT_STRONG,
+               QWEN, QWEN_LARGE, QWEN_PLUS]
 
-    Two members per family so that within-family and cross-family pairs both
-    exist at matched N=2, plus a reasoning-toggle twin (same model id, reasoning
-    on) so inference mode can be isolated from family.
+
+def pool(**kwargs) -> List[GroqAgent]:
+    """The frozen 3×3 core pool (3 families × 3 nominal capability tiers).
+
+    Panels (within-family, cross-family, tier-matched, leave-one-out, ...)
+    are formed post-hoc by the caller over these nine agents — see
+    scripts/disagreement_pilot.py's `build_panel_specs`.
     """
-    if QWEN_LARGE == "PLACEHOLDER":
-        raise RuntimeError(
-            "agents.panels.QWEN_LARGE is still a placeholder — fill in the "
-            "real OpenRouter model id for the second Qwen size before "
-            "calling pool()."
-        )
-    agents = [make_agent(m, **kwargs) for m in
-              (LLAMA_SMALL, LLAMA_LARGE, GPT_OSS_SMALL, GPT_OSS_LARGE,
-               QWEN, QWEN_LARGE, QWEN_PLUS)]
-    # agents.append(make_agent(
-    #     QWEN, name_suffix="+think",
-    #     reasoning_params={"reasoning": {"max_tokens": 512, "exclude": True}},
-    #     **kwargs))
+    agents = [make_agent(m, **kwargs) for m in CORE_MODELS]
     _assert_uniform_query_settings(agents)
     return agents
 

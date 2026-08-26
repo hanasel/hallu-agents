@@ -1,0 +1,117 @@
+{
+  "dataset": "truthfulqa",
+  "prompt_format": "mc",
+  "n": 800,
+  "seed": 0,
+  "agents": [
+    {
+      "name": "openrouter/meta-llama/llama-3.1-8b-instruct",
+      "model": "meta-llama/llama-3.1-8b-instruct",
+      "family": "Meta",
+      "tier": "small",
+      "reasoning_params": {}
+    },
+    {
+      "name": "openrouter/meta-llama/llama-3.3-70b-instruct",
+      "model": "meta-llama/llama-3.3-70b-instruct",
+      "family": "Meta",
+      "tier": "large",
+      "reasoning_params": {}
+    },
+    {
+      "name": "openrouter/meta-llama/llama-4-maverick",
+      "model": "meta-llama/llama-4-maverick",
+      "family": "Meta",
+      "tier": "strong",
+      "reasoning_params": {
+        "reasoning": {
+          "effort": "none",
+          "exclude": true
+        }
+      }
+    },
+    {
+      "name": "openrouter/openai/gpt-oss-20b",
+      "model": "openai/gpt-oss-20b",
+      "family": "OpenAI",
+      "tier": "small",
+      "reasoning_params": {
+        "reasoning": {
+          "effort": "low",
+          "exclude": true
+        }
+      }
+    },
+    {
+      "name": "openrouter/openai/gpt-oss-120b",
+      "model": "openai/gpt-oss-120b",
+      "family": "OpenAI",
+      "tier": "large",
+      "reasoning_params": {
+        "reasoning": {
+          "effort": "low",
+          "exclude": true
+        }
+      }
+    },
+    {
+      "name": "openrouter/openai/gpt-5.6-sol",
+      "model": "openai/gpt-5.6-sol",
+      "family": "OpenAI",
+      "tier": "strong",
+      "reasoning_params": {
+        "reasoning": {
+          "effort": "none",
+          "exclude": true
+        }
+      }
+    },
+    {
+      "name": "openrouter/qwen/qwen3.6-27b",
+      "model": "qwen/qwen3.6-27b",
+      "family": "Qwen",
+      "tier": "small",
+      "reasoning_params": {
+        "reasoning": {
+          "effort": "none",
+          "exclude": true
+        }
+      }
+    },
+    {
+      "name": "openrouter/qwen/qwen3.6-35b-a3b",
+      "model": "qwen/qwen3.6-35b-a3b",
+      "family": "Qwen",
+      "tier": "large",
+      "reasoning_params": {
+        "reasoning": {
+          "effort": "none",
+          "exclude": true
+        }
+      }
+    },
+    {
+      "name": "openrouter/qwen/qwen3.6-plus",
+      "model": "qwen/qwen3.6-plus",
+      "family": "Qwen",
+      "tier": "strong",
+      "reasoning_params": {
+        "reasoning": {
+          "effort": "none",
+          "exclude": true
+        }
+      }
+    }
+  ],
+  "max_tokens": 2048,
+  "temperature": 0.0,
+  "system_prompt": "Answer in one short sentence.",
+  "nli_model": "cross-encoder/nli-deberta-v3-base",
+  "clustering": {
+    "strict_entailment": false,
+    "linkage": "complete"
+  },
+  "judge_model": null,
+  "judge_provider": null,
+  "git_commit": "0ff66701f944378839f654d40adee6014817ae16"
+}

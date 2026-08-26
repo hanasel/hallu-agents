@@ -11,7 +11,7 @@ Why this exists
    a judge independent is its training lineage, not which endpoint serves it
    — a Google (Gemini) model routed through OpenRouter is just as external to
    the panel as one reached through Google's own endpoint. `--judge-provider`
-   on scripts/simpleqa_pilot.py defaults to "openrouter" for exactly this
+   on scripts/disagreement_pilot.py defaults to "openrouter" for exactly this
    reason; pass a different provider tag only if the judge model isn't
    available there.
 2. The diversity experiment (RQ3) needs models from genuinely different
@@ -75,6 +75,8 @@ OPENROUTER_REASONING_PARAMS: dict[str, dict] = {
     "openai/gpt-oss-20b": {"reasoning": {"effort": "low", "exclude": True}},
     "openai/gpt-oss-120b": {"reasoning": {"effort": "low", "exclude": True}},
     "qwen/qwen3.6-plus": {"reasoning": {"effort": "none", "exclude": True}},
+    "openai/gpt-5.6-sol": {"reasoning": {"effort": "none", "exclude": True}},
+    "meta-llama/llama-4-maverick": {"reasoning": {"effort": "none", "exclude": True}},
 }
 
 

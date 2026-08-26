@@ -26,19 +26,27 @@ from typing import Optional
 #     sentence ("I think...", "A common misconception...") is common, and
 #     without the end anchor "I believe the answer is E" would misread as
 #     'I' before ever reaching the (correct) 'Answer: E' label.
-_MC_ANSWER_LABEL_RE = re.compile(
-    r'\banswer\s*(?:is)?\s*:?\s*[\s"\'*(\[]*([A-Za-z])(?![A-Za-z])',
-    re.IGNORECASE,
-)
+
 _MC_BARE_LETTER_RE = re.compile(r'^[\s"\'*(\[]*([A-Za-z])[\s"\')\]*.,:;!]*$')
 
 
+_MC_ANSWER_LABEL_RE = re.compile(
+    # \b after 'answer' stops 'answers' matching with 's' as the letter.
+    # Requiring at least one separator (space, colon, or quote/bracket)
+    # stops 'answerA' style false positives too.
+    r'\banswer\b\s*(?:is\b)?\s*:?\s*["\'*(\[]*([A-Za-z])(?![A-Za-z])',
+    re.IGNORECASE,
+)
+
 def _extract_mc_letter(response_text: str) -> Optional[str]:
-    """Pull an answer letter out of an MC response, or None if there isn't one."""
     text = response_text.strip()
     if not text:
         return None
-    m = _MC_ANSWER_LABEL_RE.search(text) or _MC_BARE_LETTER_RE.match(text)
+    # LAST label match, not first: a reasoning model deliberates before
+    # committing ("...the correct answer is C... The best answer is C."),
+    # so the concluding label is the actual choice.
+    labels = list(_MC_ANSWER_LABEL_RE.finditer(text))
+    m = labels[-1] if labels else _MC_BARE_LETTER_RE.match(text)
     return m.group(1).upper() if m else None
 
 
