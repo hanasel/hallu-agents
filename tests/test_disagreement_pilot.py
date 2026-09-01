@@ -273,6 +273,117 @@ def test_resume_aborts_on_agent_pool_mismatch(tmp_path):
                           _DATASET_CFG, False)
 
 
+# ---------------------------------------------------------------------------
+# build_panel_specs: within-family pairs sub-classify into within:size /
+# within:generation / within:other (agents/panels.py's generation_of /
+# total_params_of / arch_of tables), without changing `kind` itself — every
+# existing `s.kind == "within"` check downstream must keep working unmodified.
+# ---------------------------------------------------------------------------
+
+from agents.panels import (                                            # noqa: E402
+    QWEN3_32B, QWEN35_9B, QWEN35_27B, QWEN as QWEN36_27B,
+    LLAMA_SMALL, LLAMA_LARGE,
+)
+
+
+def _spec_for(specs, name_a, name_b):
+    key = frozenset((name_a, name_b))
+    for s in specs:
+        if s.kind == "within" and frozenset(s.members) == key:
+            return s
+    raise AssertionError(f"no within-family spec for {name_a!r}/{name_b!r}")
+
+
+def test_within_pair_classified_as_size_same_generation_different_capacity():
+    agents = [
+        _FakeAgent("fake/q35-9b", QWEN35_9B, "x"),
+        _FakeAgent("fake/q35-27b", QWEN35_27B, "x"),
+    ]
+    specs = pilot.build_panel_specs(agents)
+    spec = _spec_for(specs, "fake/q35-9b", "fake/q35-27b")
+    assert spec.subkind == "size"
+    assert spec.family == "Qwen"
+    assert spec.kind == "within"   # unchanged — pooled within-vs-cross logic relies on this
+
+
+def test_within_pair_classified_as_generation_matched_capacity_different_generation():
+    agents = [
+        _FakeAgent("fake/q3-32b", QWEN3_32B, "x"),
+        _FakeAgent("fake/q36-27b", QWEN36_27B, "x"),
+    ]
+    specs = pilot.build_panel_specs(agents)
+    spec = _spec_for(specs, "fake/q3-32b", "fake/q36-27b")
+    assert spec.subkind == "generation"
+    assert spec.kind == "within"
+
+
+def test_within_pair_falls_back_to_other_when_tables_have_no_data():
+    # Meta has no MODEL_GENERATION/MODEL_TOTAL_PARAMS_B entries at all —
+    # must degrade to 'other', not raise.
+    agents = [
+        _FakeAgent("fake/llama-small", LLAMA_SMALL, "x"),
+        _FakeAgent("fake/llama-large", LLAMA_LARGE, "x"),
+    ]
+    specs = pilot.build_panel_specs(agents)
+    spec = _spec_for(specs, "fake/llama-small", "fake/llama-large")
+    assert spec.subkind == "other"
+    assert spec.kind == "within"
+
+
+# ---------------------------------------------------------------------------
+# Ladder reporting helpers (report_ladders / report_capability_regression):
+# _slope_ci95 (OLS slope + 95% CI) and _ladder_agent_row (per-agent n/err/
+# abstain/AUROC off the 'full' panel, since ladder members added via
+# --models are never core members and so have no LOO panel of their own).
+# ---------------------------------------------------------------------------
+
+def test_slope_ci95_recovers_a_known_negative_slope():
+    xs = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+    ys = [0.9 - 0.8 * x for x in xs]   # exact line, slope -0.8
+    fit = pilot._slope_ci95(xs, ys)
+    assert fit is not None
+    slope, lo, hi, n = fit
+    assert slope == pytest.approx(-0.8, abs=1e-6)
+    assert lo <= slope <= hi
+    assert n == 6
+
+
+def test_slope_ci95_none_when_too_few_points_or_no_spread():
+    assert pilot._slope_ci95([0.1, 0.2], [0.5, 0.6]) is None          # n < 3
+    assert pilot._slope_ci95([0.3, 0.3, 0.3], [0.1, 0.5, 0.9]) is None  # no x-spread
+
+
+def _row(uid, full_sem, grades, grades_judge=None, abstained=None):
+    return {
+        "uid": uid,
+        "panels": {"full": {"semantic_entropy": full_sem}},
+        "grades": grades,
+        "grades_judge": grades_judge,
+        "abstained": abstained or {},
+    }
+
+
+def test_ladder_agent_row_computes_err_rate_and_auroc_direction():
+    # 'a' is wrong exactly when full-panel disagreement is high (sem=0.8),
+    # so AUROC(scores vs a-is-wrong) should be a perfect 1.0. auroc_guarded
+    # needs >= MIN_CLASS_FOR_AUROC (10) examples in EACH class, hence 12+12.
+    rows = ([_row(f"wrong{i}", 0.8, {"a": False}) for i in range(12)]
+            + [_row(f"right{i}", 0.2, {"a": True}) for i in range(12)])
+    n, err, abst, auc, why = pilot._ladder_agent_row(rows, "a", "grades")
+    assert n == 24
+    assert err == pytest.approx(12 / 24)
+    assert auc == pytest.approx(1.0)
+
+
+def test_ladder_agent_row_none_grade_key_reports_no_graded_rows():
+    rows = [_row("q1", 0.5, {"a": True}, grades_judge=None)]
+    n, err, abst, auc, why = pilot._ladder_agent_row(rows, "a", "grades_judge")
+    assert n == 0
+    assert err is None
+    assert auc is None
+    assert why == "no graded rows"
+
+
 if __name__ == "__main__":
     # Runnable without pytest too, for the fixture-free tests — see module
     # docstring. Tests that need pytest fixtures (monkeypatch, tmp_path) are

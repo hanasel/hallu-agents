@@ -77,6 +77,19 @@ OPENROUTER_REASONING_PARAMS: dict[str, dict] = {
     "qwen/qwen3.6-plus": {"reasoning": {"effort": "none", "exclude": True}},
     "openai/gpt-5.6-sol": {"reasoning": {"effort": "none", "exclude": True}},
     "meta-llama/llama-4-maverick": {"reasoning": {"effort": "none", "exclude": True}},
+    # Qwen within-family panel extension (agents/panels.py's
+    # QWEN_PANEL_NEW_MODELS) — every Qwen3.x model is hybrid-thinking, so each
+    # needs an entry here or its reasoning trace flows straight into `text`
+    # unsuppressed (a missing key resolves to {} via .get(model, {}) below —
+    # no error). tests/test_panels.py asserts every Qwen model in
+    # agents.panels.MODEL_FAMILY has an entry, so a new addition that forgets
+    # this fails loudly at test time instead of silently at query time.
+    "qwen/qwen3-32b": {"reasoning": {"effort": "none", "exclude": True}},
+    "qwen/qwen3.5-9b": {"reasoning": {"effort": "none", "exclude": True}},
+    "qwen/qwen3.5-27b": {"reasoning": {"effort": "none", "exclude": True}},
+    "qwen/qwen3.5-122b-a10b": {"reasoning": {"effort": "none", "exclude": True}},
+    "qwen/qwen3.5-397b-a17b": {"reasoning": {"effort": "none", "exclude": True}},
+    "qwen/qwen3.8-27b": {"reasoning": {"effort": "none", "exclude": True}},
 }
 
 

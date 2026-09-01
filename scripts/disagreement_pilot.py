@@ -77,6 +77,21 @@ Run from the project root:
     python scripts/disagreement_pilot.py --dataset truthfulqa --n 200 --judge-model <model-id>
     python scripts/disagreement_pilot.py --n 50 --models a/b,c/d   # extend the pool
     python scripts/disagreement_pilot.py --n 50 --analyse-only     # re-report, no queries
+    python scripts/disagreement_pilot.py --n 1000 --qwen-ladders \
+        --out outputs/simpleqa_qwen_ladders_1000.jsonl
+        # adds agents.panels.QWEN_PANEL_NEW_MODELS (six Qwen size/generation
+        # ladder models) on top of the frozen core pool (15 agents total).
+        # Do NOT pass --resume here against the existing 9-agent --out file —
+        # --resume requires an EXACT agent-name match against the file it's
+        # resuming (see run_queries's "different agent pool" check) and will
+        # abort rather than let you grow the pool mid-file. Use a fresh --out
+        # instead: this is still cheap for the 9 already-queried core agents,
+        # because GroqAgent's own per-agent response cache (keyed on
+        # model+prompt+temperature+max_tokens, independent of --resume/--out)
+        # is consulted on every call regardless — only the 6 new Qwen models
+        # actually hit the API. Reports E/F (report_ladders,
+        # report_capability_regression) only print rows for whichever ladder
+        # members are actually present in the queried pool.
 """
 
 from __future__ import annotations
@@ -91,7 +106,7 @@ from collections import Counter, defaultdict
 from itertools import combinations
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
-from scipy.stats import wilcoxon
+from scipy.stats import wilcoxon, linregress, t as _t_dist
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -112,6 +127,12 @@ from agents.panels import (                                            # noqa: E
     CORE_MODELS,
     LLAMA_SMALL,
     LLAMA_LARGE,
+    generation_of,
+    total_params_of,
+    arch_of,
+    SIZE_LADDER_QWEN35,
+    GEN_LADDER_QWEN_27B,
+    QWEN_PANEL_NEW_MODELS,
 )
 from agents.providers import make_provider_agent                      # noqa: E402
 from disagreement import (                                             # noqa: E402
@@ -383,15 +404,50 @@ def build_pool(extra_models: List[str], panel_kwargs: dict) -> List:
 class PanelSpec:
     """A named subset of the pool, identified by agent name."""
 
-    def __init__(self, key: str, label: str, members: List[str], kind: str):
+    def __init__(self, key: str, label: str, members: List[str], kind: str, *,
+                 subkind: Optional[str] = None, family: Optional[str] = None):
         self.key = key
         self.label = label
         self.members = members          # agent names
         self.kind = kind                # 'core' | 'full' | 'within' | 'cross' | 'toggle'
                                          # | 'ablation' | 'tier' | 'loo'
+        # Only set for kind == 'within': subkind in ('size', 'generation',
+        # 'other') from _within_subkind below, family is the shared family
+        # name. Lets the pooled within-vs-cross figure in report_panels stay
+        # exactly as it was (kind is still just 'within') while a separate
+        # breakdown can group by family and by which axis the pair isolates.
+        self.subkind = subkind
+        self.family = family
 
     def __repr__(self) -> str:
         return f"PanelSpec({self.key!r}, n={len(self.members)})"
+
+
+def _within_subkind(mx: str, my: str) -> str:
+    """Sub-classify a same-family pair (model ids mx, my) into 'size'
+    (same generation, different total params), 'generation' (different
+    generation, ~matched total params and same architecture), or 'other'
+    (neither — including any pair where the tables don't have enough
+    information to tell, e.g. every non-Qwen family today, or anything
+    paired with qwen3.6-plus's undisclosed parameter count).
+
+    A pooled within-family statistic that doesn't distinguish these is not
+    interpretable: 'size' isolates capacity with corpus and recipe held
+    fixed (the strongest shared-bias test), 'generation' isolates the
+    iterated corpus/recipe at roughly constant scale, and conflating them
+    with 'other' would mix three different claims into one number.
+    """
+    gx, gy = generation_of(mx), generation_of(my)
+    px, py = total_params_of(mx), total_params_of(my)
+    ax, ay = arch_of(mx), arch_of(my)
+    if gx is not None and gx == gy and px is not None and py is not None and px != py:
+        return "size"
+    if (gx is not None and gy is not None and gx != gy
+            and ax is not None and ax == ay
+            and px is not None and py is not None
+            and abs(px - py) <= 0.2 * max(px, py)):
+        return "generation"
+    return "other"
 
 
 def build_panel_specs(agents) -> List[PanelSpec]:
@@ -407,6 +463,16 @@ def build_panel_specs(agents) -> List[PanelSpec]:
     The N=2 pairs are the point: comparing a 2-model same-family panel against
     a bigger mixed panel confounds family with size, so within-family and
     cross-family are both enumerated at N=2 and aggregated.
+
+    Every within-family pair is further sub-classified by _within_subkind
+    into 'size' (same generation, different capacity), 'generation'
+    (different generation, ~matched capacity/arch), or 'other' — recorded on
+    PanelSpec.subkind/.family rather than folded into `kind`, so the pooled
+    within-vs-cross figure in report_panels is unchanged while a separate
+    per-family, per-axis breakdown is also available. See that function's
+    "Within-family breakdown" section — with agents.panels.QWEN_PANEL_NEW_MODELS
+    added to the pool, "within-family" and "within-Qwen" are nearly the same
+    set of pairs, so the pooled figure alone is not reportable on its own.
 
     Tier panels hold family composition and panel size constant (one core
     model per family, N=3) while nominal capability tier varies, so
@@ -429,12 +495,21 @@ def build_panel_specs(agents) -> List[PanelSpec]:
     for x, y in combinations(names, 2):
         if model_of[x] == model_of[y]:
             kind, tag = "toggle", "same model, reasoning on/off"
+            specs.append(PanelSpec(f"{kind}:{short(x)}+{short(y)}",
+                                   f"{kind} ({tag})", [x, y], kind))
+            continue
+        same = fam[x] == fam[y]
+        kind = "within" if same else "cross"
+        if same:
+            sub = _within_subkind(model_of[x], model_of[y])
+            specs.append(PanelSpec(
+                f"{kind}:{short(x)}+{short(y)}",
+                f"{kind}:{sub} ({fam[x]})", [x, y], kind,
+                subkind=sub, family=fam[x]))
         else:
-            same = fam[x] == fam[y]
-            kind = "within" if same else "cross"
-            tag = fam[x] if same else f"{fam[x]}|{fam[y]}"
-        specs.append(PanelSpec(f"{kind}:{short(x)}+{short(y)}",
-                               f"{kind} ({tag})", [x, y], kind))
+            tag = f"{fam[x]}|{fam[y]}"
+            specs.append(PanelSpec(f"{kind}:{short(x)}+{short(y)}",
+                                   f"{kind} ({tag})", [x, y], kind))
 
     # Reasoning ablation: does the cross-family signal survive without the
     # reasoning model? If the full-pool result collapses here, "cross-family"
@@ -1296,6 +1371,21 @@ def report_panels(rows, agents, panel_specs, args, is_mc) -> None:
             print(f"    {s.kind:<7} {short(s.members[0]):<24} + "
                   f"{short(s.members[1]):<24} sem={m:.3f}  (n={n})")
 
+    within_specs = [s for s in panel_specs if s.kind == "within"]
+    if within_specs:
+        print("\n  Within-family breakdown (per family, per axis — do not report the")
+        print("  pooled within-family figure above alone: once Qwen has more members")
+        print("  than any other family, 'within-family' and 'within-Qwen' are nearly")
+        print("  the same set of pairs, and a pooled number would hide that):")
+        by_fam_sub: Dict[Tuple[str, str], List[str]] = defaultdict(list)
+        for s in within_specs:
+            by_fam_sub[(s.family, s.subkind)].append(s.key)
+        for (fam_name, sub), keys in sorted(by_fam_sub.items()):
+            m, n = mean_of(keys)
+            mstr = f"{m:.3f}" if m is not None else "n/a"
+            print(f"    within:{sub:<10} {fam_name:<8} sem={mstr:<8} "
+                  f"({len(keys)} pair(s), n={n} obs)")
+
     toggles = [s for s in panel_specs if s.kind == "toggle"]
     if toggles:
         print("\n  Reasoning toggle (same weights, same prompt — inference mode only):")
@@ -1491,6 +1581,128 @@ def report_cross_tier(rows, agents, panel_specs, args, is_mc) -> None:
             print(f"    {short(a.name):<26} {target_tier:<12} {t:<9} {len(pairs):>5} {val:>10}{flag}")
 
 
+def _ladder_agent_row(rows, agent_name: str, grade_key: str):
+    """(n, error_rate, abstention_rate, auroc, suppression_reason) for one
+    agent, scored against the 'full' panel (guaranteed to include every
+    queried agent, unlike 'core' — ladder members are add-ons via --models,
+    not core members)."""
+    scored = [r for r in rows if r["panels"].get("full")
+              and r["panels"]["full"]["semantic_entropy"] is not None]
+    pairs = [(r, (r[grade_key] or {}).get(agent_name)) for r in scored if r.get(grade_key)]
+    pairs = [(r, g) for r, g in pairs if g is not None]
+    n = len(pairs)
+    err_rate = (sum(g is False for _, g in pairs) / n) if n else None
+    labs = [g is False for _, g in pairs]
+    scores = [r["panels"]["full"]["semantic_entropy"] for r, _ in pairs]
+    auc, why = auroc_guarded(scores, labs) if n else (None, "no graded rows")
+    abst = sum(1 for r in rows if r.get("abstained", {}).get(agent_name))
+    abst_rate = abst / len(rows) if rows else None
+    return n, err_rate, abst_rate, auc, why
+
+
+def report_ladders(rows, agents, args) -> None:
+    """E. Qwen ladders — size held constant vs generation held constant.
+
+    Only prints for ladder members actually present in the queried pool
+    (add them via --models or --qwen-ladders); the table is ordered by
+    ladder position, not alphabetically, since that ordering IS the claim.
+    """
+    section("E. Qwen ladders — size held constant vs generation held constant")
+    by_model = {a.model: a.name for a in agents}
+
+    ladders = [
+        ("Qwen3.5 size ladder (fixed generation, size varies)", SIZE_LADDER_QWEN35),
+        ("Qwen ~27B generation ladder (fixed size, generation varies)", GEN_LADDER_QWEN_27B),
+    ]
+    for title, ladder in ladders:
+        present = [m for m in ladder if m in by_model]
+        print(f"\n  {title}:")
+        if len(present) < 2:
+            print(f"    <2 members in the queried pool — skipped. Add the missing "
+                  f"id(s) via --models or --qwen-ladders.")
+            continue
+        if "qwen/qwen3-32b" in present:
+            print("    [!] qwen3-32b has an April 2025 knowledge cutoff — expect an")
+            print("        inflated error rate on post-cutoff SimpleQA questions for")
+            print("        reasons unrelated to hallucination propensity (confounds")
+            print("        this ladder specifically, not the size ladder).")
+        for grade_key, glabel in (("grades", "NLI grader"), ("grades_judge", "LLM judge")):
+            if grade_key == "grades_judge" and not any(r.get("grades_judge") for r in rows):
+                continue
+            print(f"    [{glabel}]")
+            print(f"      {'model':<24}{'gen':>6}{'params(B)':>11}{'arch':>6}"
+                  f"{'n':>6}{'err':>8}{'abstain':>9}{'AUROC':>10}")
+            for m in present:
+                name = by_model[m]
+                n, err, abst, auc, why = _ladder_agent_row(rows, name, grade_key)
+                gen = generation_of(m) or "?"
+                params = total_params_of(m)
+                pstr = f"{params:g}" if params is not None else "n/a"
+                arch = arch_of(m) or "?"
+                errs = f"{err:.0%}" if err is not None else "n/a"
+                absts = f"{abst:.0%}" if abst is not None else "n/a"
+                aucs = f"{auc:.3f}" if auc is not None else "n/a"
+                print(f"      {short(name):<24}{gen:>6}{pstr:>11}{arch:>6}"
+                      f"{n:>6}{errs:>8}{absts:>9}{aucs:>10}")
+
+
+def _slope_ci95(xs: List[float], ys: List[float]):
+    """OLS slope of ys on xs with a 95% CI (slope, lo, hi, n), or None if
+    there are too few points (or no spread in x) to fit."""
+    n = len(xs)
+    if n < 3 or len(set(xs)) < 2:
+        return None
+    res = linregress(xs, ys)
+    if res.stderr is None:
+        return None
+    tcrit = _t_dist.ppf(0.975, df=n - 2)
+    half = tcrit * res.stderr
+    return res.slope, res.slope - half, res.slope + half, n
+
+
+def report_capability_regression(rows, agents, args) -> None:
+    """F. Capability regression — per-agent AUROC (does disagreement predict
+    THIS agent being wrong?) regressed against that agent's own error rate.
+
+    Prediction: negative slope — a weaker (higher-error) model's own
+    wrongness is harder for panel disagreement to detect. Reported pooled
+    across the whole queried pool and, separately, restricted to the size
+    ladder — the prediction is that the negative slope survives there
+    specifically, where lineage and recipe are held constant and only
+    capacity varies.
+    """
+    section("F. Capability regression — AUROC vs per-agent error rate")
+    print("  Prediction: negative slope, both pooled and within the size ladder")
+    print("  (lineage held constant there) — a higher-error agent's wrongness is")
+    print("  harder for panel disagreement to detect.")
+    names = [a.name for a in agents]
+    by_model = {a.model: a.name for a in agents}
+
+    def points(agent_names: List[str], grade_key: str):
+        xs, ys = [], []
+        for n in agent_names:
+            _, err, _, auc, _ = _ladder_agent_row(rows, n, grade_key)
+            if err is None or auc is None:
+                continue
+            xs.append(err)
+            ys.append(auc)
+        return xs, ys
+
+    size_names = [by_model[m] for m in SIZE_LADDER_QWEN35 if m in by_model]
+    for grade_key, glabel in (("grades", "NLI grader"), ("grades_judge", "LLM judge")):
+        if grade_key == "grades_judge" and not any(r.get("grades_judge") for r in rows):
+            continue
+        print(f"\n  [{glabel}]")
+        for label, agent_names in (("pooled", names), ("size ladder (Qwen3.5)", size_names)):
+            xs, ys = points(agent_names, grade_key)
+            fit = _slope_ci95(xs, ys)
+            if fit is None:
+                print(f"    {label:<24} n={len(xs)} agent(s) with a defined AUROC — too few to fit.")
+                continue
+            slope, lo, hi, n = fit
+            print(f"    {label:<24} slope={slope:+.4f}  95% CI=[{lo:+.4f}, {hi:+.4f}]  n={n}")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -1509,6 +1721,10 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--models", default="",
                     help="comma-separated extra model ids to add to the pool")
+    ap.add_argument("--qwen-ladders", action="store_true",
+                    help="shorthand for adding agents.panels.QWEN_PANEL_NEW_MODELS "
+                         "(the six extra Qwen size/generation ladder models) to "
+                         "--models; combine with --models to add still more")
     ap.add_argument("--nli-model", default="cross-encoder/nli-deberta-v3-base")
     ap.add_argument("--judge-model", default="",
                     help="model id for independent regrading (grader-independence "
@@ -1565,6 +1781,8 @@ def main() -> None:
     section("Building agent pool")
     panel_kwargs = {} if args.no_concise else dict(dataset_cfg["config"])
     extra = [m for m in args.models.split(",") if m.strip()]
+    if args.qwen_ladders:
+        extra = list(dict.fromkeys(extra + QWEN_PANEL_NEW_MODELS))
     try:
         agents = build_pool(extra, panel_kwargs)
     except RuntimeError as exc:
@@ -1704,6 +1922,8 @@ def main() -> None:
     report_measures(rows, names, core_names, panel_specs, args, is_mc)
     report_panels(rows, agents, panel_specs, args, is_mc)
     report_cross_tier(rows, agents, panel_specs, args, is_mc)
+    report_ladders(rows, agents, args)
+    report_capability_regression(rows, agents, args)
 
     section("Done")
     print(f"  Per-question rows written to: {out_path}")

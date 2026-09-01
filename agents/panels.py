@@ -67,6 +67,27 @@ GPT_STRONG = "openai/gpt-5.6-sol"         # OpenAI, frontier tier of the GPT-5.6
 QWEN_LARGE = "qwen/qwen3.6-35b-a3b"                # Alibaba, larger size than QWEN
 QWEN_PLUS = "qwen/qwen3.6-plus"                    # Alibaba, hosted flagship tier
 
+# --- Qwen: within-family panel extension ---
+# These six are NOT added to CORE_MODELS/pool() — that pool is the frozen 3x3
+# grid and stays exactly as it is so the "core" panel key (and every cached
+# result keyed on it) stays reproducible. Instead they're meant to be added
+# on top via `--models` (scripts/disagreement_pilot.py), or in bulk via
+# QWEN_PANEL_NEW_MODELS below — see that constant's docstring.
+#
+# They exist to separate three things "same family" otherwise bundles
+# together: shared pretraining corpus, shared post-training recipe, and
+# similar capability. Two ladders isolate them:
+#   SIZE_LADDER_QWEN35  — one generation (3.5), size varies: the strongest
+#                         available shared-bias test (identical corpus).
+#   GEN_LADDER_QWEN_27B — ~27B dense, generation varies (3.0/3.5/3.6/3.8):
+#                         iterated corpus/recipe at roughly constant scale.
+QWEN3_32B        = "qwen/qwen3-32b"           # Apr 2025, dense, 32B
+QWEN35_9B        = "qwen/qwen3.5-9b"          # Mar 2026, dense, 9B
+QWEN35_27B       = "qwen/qwen3.5-27b"         # Feb 2026, dense, 27B
+QWEN35_122B_A10B = "qwen/qwen3.5-122b-a10b"   # Feb 2026, MoE, 122B total / 10B active
+QWEN35_397B_A17B = "qwen/qwen3.5-397b-a17b"   # Feb 2026, MoE, 397B total / 17B active
+QWEN38_27B       = "qwen/qwen3.8-27b"         # Aug 2026, dense, 27B
+
 # Family membership per model id, for panel-composition reporting (and for
 # identifying "the Llama pair" by identity rather than by position in a
 # panel — cross_family_panel contains one Llama, so "first two agents" is
@@ -81,12 +102,106 @@ MODEL_FAMILY: dict[str, str] = {
     QWEN: "Qwen",
     QWEN_LARGE: "Qwen",
     QWEN_PLUS: "Qwen",
+    QWEN3_32B: "Qwen",
+    QWEN35_9B: "Qwen",
+    QWEN35_27B: "Qwen",
+    QWEN35_122B_A10B: "Qwen",
+    QWEN35_397B_A17B: "Qwen",
+    QWEN38_27B: "Qwen",
 }
 
 
 def family_of(model: str) -> str:
     """Family name for `model` (falls back to the raw model id if unknown)."""
     return MODEL_FAMILY.get(model, model)
+
+
+# Qwen generation / size / architecture, for sub-classifying within-family
+# pairs (see build_panel_specs in scripts/disagreement_pilot.py) into
+# within:size (same generation, different capacity) vs within:generation
+# (different generation, ~matched capacity) vs within:other (neither —
+# e.g. anything paired with qwen3.6-plus, whose parameter count is
+# undisclosed and recorded as None rather than guessed).
+#
+# Only populated for Qwen today. Every accessor falls back to None for any
+# model id without an entry (Meta/OpenAI included), so callers elsewhere
+# degrade to "within:other" rather than raising.
+MODEL_GENERATION: dict[str, str] = {
+    QWEN3_32B: "3.0",
+    QWEN35_9B: "3.5",
+    QWEN35_27B: "3.5",
+    QWEN35_122B_A10B: "3.5",
+    QWEN35_397B_A17B: "3.5",
+    QWEN: "3.6",
+    QWEN_LARGE: "3.6",
+    QWEN_PLUS: "3.6",
+    QWEN38_27B: "3.8",
+}
+
+# Total parameters in billions. None where undisclosed (qwen3.6-plus, a
+# hosted proprietary tier) — do not guess a number; it is excluded from
+# SIZE_LADDER_QWEN35 by construction below.
+MODEL_TOTAL_PARAMS_B: dict[str, Optional[float]] = {
+    QWEN3_32B: 32.0,
+    QWEN35_9B: 9.0,
+    QWEN35_27B: 27.0,
+    QWEN35_122B_A10B: 122.0,
+    QWEN35_397B_A17B: 397.0,
+    QWEN: 27.0,
+    QWEN_LARGE: 35.0,
+    QWEN_PLUS: None,
+    QWEN38_27B: 27.0,
+}
+
+MODEL_ARCH: dict[str, str] = {
+    QWEN3_32B: "dense",
+    QWEN35_9B: "dense",
+    QWEN35_27B: "dense",
+    QWEN35_122B_A10B: "moe",
+    QWEN35_397B_A17B: "moe",
+    QWEN: "dense",
+    QWEN_LARGE: "moe",
+    QWEN_PLUS: "moe",
+    QWEN38_27B: "dense",
+}
+
+
+def generation_of(model: str) -> Optional[str]:
+    """Named generation for `model` ('3.0'/'3.5'/'3.6'/'3.8'), or None if unknown."""
+    return MODEL_GENERATION.get(model)
+
+
+def total_params_of(model: str) -> Optional[float]:
+    """Total parameters in billions for `model`, or None if unknown/undisclosed."""
+    return MODEL_TOTAL_PARAMS_B.get(model)
+
+
+def arch_of(model: str) -> Optional[str]:
+    """'dense' or 'moe' for `model`, or None if unknown."""
+    return MODEL_ARCH.get(model)
+
+
+# Size ladder: one generation (Qwen3.5), size varies. qwen3.6-plus is
+# deliberately absent — its undisclosed parameter count means it can't be
+# placed on a size axis at all, not just that it's excluded from THIS ladder.
+SIZE_LADDER_QWEN35 = [QWEN35_9B, QWEN35_27B, QWEN35_122B_A10B, QWEN35_397B_A17B]
+
+# Generation ladder: ~27B dense, generation varies. qwen3-32b is 32B rather
+# than 27B (no dense ~27B Qwen3.0 release exists) — within the +/-20% band
+# build_panel_specs uses for "roughly constant scale" elsewhere, kept here
+# for the same reason. Its April 2025 knowledge cutoff inflates its error
+# rate on post-cutoff SimpleQA questions for reasons unrelated to
+# hallucination propensity — a confound of the generation ladder specifically,
+# not the size ladder.
+GEN_LADDER_QWEN_27B = [QWEN3_32B, QWEN35_27B, QWEN, QWEN38_27B]
+
+# The six new models, in a stable order, for extending the pool in one shot
+# — e.g. `python scripts/disagreement_pilot.py --models {",".join(QWEN_PANEL_NEW_MODELS)}`,
+# or disagreement_pilot.py's --qwen-ladders shorthand for the same thing.
+# Deliberately NOT folded into CORE_MODELS/pool(): see the comment above
+# QWEN3_32B.
+QWEN_PANEL_NEW_MODELS = [QWEN3_32B, QWEN35_9B, QWEN35_27B, QWEN35_122B_A10B,
+                          QWEN35_397B_A17B, QWEN38_27B]
 
 
 # Nominal capability tier. NOT a measured quantity — the small/large/strong
