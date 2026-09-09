@@ -1,0 +1,132 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+======================================================================
+  Preflight — checkpoint availability + label-order sanity check
+======================================================================
+Loading weights:   0%|          | 0/202 [00:00<?, ?it/s]Loading weights: 100%|██████████| 202/202 [00:00<00:00, 8510.71it/s]
+
+  [base] PASS
+    cross-encoder/nli-deberta-v3-base
+      [OK] expected=entailment    got=entailment    'A man is playing a guitar on a busy street c' / 'A man is performing music in public.'
+      [OK] expected=contradiction got=contradiction 'The museum is closed on Mondays and reopens ' / 'The museum is open every day of the week.'
+      [OK] expected=neutral       got=neutral       'The new restaurant on Main Street opened las' / 'The restaurant serves Italian food.'
+Loading weights:   0%|          | 0/394 [00:00<?, ?it/s]Loading weights: 100%|██████████| 394/394 [00:00<00:00, 9368.71it/s]
+
+  [large] PASS
+    cross-encoder/nli-deberta-v3-large
+      [OK] expected=entailment    got=entailment    'A man is playing a guitar on a busy street c' / 'A man is performing music in public.'
+      [OK] expected=contradiction got=contradiction 'The museum is closed on Mondays and reopens ' / 'The museum is open every day of the week.'
+      [OK] expected=neutral       got=neutral       'The new restaurant on Main Street opened las' / 'The restaurant serves Italian food.'
+Loading weights:   0%|          | 0/393 [00:00<?, ?it/s]Loading weights: 100%|██████████| 393/393 [00:00<00:00, 9267.59it/s]
+[transformers] [1mRobertaForSequenceClassification LOAD REPORT[0m from: roberta-large-mnli
+Key                         | Status     |  | 
+----------------------------+------------+--+-
+roberta.pooler.dense.weight | UNEXPECTED |  | 
+roberta.pooler.dense.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Python(94300) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(1429) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(9996) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+Python(16849) MallocStackLogging: can't turn off malloc stack logging because it was not enabled.
+
+  [alt] PASS
+    roberta-large-mnli
+      [OK] expected=entailment    got=entailment    'A man is playing a guitar on a busy street c' / 'A man is performing music in public.'
+      [OK] expected=contradiction got=contradiction 'The museum is closed on Mondays and reopens ' / 'The museum is open every day of the week.'
+      [OK] expected=neutral       got=neutral       'The new restaurant on Main Street opened las' / 'The restaurant serves Italian food.'
+
+======================================================================
+  Sweep plan — 5 run(s)
+======================================================================
+  /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/bin/python scripts/disagreement_pilot.py --dataset simpleqa --n 1000 --seed 0 --nli-model cross-encoder/nli-deberta-v3-large --out /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_nli-large.jsonl --max-bad-questions 5
+  /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/bin/python scripts/disagreement_pilot.py --dataset simpleqa --n 1000 --seed 0 --nli-model cross-encoder/nli-deberta-v3-base --out /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_canonical.jsonl --max-bad-questions 5
+  /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/bin/python scripts/disagreement_pilot.py --dataset simpleqa --n 1000 --seed 0 --nli-model roberta-large-mnli --out /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_nli-alt.jsonl --max-bad-questions 5
+  /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/bin/python scripts/disagreement_pilot.py --dataset simpleqa --n 1000 --seed 0 --nli-model cross-encoder/nli-deberta-v3-base --out /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_strict.jsonl --max-bad-questions 5 --strict
+  /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/bin/python scripts/disagreement_pilot.py --dataset simpleqa --n 1000 --seed 0 --nli-model cross-encoder/nli-deberta-v3-base --out /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_single.jsonl --max-bad-questions 5 --single-linkage
+  [!] no --judge-source-truthfulqa: grades_judge will not be backfilled, so conclusion 1/2 and the judge-graded panel AUROC will read n/a for truthfulqa.
+
+======================================================================
+  Running simpleqa/nli-large  (nli-model=cross-encoder/nli-deberta-v3-large)
+======================================================================
+  [OK] simpleqa/nli-large in 8740.0s (log: /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_nli-large.log)
+
+  [i] first run took 8740.0s; if every remaining run took as long the sweep would need ~583 more minute(s). Ctrl-C and re-run with a smaller --n if that's impractical — reduce the question count, not the configuration list (see this script's docstring).
+  backfilled grades_judge onto 781/1000 row(s) from the judge source.
+
+======================================================================
+  Running simpleqa/canonical  (nli-model=cross-encoder/nli-deberta-v3-base)
+======================================================================
+  [OK] simpleqa/canonical in 2131.4s (log: /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_canonical.log)
+  backfilled grades_judge onto 781/1000 row(s) from the judge source.
+
+======================================================================
+  Verification 1 — simpleqa canonical reproduces /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/simpleqa_3x3_results_1000.jsonl
+======================================================================
+  /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/simpleqa_3x3_results_1000.jsonl: 1000 uid(s) in common (this run has 1000, reference has 1000)
+  [MISMATCH] 4/1000 row(s) differ:
+    simpleqa-1369: differs on ['n_clusters', 'jaccard', 'cluster_sizes', 'grades']
+    simpleqa-2026: differs on ['semantic_entropy', 'jaccard', 'cluster_sizes', 'grades']
+    simpleqa-2813: differs on ['semantic_entropy', 'jaccard', 'cluster_sizes', 'grades']
+    simpleqa-3917: differs on ['n_clusters', 'jaccard', 'cluster_sizes', 'grades']
+  The sweep's canonical cell does not reproduce the reference file —
+  investigate before trusting any other cell in this table.
+
+======================================================================
+  Running simpleqa/nli-alt  (nli-model=roberta-large-mnli)
+======================================================================
+  [OK] simpleqa/nli-alt in 2661.3s (log: /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_nli-alt.log)
+  backfilled grades_judge onto 781/1000 row(s) from the judge source.
+
+======================================================================
+  Running simpleqa/strict  (nli-model=cross-encoder/nli-deberta-v3-base --strict)
+======================================================================
+  [OK] simpleqa/strict in 2126.9s (log: /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_strict.log)
+  backfilled grades_judge onto 781/1000 row(s) from the judge source.
+
+======================================================================
+  Running simpleqa/single  (nli-model=cross-encoder/nli-deberta-v3-base --single-linkage)
+======================================================================
+  [OK] simpleqa/single in 2100.9s (log: /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_single.log)
+  backfilled grades_judge onto 781/1000 row(s) from the judge source.
+
+======================================================================
+  Summary table
+======================================================================
+dataset     config         n  C1 se/jac(gap)             C2 rho   C3 diff(r)           C4 s/l/st                    wall(s)
+---------------------------------------------------------------------------------------------------------------------------
+simpleqa    canonical   1000  0.686/0.596 (+0.090)       +0.683   +0.017 (r=-0.025)    s=0.803/l=0.759/s=0.664       2131.4
+simpleqa    nli-large   1000  0.697/0.596 (+0.102)       +0.633   +0.011 (r=-0.067)    s=0.831/l=0.791/s=0.672       8740.0
+simpleqa    nli-alt     1000  0.681/0.596 (+0.086)       +0.800   +0.013 (r=-0.050)    s=0.845/l=0.806/s=0.687       2661.3
+simpleqa    strict      1000  0.684/0.596 (+0.089)       +0.583   +0.019 (r=-0.035)    s=0.900/l=0.870/s=0.773       2126.9
+simpleqa    single      1000  0.678/0.596 (+0.082)       +0.583   +0.017 (r=-0.025)    s=0.798/l=0.749/s=0.657       2100.9
+
+  simpleqa:
+    C1 semantic entropy > Jaccard (judge AUROC): holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C2 detectability rises with per-agent error rate (Spearman): holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C3 family diversity: no meaningful effect at matched N: holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C4 disagreement falls monotonically small->large->strong tier: holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+
+======================================================================
+  Wall-clock per configuration
+======================================================================
+  simpleqa    nli-large     8740.0s  OK
+  simpleqa    canonical     2131.4s  OK
+  simpleqa    nli-alt       2661.3s  OK
+  simpleqa    strict        2126.9s  OK
+  simpleqa    single        2100.9s  OK
+
+======================================================================
+  Done
+======================================================================
+  Per-run results   : /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_{dataset}_{run}.jsonl
+  Summary table      : /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_summary.txt
+  LaTeX fragment     : /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_summary.tex
+  Structured summary : /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_summary.json
+Exception ignored in: <function ResourceTracker.__del__ at 0x14c6520c0>
+Traceback (most recent call last):
+  File "/Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/lib/python3.12/site-packages/multiprocess/resource_tracker.py", line 80, in __del__
+  File "/Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/lib/python3.12/site-packages/multiprocess/resource_tracker.py", line 89, in _stop
+  File "/Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/lib/python3.12/site-packages/multiprocess/resource_tracker.py", line 102, in _stop_locked
+AttributeError: '_thread.RLock' object has no attribute '_recursion_count'

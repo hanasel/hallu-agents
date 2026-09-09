@@ -67,6 +67,143 @@ def test_grade_short_answer_defers_only_on_distinctive_overlap():
 
 
 # ---------------------------------------------------------------------------
+# make_short_answer_key_fn: the extractor behind --short-answer-keys /
+# --short-entity-keys. Built with short_entity=True so all four sub-
+# extractors (chemical formula, date, number, entity) are exercised as one
+# unit — the default CLI path (--short-answer-keys without --short-entity-
+# keys) simply never reaches the entity branch, see make_short_answer_key_fn.
+# ---------------------------------------------------------------------------
+
+key_fn = pilot.make_short_answer_key_fn(short_entity=True)
+
+
+def test_key_fn_separates_different_dates():
+    a = key_fn("The U.S. Congress approved the Compact of Free Association "
+              "in 1986.", "Date")
+    b = key_fn("The U.S. Congress approved the Compact of Free Association "
+              "in 1985.", "Date")
+    assert a is not None and b is not None
+    assert a != b
+
+
+def test_key_fn_separates_different_numbers():
+    a = key_fn("The album appears in 44 tracks.", "Number")
+    b = key_fn("The album appears in 37 tracks.", "Number")
+    assert a is not None and b is not None
+    assert a != b
+
+
+def test_key_fn_separates_different_chemical_formulae():
+    a = key_fn("The chemical formula of atogepant is C29H31N5O3S.", "Other")
+    b = key_fn("The chemical formula of atogepant is C₂₈H₃₁N₅O₄.", "Other")
+    assert a is not None and b is not None
+    assert a != b
+
+
+def test_key_fn_chemical_formula_ignores_answer_type_gate():
+    # Distinctive enough to fire on its own — the atogepant question's
+    # answer_type is "Other", not "Number", so this must NOT be gated on it.
+    assert key_fn("...is C29H31N5O3S.", "Other") is not None
+    assert key_fn("...is C29H31N5O3S.", None) is not None
+
+
+def test_key_fn_unicode_subscripts_match_ascii_digits():
+    a = key_fn("C₂₈H₃₁N₅O₄", "Other")
+    b = key_fn("C28H31N5O4", "Other")
+    assert a is not None
+    assert a == b
+
+
+def test_key_fn_multi_entity_answers_are_order_invariant():
+    a = key_fn("Papua New Guinea and Indonesia", "Place")
+    b = key_fn("Indonesia and Papua New Guinea", "Place")
+    assert a is not None and b is not None
+    assert a == b
+
+
+def test_key_fn_multi_entity_answers_separate_on_different_entity():
+    # simpleqa-1315: substituting Australia for the correct Indonesia must
+    # NOT compare equal just because both mention Papua New Guinea.
+    a = key_fn("Anisotenes cacotechna is found in Australia and Papua New Guinea.", "Place")
+    b = key_fn("Anisotenes cacotechna is found in Indonesia and Papua New Guinea.", "Place")
+    assert a is not None and b is not None
+    assert a != b
+
+
+def test_key_fn_identical_dates_compare_equal():
+    a = key_fn("...in 1986.", "Date")
+    b = key_fn("...in 1986.", "Date")
+    assert a is not None
+    assert a == b
+
+
+def test_key_fn_returns_none_on_prose_with_no_short_form_answer():
+    # TruthfulQA-style: no date/number/formula, and too few (<2) proper-noun
+    # phrases for the entity extractor to fire either — the branch must
+    # no-op here regardless of --short-entity-keys.
+    text = "It depends on who you ask and how you define happiness."
+    assert key_fn(text, None) is None
+
+
+def test_key_fn_single_entity_answers_defer_to_nli():
+    # The exact false-split risk --short-entity-keys is gated against:
+    # "New Guinea" vs "Papua New Guinea" must NOT get a key (>=2 entities
+    # required), so a single-entity answer always falls through to NLI.
+    assert key_fn("New Guinea", "Place") is None
+    assert key_fn("Papua New Guinea", "Place") is None
+    assert key_fn("Neil Armstrong.", "Person") is None
+
+
+def test_key_fn_short_entity_extractor_is_opt_in():
+    default_key_fn = pilot.make_short_answer_key_fn(short_entity=False)
+    assert default_key_fn("Papua New Guinea and Indonesia", "Place") is None
+
+
+# ---------------------------------------------------------------------------
+# v2: question-anchoring (Edit 1) and subset matching (Edit 2). "Compare
+# equal" below means the relation _equivalent now uses: ka <= kb or kb <= ka,
+# not ka == kb — see disagreement/semantic.py.
+# ---------------------------------------------------------------------------
+
+ANDERSSEN_QUESTION = ("How many games did Adolf Anderssen lose in his 1864 "
+                     "chess match against Berthold Suhle?")
+
+
+def test_key_fn_question_subtraction_merges_terse_and_detailed_number():
+    a = key_fn("...lost 1 game in his 1864 match", "Number", ANDERSSEN_QUESTION)
+    b = key_fn("...had 1 loss in his 1864 match, with 4 wins and 3 draws",
+              "Number", ANDERSSEN_QUESTION)
+    assert a is not None and b is not None
+    assert a <= b or b <= a
+
+
+def test_key_fn_subset_merges_terse_and_detailed_answer_no_question_overlap():
+    a = key_fn("About 300 people died.", "Number")
+    b = key_fn("300 people died when the HMS Ontario sank in 1780.", "Number")
+    assert a is not None and b is not None
+    assert a <= b or b <= a
+
+
+def test_key_fn_different_values_still_separate_after_subtraction():
+    question = "In what year was the treaty signed?"
+    a = key_fn("It was signed in 1986.", "Date", question)
+    b = key_fn("It was signed in 1985.", "Date", question)
+    assert a is not None and b is not None
+    assert not (a <= b or b <= a)
+
+
+def test_key_fn_emptied_by_question_subtraction_returns_none():
+    # The only number in the response is restated verbatim from the
+    # question, so subtraction empties the key entirely — must return None
+    # (not an empty frozenset, which would compare equal to any other empty
+    # key and silently merge unrelated pairs) so the pair falls through to
+    # NLI instead.
+    question = "How many people died when the HMS Ontario sank in 1780?"
+    assert key_fn("It sank in 1780.", "Date", question) is None
+    assert key_fn("1780 people were aboard.", "Number", question) is None
+
+
+# ---------------------------------------------------------------------------
 # judge_grade: retry on an unusable verdict, raise only after exhausting
 # `attempts`. Covers the finish_reason='error'/error=None shape (HTTP 200,
 # upstream failure passed through as a "success") that crashed the 200-
@@ -192,7 +329,7 @@ class _StubSemantic:
     """Every panel 'agrees' (one cluster) — the disagreement value itself
     is irrelevant to the resume behaviour under test."""
 
-    def score(self, texts, question=None):
+    def score(self, texts, question=None, answer_type=None):
         n = len(texts)
         result = _StubScore(0.0)
         result.details = {"n_clusters": 1, "cluster_sizes": [n],

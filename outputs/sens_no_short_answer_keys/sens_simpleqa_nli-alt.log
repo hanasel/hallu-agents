@@ -1,0 +1,1390 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+======================================================================
+  Loading 1000 SimpleQA Verified questions (seed=0)
+======================================================================
+  Loaded 1000 questions.
+
+======================================================================
+  Building agent pool
+======================================================================
+  answer style: concise (forced short answers)
+  - openrouter/meta-llama/llama-3.1-8b-instruct  [Meta] [small]
+  - openrouter/meta-llama/llama-3.3-70b-instruct [Meta] [large]
+  - openrouter/meta-llama/llama-4-maverick       [Meta] [strong]
+  - openrouter/openai/gpt-oss-20b                [OpenAI] [small] [reasoning]
+  - openrouter/openai/gpt-oss-120b               [OpenAI] [large] [reasoning]
+  - openrouter/openai/gpt-5.6-sol                [OpenAI] [strong]
+  - openrouter/qwen/qwen3.6-27b                  [Qwen] [small]
+  - openrouter/qwen/qwen3.6-35b-a3b              [Qwen] [large]
+  - openrouter/qwen/qwen3.6-plus                 [Qwen] [strong]
+  [OK] core pool verified: 9 distinct agents, 3 per family, 3 per tier.
+
+  53 panels formed post-hoc over the cached pool (free — the cache is keyed on model+prompt, not panel): ablation=3, core=1, cross=27, full=1, loo=9, tier=3, within=9
+
+======================================================================
+  Preflight — model IDs
+======================================================================
+  All pool models are live.
+
+======================================================================
+  Preflight — token budget under a reasoning load
+======================================================================
+  openrouter/meta-llama/llama-3.1-8b-instruct  [finish_reason=stop, completion_tokens=27] -> 'The Treaty of Westphalia concluded in 16'
+  openrouter/meta-llama/llama-3.3-70b-instruct [finish_reason=stop, completion_tokens=29] -> 'The Treaty of Westphalia concluded in 16'
+  openrouter/meta-llama/llama-4-maverick       [finish_reason=stop, completion_tokens=23] -> 'The Treaty of Westphalia concluded in 16'
+  openrouter/openai/gpt-oss-20b                [finish_reason=stop, completion_tokens=40] -> 'The Treaty of Westphalia concluded in 16'
+  openrouter/openai/gpt-oss-120b               [finish_reason=stop, completion_tokens=37] -> 'The Treaty of Westphalia concluded in 16'
+  openrouter/openai/gpt-5.6-sol                [finish_reason=stop, completion_tokens=28] -> 'The Peace of Westphalia concluded in 164'
+  openrouter/qwen/qwen3.6-27b                  [finish_reason=stop, completion_tokens=29] -> 'The Treaty of Westphalia concluded in 16'
+  openrouter/qwen/qwen3.6-35b-a3b              [finish_reason=stop, completion_tokens=29] -> 'The Treaty of Westphalia concluded in 16'
+  openrouter/qwen/qwen3.6-plus                 [finish_reason=stop, completion_tokens=28] -> 'The Treaty of Westphalia concluded in 16'
+  All agents answered under a reasoning load.
+
+  Loading NLI model: roberta-large-mnli (first run downloads weights)...
+  clustering: relaxed + complete-linkage
+
+======================================================================
+  Scoring
+======================================================================
+Loading weights:   0%|          | 0/393 [00:00<?, ?it/s]Loading weights: 100%|██████████| 393/393 [00:00<00:00, 10229.63it/s]
+[transformers] [1mRobertaForSequenceClassification LOAD REPORT[0m from: roberta-large-mnli
+Key                         | Status     |  | 
+----------------------------+------------+--+-
+roberta.pooler.dense.weight | UNEXPECTED |  | 
+roberta.pooler.dense.bias   | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+  [  1/1000] simpleqa-1917  jac=0.42  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [  2/1000] simpleqa-2730  jac=0.37  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [  3/1000] simpleqa-0716  jac=0.81  sem=0.44  clusters=[4, 4, 1]
+  [  4/1000] simpleqa-2444  jac=0.65  sem=0.72  clusters=[2, 1, 1, 3, 1]  abst=1 trunc=0
+  [  5/1000] simpleqa-1059  [~] llama-3.3-70b-instruct: truncated, excluded from this question
+  [  5/1000] simpleqa-1059  jac=0.76  sem=0.59  clusters=[4, 1, 1, 1]  abst=1 trunc=1
+  [  6/1000] simpleqa-1740  jac=0.50  sem=0.79  clusters=[2, 2, 2, 1, 1, 1]
+  [  7/1000] simpleqa-2892  jac=0.52  sem=0.58  clusters=[4, 1, 2, 1]  abst=1 trunc=0
+  [  8/1000] simpleqa-2243  jac=0.69  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [  9/1000] simpleqa-0537  jac=0.63  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [ 10/1000] simpleqa-1258  jac=0.80  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 11/1000] simpleqa-4222  jac=0.59  sem=0.83  clusters=[1, 1, 1, 2, 2, 1]  abst=1 trunc=0
+  [ 12/1000] simpleqa-1749  jac=0.25  sem=0.00  clusters=[9]
+  [ 13/1000] simpleqa-1044  jac=0.74  sem=0.35  clusters=[6, 1, 1]  abst=1 trunc=0
+  [ 14/1000] simpleqa-4198  jac=0.55  sem=0.43  clusters=[5, 1, 3]
+  [ 15/1000] simpleqa-1593  jac=0.77  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 16/1000] simpleqa-2885  jac=0.59  sem=0.76  clusters=[1, 2, 3, 1, 1, 1]
+  [ 17/1000] simpleqa-3957  jac=0.72  sem=0.83  clusters=[1, 2, 2, 1, 1, 1]  abst=1 trunc=0
+  [ 18/1000] simpleqa-3173  jac=0.74  sem=0.79  clusters=[1, 2, 1, 2, 2, 1]
+  [ 19/1000] simpleqa-1315  jac=0.45  sem=0.59  clusters=[5, 1, 1, 1, 1]
+  [ 20/1000] simpleqa-0466  jac=0.66  sem=0.59  clusters=[5, 1, 1, 1, 1]
+  [ 21/1000] simpleqa-2248  jac=0.63  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 22/1000] simpleqa-3278  jac=0.25  sem=0.83  clusters=[1, 1, 1, 3, 1, 1, 1]
+  [ 23/1000] simpleqa-2558  jac=0.71  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [ 24/1000] simpleqa-0023  jac=0.65  sem=0.79  clusters=[2, 2, 1, 1, 1, 2]
+  [ 25/1000] simpleqa-3584  jac=0.86  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 26/1000] simpleqa-1075  jac=0.49  sem=0.72  clusters=[1, 4, 1, 1, 1, 1]
+  [ 27/1000] simpleqa-1626  jac=0.78  sem=0.83  clusters=[2, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [ 28/1000] simpleqa-3120  jac=0.76  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 29/1000] simpleqa-0141  jac=0.60  sem=0.29  clusters=[3, 6]
+  [ 30/1000] simpleqa-0236  jac=0.76  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 31/1000] simpleqa-1778  jac=0.55  sem=0.86  clusters=[1, 1, 2, 1, 2, 1, 1]
+  [ 32/1000] simpleqa-2487  [~] llama-3.3-70b-instruct: truncated, excluded from this question
+  [ 32/1000] simpleqa-2487  jac=0.80  sem=0.90  clusters=[2, 1, 1, 1, 1, 1]  abst=1 trunc=1
+  [ 33/1000] simpleqa-2307  jac=0.70  sem=0.86  clusters=[2, 1, 1, 1, 1, 2, 1]
+  [ 34/1000] simpleqa-3721  jac=0.58  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 35/1000] simpleqa-3737  jac=0.45  sem=0.46  clusters=[6, 1, 1, 1]
+  [ 36/1000] simpleqa-2619  jac=0.42  sem=0.16  clusters=[8, 1]
+  [ 37/1000] simpleqa-0597  jac=0.59  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [ 38/1000] simpleqa-3460  jac=0.76  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 39/1000] simpleqa-1556  jac=0.62  sem=0.65  clusters=[2, 4, 1, 1, 1]
+  [ 40/1000] simpleqa-3417  jac=0.75  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [ 41/1000] simpleqa-4141  jac=0.88  sem=0.72  clusters=[3, 1, 2, 1, 1]  abst=1 trunc=0
+  [ 42/1000] simpleqa-4264  jac=0.33  sem=0.92  clusters=[1, 2, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 43/1000] simpleqa-0548  jac=0.42  sem=0.65  clusters=[2, 1, 4, 1, 1]
+  [ 44/1000] simpleqa-1042  jac=0.58  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [ 45/1000] simpleqa-2808  jac=0.51  sem=0.75  clusters=[2, 2, 2, 1, 1]  abst=1 trunc=0
+  [ 46/1000] simpleqa-3851  jac=0.62  sem=0.72  clusters=[3, 1, 2, 1, 1]  abst=1 trunc=0
+  [ 47/1000] simpleqa-2666  jac=0.64  sem=0.80  clusters=[1, 1, 1, 3, 1, 1]  abst=1 trunc=0
+  [ 48/1000] simpleqa-3945  jac=0.53  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 49/1000] simpleqa-2595  jac=0.58  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 50/1000] simpleqa-3930  jac=0.56  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 51/1000] simpleqa-4232  jac=0.90  sem=0.86  clusters=[2, 2, 1, 1, 1, 1, 1]
+  [ 52/1000] simpleqa-3439  jac=0.75  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 53/1000] simpleqa-1176  jac=0.64  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [ 54/1000] simpleqa-2205  jac=0.71  sem=0.76  clusters=[1, 3, 1, 2, 1, 1]
+  [ 55/1000] simpleqa-2419  jac=0.70  sem=0.69  clusters=[3, 1, 2, 1, 2]
+  [ 56/1000] simpleqa-2283  jac=0.59  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 57/1000] simpleqa-1671  jac=0.67  sem=0.72  clusters=[3, 1, 1, 1, 2]  abst=1 trunc=0
+  [ 58/1000] simpleqa-0262  jac=0.38  sem=0.72  clusters=[1, 3, 2, 1, 1]  abst=1 trunc=0
+  [ 59/1000] simpleqa-0692  jac=0.52  sem=0.83  clusters=[1, 1, 2, 1, 1, 2]  abst=1 trunc=0
+  [ 60/1000] simpleqa-3202  jac=0.13  sem=0.46  clusters=[6, 1, 1, 1]
+  [ 61/1000] simpleqa-3424  jac=0.55  sem=0.69  clusters=[3, 2, 1, 1, 2]
+  [ 62/1000] simpleqa-2586  jac=0.68  sem=0.72  clusters=[1, 1, 2, 1, 3]  abst=1 trunc=0
+  [ 63/1000] simpleqa-2035  jac=0.55  sem=0.86  clusters=[2, 2, 1, 1, 1, 1, 1]
+  [ 64/1000] simpleqa-1891  jac=0.66  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 65/1000] simpleqa-0669  jac=0.33  sem=0.52  clusters=[1, 5, 2, 1]
+  [ 66/1000] simpleqa-1007  jac=0.71  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 67/1000] simpleqa-2452  jac=0.41  sem=0.39  clusters=[6, 1, 2]
+  [ 68/1000] simpleqa-3203  jac=0.79  sem=0.72  clusters=[1, 1, 1, 2, 3]  abst=1 trunc=0
+  [ 69/1000] simpleqa-1140  jac=0.56  sem=0.72  clusters=[1, 3, 1, 2, 1]  abst=1 trunc=0
+  [ 70/1000] simpleqa-3667  jac=0.52  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 71/1000] simpleqa-1058  jac=0.86  sem=0.83  clusters=[2, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [ 72/1000] simpleqa-0213  jac=0.58  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [ 73/1000] simpleqa-3594  jac=0.68  sem=0.31  clusters=[4, 5]
+  [ 74/1000] simpleqa-3086  jac=0.58  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [ 75/1000] simpleqa-0427  jac=0.56  sem=0.31  clusters=[7, 1, 1]
+  [ 76/1000] simpleqa-1191  jac=0.72  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 77/1000] simpleqa-2218  jac=0.65  sem=0.86  clusters=[1, 1, 1, 2, 1, 2, 1]
+  [ 78/1000] simpleqa-2067  jac=0.68  sem=0.86  clusters=[1, 2, 1, 2, 1, 1, 1]
+  [ 79/1000] simpleqa-3118  jac=0.71  sem=0.72  clusters=[1, 1, 1, 4, 1, 1]
+  [ 80/1000] simpleqa-1137  jac=0.70  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [ 81/1000] simpleqa-0144  jac=0.57  sem=0.79  clusters=[1, 2, 1, 1, 2, 2]
+  [ 82/1000] simpleqa-3306  jac=0.58  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [ 83/1000] simpleqa-2274  jac=0.55  sem=0.72  clusters=[3, 2, 1, 1, 1]  abst=1 trunc=0
+  [ 84/1000] simpleqa-0336  jac=0.73  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [ 85/1000] simpleqa-2966  jac=0.71  sem=0.58  clusters=[2, 1, 1, 4]  abst=1 trunc=0
+  [ 86/1000] simpleqa-3609  jac=0.60  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 87/1000] simpleqa-1744  jac=0.42  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [ 88/1000] simpleqa-2145  jac=0.50  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [ 89/1000] simpleqa-4145  jac=0.49  sem=0.46  clusters=[1, 6, 1, 1]
+  [ 90/1000] simpleqa-1095  jac=0.62  sem=0.86  clusters=[1, 1, 1, 2, 1, 2, 1]
+  [ 91/1000] simpleqa-2362  jac=0.70  sem=0.93  clusters=[1, 1, 1, 2, 1, 1, 1, 1]
+  [ 92/1000] simpleqa-3463  jac=0.52  sem=0.52  clusters=[5, 1, 2, 1]
+  [ 93/1000] simpleqa-2215  jac=0.86  sem=0.86  clusters=[1, 1, 2, 1, 1, 2, 1]
+  [ 94/1000] simpleqa-3304  jac=0.69  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [ 95/1000] simpleqa-4197  [~] llama-3.3-70b-instruct: truncated, excluded from this question
+  [ 95/1000] simpleqa-4197  jac=0.73  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=0 trunc=1
+  [ 96/1000] simpleqa-3716  jac=0.85  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [ 97/1000] simpleqa-3236  jac=0.81  sem=0.75  clusters=[2, 2, 1, 2, 1]  abst=1 trunc=0
+  [ 98/1000] simpleqa-2914  jac=0.69  sem=0.83  clusters=[1, 2, 2, 1, 1, 1]  abst=1 trunc=0
+  [ 99/1000] simpleqa-1391  jac=0.26  sem=0.83  clusters=[2, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [100/1000] simpleqa-1835  jac=0.40  sem=0.75  clusters=[2, 2, 1, 1, 2]  abst=1 trunc=0
+  [101/1000] simpleqa-0538  jac=0.54  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [102/1000] simpleqa-1201  jac=0.67  sem=0.93  clusters=[1, 1, 1, 1, 1, 1, 1, 2]
+  [103/1000] simpleqa-1274  jac=0.41  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [104/1000] simpleqa-0285  jac=0.67  sem=0.60  clusters=[3, 3, 2, 1]
+  [105/1000] simpleqa-0897  jac=0.67  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [106/1000] simpleqa-3272  jac=0.39  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [107/1000] simpleqa-4106  jac=0.69  sem=0.52  clusters=[5, 2, 1, 1]
+  [108/1000] simpleqa-2642  jac=0.59  sem=0.69  clusters=[2, 3, 1, 1, 2]
+  [109/1000] simpleqa-2103  jac=0.44  sem=0.83  clusters=[2, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [110/1000] simpleqa-2532  jac=0.78  sem=0.79  clusters=[1, 2, 1, 1, 2, 2]
+  [111/1000] simpleqa-0646  jac=0.37  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [112/1000] simpleqa-0079  jac=0.55  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [113/1000] simpleqa-4257  jac=0.69  sem=0.46  clusters=[6, 1, 1, 1]
+  [114/1000] simpleqa-3301  jac=0.65  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [115/1000] simpleqa-2523  jac=0.40  sem=0.64  clusters=[3, 2, 2, 1]  abst=1 trunc=0
+  [116/1000] simpleqa-1301  jac=0.54  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [117/1000] simpleqa-0200  jac=0.25  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [118/1000] simpleqa-2406  jac=0.34  sem=0.58  clusters=[2, 4, 1, 1]  abst=1 trunc=0
+  [119/1000] simpleqa-2497  jac=0.82  sem=0.86  clusters=[2, 1, 2, 1, 1, 1, 1]
+  [120/1000] simpleqa-1501  jac=0.31  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [121/1000] simpleqa-2629  jac=0.46  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [122/1000] simpleqa-3415  jac=0.77  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [123/1000] simpleqa-0755  jac=0.80  sem=0.79  clusters=[2, 1, 2, 1, 2, 1]
+  [124/1000] simpleqa-2403  jac=0.60  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [125/1000] simpleqa-1392  jac=0.44  sem=0.60  clusters=[1, 2, 3, 3]
+  [126/1000] simpleqa-4035  jac=0.53  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [127/1000] simpleqa-4248  jac=0.77  sem=0.92  clusters=[1, 1, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [128/1000] simpleqa-1443  jac=0.43  sem=0.76  clusters=[1, 2, 3, 1, 1, 1]
+  [129/1000] simpleqa-2269  jac=0.59  sem=0.52  clusters=[3, 1, 3]  abst=2 trunc=0
+  [130/1000] simpleqa-2739  jac=0.67  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [131/1000] simpleqa-0291  jac=0.69  sem=0.31  clusters=[7, 1, 1]
+  [132/1000] simpleqa-3532  jac=0.91  sem=0.45  clusters=[5, 2, 2]
+  [133/1000] simpleqa-4110  jac=0.55  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [134/1000] simpleqa-3341  jac=0.82  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [135/1000] simpleqa-3207  jac=0.38  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [136/1000] simpleqa-3255  jac=0.78  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [137/1000] simpleqa-3785  jac=0.37  sem=0.16  clusters=[8, 1]
+  [138/1000] simpleqa-2119  jac=0.39  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [139/1000] simpleqa-0786  jac=0.79  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [140/1000] simpleqa-2138  jac=0.59  sem=0.65  clusters=[4, 1, 1, 2, 1]
+  [141/1000] simpleqa-3503  [~] llama-3.3-70b-instruct: truncated, excluded from this question
+  [141/1000] simpleqa-3503  jac=0.63  sem=0.52  clusters=[5, 1, 1, 1]  abst=0 trunc=1
+  [142/1000] simpleqa-0608  jac=0.80  sem=0.72  clusters=[2, 2, 2, 1, 2]
+  [143/1000] simpleqa-1608  jac=0.70  sem=0.48  clusters=[2, 4, 3]
+  [144/1000] simpleqa-0097  jac=0.53  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [145/1000] simpleqa-4283  jac=0.64  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [146/1000] simpleqa-0237  jac=0.47  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [147/1000] simpleqa-2934  jac=0.42  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [148/1000] simpleqa-1762  jac=0.67  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [149/1000] simpleqa-3671  jac=0.76  sem=0.72  clusters=[1, 2, 3, 1, 1]  abst=1 trunc=0
+  [150/1000] simpleqa-2757  jac=0.23  sem=0.47  clusters=[3, 4, 1]  abst=1 trunc=0
+  [151/1000] simpleqa-1849  jac=0.69  sem=0.72  clusters=[3, 2, 1, 1, 1]  abst=1 trunc=0
+  [152/1000] simpleqa-1199  jac=0.55  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [153/1000] simpleqa-0533  jac=0.35  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [154/1000] simpleqa-1587  jac=0.28  sem=0.29  clusters=[3, 6]
+  [155/1000] simpleqa-1181  jac=0.68  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [156/1000] simpleqa-3647  jac=0.70  sem=0.76  clusters=[1, 3, 2, 1, 1, 1]
+  [157/1000] simpleqa-1442  jac=0.38  sem=0.52  clusters=[2, 5, 1, 1]
+  [158/1000] simpleqa-2859  jac=0.72  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [159/1000] simpleqa-0360  jac=0.36  sem=0.72  clusters=[1, 4, 1, 1, 1, 1]
+  [160/1000] simpleqa-0502  jac=0.53  sem=0.93  clusters=[1, 1, 2, 1, 1, 1, 1, 1]
+  [161/1000] simpleqa-4155  jac=0.40  sem=0.31  clusters=[4, 5]
+  [162/1000] simpleqa-0185  jac=0.32  sem=0.35  clusters=[6, 1, 1]  abst=1 trunc=0
+  [163/1000] simpleqa-1682  jac=0.34  sem=0.60  clusters=[3, 1, 1, 3]  abst=1 trunc=0
+  [164/1000] simpleqa-2812  jac=0.73  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [165/1000] simpleqa-3967  jac=0.52  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [166/1000] simpleqa-2796  jac=0.54  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [167/1000] simpleqa-0488  jac=0.64  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [168/1000] simpleqa-2070  jac=0.65  sem=0.45  clusters=[2, 2, 5]
+  [169/1000] simpleqa-1742  jac=0.70  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [170/1000] simpleqa-4226  jac=0.58  sem=0.58  clusters=[2, 4, 1, 1]  abst=1 trunc=0
+  [171/1000] simpleqa-1230  jac=0.80  sem=0.83  clusters=[1, 2, 1, 1, 2, 1]  abst=1 trunc=0
+  [172/1000] simpleqa-4319  jac=0.66  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [173/1000] simpleqa-3484  jac=0.39  sem=0.69  clusters=[2, 3, 1, 2, 1]
+  [174/1000] simpleqa-1000  jac=0.54  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [175/1000] simpleqa-3691  jac=0.68  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [176/1000] simpleqa-4041  jac=0.47  sem=0.24  clusters=[7, 2]
+  [177/1000] simpleqa-1660  jac=0.71  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [178/1000] simpleqa-1324  jac=0.63  sem=0.83  clusters=[1, 1, 1, 1, 1, 1, 3]
+  [179/1000] simpleqa-0224  jac=0.57  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [180/1000] simpleqa-2899  jac=0.74  sem=0.93  clusters=[1, 1, 2, 1, 1, 1, 1, 1]
+  [181/1000] simpleqa-1902  jac=0.58  sem=0.76  clusters=[1, 1, 1, 1, 2, 3]
+  [182/1000] simpleqa-1784  jac=0.54  sem=0.31  clusters=[7, 1, 1]
+  [183/1000] simpleqa-3555  jac=0.43  sem=0.55  clusters=[1, 3, 4, 1]
+  [184/1000] simpleqa-1966  jac=0.71  sem=0.86  clusters=[1, 2, 1, 1, 1, 2, 1]
+  [185/1000] simpleqa-3241  jac=0.68  sem=0.52  clusters=[2, 5, 1, 1]
+  [186/1000] simpleqa-2833  [~] qwen3.6-35b-a3b: truncated, excluded from this question
+  [186/1000] simpleqa-2833  jac=0.65  sem=0.43  clusters=[1, 5, 2]  abst=0 trunc=1
+  [187/1000] simpleqa-3066  jac=0.81  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [188/1000] simpleqa-2079  jac=0.66  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [189/1000] simpleqa-0395  jac=0.73  sem=0.69  clusters=[2, 3, 2, 1, 1]
+  [190/1000] simpleqa-2945  jac=0.70  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [191/1000] simpleqa-0487  jac=0.53  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [192/1000] simpleqa-1146  jac=0.59  sem=0.45  clusters=[5, 2, 2]
+  [193/1000] simpleqa-0073  jac=0.48  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [194/1000] simpleqa-0366  jac=0.65  sem=0.55  clusters=[1, 4, 3, 1]
+  [195/1000] simpleqa-3258  jac=0.57  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [196/1000] simpleqa-2261  jac=0.66  sem=0.72  clusters=[3, 1, 1, 2, 1]  abst=1 trunc=0
+  [197/1000] simpleqa-0462  jac=0.63  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [198/1000] simpleqa-3111  jac=0.77  sem=0.65  clusters=[4, 2, 1, 1, 1]
+  [199/1000] simpleqa-1328  jac=0.44  sem=0.43  clusters=[5, 2, 1]  abst=1 trunc=0
+  [200/1000] simpleqa-3422  jac=0.36  sem=0.67  clusters=[1, 3, 1, 3, 1]
+  [201/1000] simpleqa-2674  jac=0.39  sem=0.64  clusters=[2, 3, 1, 2]  abst=1 trunc=0
+  [202/1000] simpleqa-0613  jac=0.58  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [203/1000] simpleqa-4219  jac=0.41  sem=0.16  clusters=[8, 1]
+  [204/1000] simpleqa-0970  jac=0.34  sem=0.59  clusters=[1, 1, 5, 1, 1]
+  [205/1000] simpleqa-0958  jac=0.58  sem=0.93  clusters=[1, 1, 2, 1, 1, 1, 1, 1]
+  [206/1000] simpleqa-1641  jac=0.81  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [207/1000] simpleqa-3211  jac=0.41  sem=0.58  clusters=[1, 4, 2, 1]  abst=1 trunc=0
+  [208/1000] simpleqa-3755  jac=0.74  sem=0.83  clusters=[1, 3, 1, 1, 1, 1, 1]
+  [209/1000] simpleqa-2831  jac=0.37  sem=0.58  clusters=[4, 2, 1, 1]  abst=1 trunc=0
+  [210/1000] simpleqa-3626  jac=0.14  sem=0.16  clusters=[8, 1]
+  [211/1000] simpleqa-1952  jac=0.86  sem=0.55  clusters=[4, 1, 3, 1]
+  [212/1000] simpleqa-1494  jac=0.61  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [213/1000] simpleqa-0037  jac=0.76  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [214/1000] simpleqa-1910  jac=0.51  sem=0.80  clusters=[1, 1, 1, 1, 3, 1]  abst=1 trunc=0
+  [215/1000] simpleqa-2268  jac=0.33  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [216/1000] simpleqa-3959  jac=0.62  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [217/1000] simpleqa-1073  jac=0.52  sem=0.58  clusters=[1, 1, 4, 2]  abst=1 trunc=0
+  [218/1000] simpleqa-3644  jac=0.66  sem=0.79  clusters=[1, 2, 2, 1, 2, 1]
+  [219/1000] simpleqa-2300  jac=0.75  sem=0.58  clusters=[4, 1, 1, 2]  abst=1 trunc=0
+  [220/1000] simpleqa-0261  jac=0.69  sem=0.93  clusters=[1, 1, 2, 1, 1, 1, 1, 1]
+  [221/1000] simpleqa-3267  jac=0.79  sem=0.72  clusters=[3, 2, 1, 1, 1]  abst=1 trunc=0
+  [222/1000] simpleqa-1640  jac=0.72  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [223/1000] simpleqa-3259  jac=0.75  sem=0.83  clusters=[2, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [224/1000] simpleqa-0247  jac=0.39  sem=0.83  clusters=[1, 1, 2, 2, 1, 1]  abst=1 trunc=0
+  [225/1000] simpleqa-0926  jac=0.43  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [226/1000] simpleqa-2461  jac=0.54  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [227/1000] simpleqa-3441  jac=0.66  sem=0.55  clusters=[3, 1, 4, 1]
+  [228/1000] simpleqa-2503  jac=0.59  sem=0.72  clusters=[3, 1, 1, 1, 2]  abst=1 trunc=0
+  [229/1000] simpleqa-1221  jac=0.77  sem=0.41  clusters=[5, 1, 1]  abst=2 trunc=0
+  [230/1000] simpleqa-0325  jac=0.73  sem=0.83  clusters=[3, 1, 1, 1, 1, 1, 1]
+  [231/1000] simpleqa-3771  jac=0.39  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [232/1000] simpleqa-4120  jac=0.75  sem=0.76  clusters=[3, 1, 1, 1, 1]  abst=2 trunc=0
+  [233/1000] simpleqa-0081  jac=0.60  sem=0.47  clusters=[3, 4, 1]  abst=1 trunc=0
+  [234/1000] simpleqa-2554  jac=0.66  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [235/1000] simpleqa-1448  jac=0.59  sem=0.76  clusters=[3, 2, 1, 1, 1, 1]
+  [236/1000] simpleqa-1592  jac=0.75  sem=0.72  clusters=[2, 1, 1, 3, 1]  abst=1 trunc=0
+  [237/1000] simpleqa-1734  jac=0.59  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [238/1000] simpleqa-2077  jac=0.50  sem=0.35  clusters=[6, 1, 1]  abst=1 trunc=0
+  [239/1000] simpleqa-2638  jac=0.85  sem=0.86  clusters=[1, 2, 1, 1, 1, 2, 1]
+  [240/1000] simpleqa-3508  jac=0.72  sem=0.93  clusters=[1, 1, 1, 1, 1, 1, 1, 2]
+  [241/1000] simpleqa-4151  jac=0.41  sem=0.52  clusters=[2, 1, 5, 1]
+  [242/1000] simpleqa-2044  jac=0.76  sem=0.67  clusters=[3, 3, 1, 1, 1]
+  [243/1000] simpleqa-1296  jac=0.72  sem=0.67  clusters=[3, 3, 1, 1, 1]
+  [244/1000] simpleqa-3195  jac=0.13  sem=0.31  clusters=[1, 7, 1]
+  [245/1000] simpleqa-3107  jac=0.69  sem=0.55  clusters=[1, 4, 3, 1]
+  [246/1000] simpleqa-0386  jac=0.43  sem=0.43  clusters=[3, 5, 1]
+  [247/1000] simpleqa-3092  jac=0.64  sem=0.58  clusters=[1, 2, 4, 1]  abst=1 trunc=0
+  [248/1000] simpleqa-1937  jac=0.70  sem=0.79  clusters=[2, 2, 1, 2, 1, 1]
+  [249/1000] simpleqa-1750  jac=0.36  sem=0.39  clusters=[6, 2, 1]
+  [250/1000] simpleqa-2668  jac=0.75  sem=0.86  clusters=[1, 1, 1, 1, 1, 2, 2]
+  [251/1000] simpleqa-2559  jac=0.37  sem=0.52  clusters=[1, 5, 1, 1]  abst=1 trunc=0
+  [252/1000] simpleqa-0815  jac=0.76  sem=0.86  clusters=[1, 2, 1, 1, 2, 1, 1]
+  [253/1000] simpleqa-0361  jac=0.56  sem=0.76  clusters=[1, 1, 3, 2, 1, 1]
+  [254/1000] simpleqa-1839  jac=0.70  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [255/1000] simpleqa-1711  jac=0.75  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [256/1000] simpleqa-1047  jac=0.53  sem=0.83  clusters=[1, 1, 2, 2, 1, 1]  abst=1 trunc=0
+  [257/1000] simpleqa-2622  jac=0.47  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [258/1000] simpleqa-1691  jac=0.27  sem=0.35  clusters=[6, 1, 1]  abst=1 trunc=0
+  [259/1000] simpleqa-3265  jac=0.66  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [260/1000] simpleqa-3282  jac=0.72  sem=0.80  clusters=[1, 1, 1, 3, 1, 1]  abst=1 trunc=0
+  [261/1000] simpleqa-3719  jac=0.68  sem=0.55  clusters=[3, 4, 1, 1]
+  [262/1000] simpleqa-2662  jac=0.64  sem=0.72  clusters=[3, 1, 2, 1, 1]  abst=1 trunc=0
+  [263/1000] simpleqa-4118  jac=0.73  sem=0.83  clusters=[1, 3, 1, 1, 1, 1, 1]
+  [264/1000] simpleqa-1484  jac=0.37  sem=0.76  clusters=[1, 3, 1, 1, 1]  abst=2 trunc=0
+  [265/1000] simpleqa-0452  jac=0.68  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [266/1000] simpleqa-3254  jac=0.68  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [267/1000] simpleqa-0457  jac=0.77  sem=0.76  clusters=[2, 1, 1, 1, 3, 1]
+  [268/1000] simpleqa-3328  jac=0.79  sem=0.67  clusters=[3, 1, 1, 1, 3]
+  [269/1000] simpleqa-1205  jac=0.59  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [270/1000] simpleqa-0852  jac=0.70  sem=0.86  clusters=[2, 2, 1, 1, 1, 1, 1]
+  [271/1000] simpleqa-2484  jac=0.47  sem=0.58  clusters=[1, 4, 2, 2]
+  [272/1000] simpleqa-0015  jac=0.84  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [273/1000] simpleqa-3693  jac=0.60  sem=0.76  clusters=[1, 3, 1, 1, 2, 1]
+  [274/1000] simpleqa-0803  jac=0.71  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [275/1000] simpleqa-0788  jac=0.65  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [276/1000] simpleqa-1232  jac=0.51  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [277/1000] simpleqa-2933  jac=0.60  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [278/1000] simpleqa-3893  jac=0.33  sem=0.72  clusters=[4, 1, 1, 1, 1, 1]
+  [279/1000] simpleqa-2608  jac=0.44  sem=0.76  clusters=[1, 3, 2, 1, 1, 1]
+  [280/1000] simpleqa-4245  jac=0.73  sem=0.83  clusters=[3, 1, 1, 1, 1, 1, 1]
+  [281/1000] simpleqa-3289  jac=0.48  sem=0.52  clusters=[1, 5, 1, 1]  abst=1 trunc=0
+  [282/1000] simpleqa-0552  jac=0.43  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [283/1000] simpleqa-0751  jac=0.84  sem=0.65  clusters=[2, 4, 1, 1, 1]
+  [284/1000] simpleqa-1112  jac=0.67  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [285/1000] simpleqa-2391  jac=0.42  sem=0.31  clusters=[1, 7, 1]
+  [286/1000] simpleqa-2686  jac=0.40  sem=0.67  clusters=[1, 3, 1, 3, 1]
+  [287/1000] simpleqa-3635  jac=0.55  sem=0.72  clusters=[4, 1, 1, 1, 1, 1]
+  [288/1000] simpleqa-3009  jac=0.68  sem=0.72  clusters=[1, 3, 1, 2, 1]  abst=1 trunc=0
+  [289/1000] simpleqa-3007  jac=0.53  sem=0.52  clusters=[1, 5, 2, 1]
+  [290/1000] simpleqa-2309  jac=0.67  sem=0.72  clusters=[3, 1, 1, 1, 2]  abst=1 trunc=0
+  [291/1000] simpleqa-4103  jac=0.67  sem=0.80  clusters=[1, 1, 1, 1, 1, 3]  abst=1 trunc=0
+  [292/1000] simpleqa-0218  jac=0.76  sem=0.86  clusters=[2, 1, 2, 1, 1, 1, 1]
+  [293/1000] simpleqa-2977  jac=0.84  sem=0.76  clusters=[3, 2, 1, 1, 1, 1]
+  [294/1000] simpleqa-4227  jac=0.74  sem=0.65  clusters=[1, 4, 1, 2, 1]
+  [295/1000] simpleqa-4265  jac=0.67  sem=0.43  clusters=[5, 2, 1]  abst=1 trunc=0
+  [296/1000] simpleqa-1971  jac=0.74  sem=0.93  clusters=[1, 1, 1, 2, 1, 1, 1, 1]
+  [297/1000] simpleqa-2180  jac=0.60  sem=0.65  clusters=[1, 4, 2, 1, 1]
+  [298/1000] simpleqa-1257  jac=0.62  sem=0.72  clusters=[2, 1, 1, 3, 1]  abst=1 trunc=0
+  [299/1000] simpleqa-1838  jac=0.65  sem=0.65  clusters=[4, 1, 1, 1, 2]
+  [300/1000] simpleqa-0308  jac=0.38  sem=0.83  clusters=[1, 1, 2, 2, 1, 1]  abst=1 trunc=0
+  [301/1000] simpleqa-0252  jac=0.59  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [302/1000] simpleqa-0704  jac=0.46  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [303/1000] simpleqa-3489  jac=0.47  sem=0.92  clusters=[1, 2, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [304/1000] simpleqa-3404  jac=0.94  sem=0.72  clusters=[2, 2, 1, 2, 2]
+  [305/1000] simpleqa-3153  jac=0.51  sem=0.75  clusters=[2, 1, 1, 2, 2]  abst=1 trunc=0
+  [306/1000] simpleqa-2973  jac=0.47  sem=0.86  clusters=[2, 1, 1, 1, 2, 1, 1]
+  [307/1000] simpleqa-3598  jac=0.49  sem=0.72  clusters=[1, 1, 3, 1, 2]  abst=1 trunc=0
+  [308/1000] simpleqa-2322  jac=0.80  sem=0.52  clusters=[3, 3, 2]  abst=1 trunc=0
+  [309/1000] simpleqa-0477  jac=0.50  sem=0.72  clusters=[1, 1, 3, 1, 2]  abst=1 trunc=0
+  [310/1000] simpleqa-1263  jac=0.75  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [311/1000] simpleqa-1756  jac=0.79  sem=0.69  clusters=[3, 1, 1, 1]  abst=3 trunc=0
+  [312/1000] simpleqa-2176  jac=0.47  sem=0.16  clusters=[8, 1]
+  [313/1000] simpleqa-3210  jac=0.29  sem=0.00  clusters=[9]
+  [314/1000] simpleqa-1755  jac=0.45  sem=0.75  clusters=[2, 2, 1, 2, 1]  abst=1 trunc=0
+  [315/1000] simpleqa-3551  jac=0.35  sem=0.50  clusters=[3, 3, 3]
+  [316/1000] simpleqa-2178  jac=0.41  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [317/1000] simpleqa-2783  jac=0.42  sem=0.86  clusters=[2, 1, 1, 1, 2, 1, 1]
+  [318/1000] simpleqa-2465  jac=0.64  sem=0.72  clusters=[1, 2, 1, 3, 1]  abst=1 trunc=0
+  [319/1000] simpleqa-3078  jac=0.78  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [320/1000] simpleqa-1049  jac=0.45  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [321/1000] simpleqa-4215  jac=0.43  sem=0.72  clusters=[1, 1, 1, 1, 1, 4]
+  [322/1000] simpleqa-1929  jac=0.65  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [323/1000] simpleqa-4287  jac=0.87  sem=0.86  clusters=[1, 2, 1, 2, 1, 1, 1]
+  [324/1000] simpleqa-0894  jac=0.43  sem=0.67  clusters=[1, 1, 1, 1, 4]  abst=1 trunc=0
+  [325/1000] simpleqa-2722  jac=0.35  sem=0.67  clusters=[1, 4, 1, 1, 1]  abst=1 trunc=0
+  [326/1000] simpleqa-0410  jac=0.32  sem=0.52  clusters=[1, 5, 1, 1]  abst=1 trunc=0
+  [327/1000] simpleqa-1848  jac=0.68  sem=0.72  clusters=[3, 2, 1, 1, 1]  abst=1 trunc=0
+  [328/1000] simpleqa-2421  jac=0.69  sem=0.72  clusters=[3, 1, 1, 1, 2]  abst=1 trunc=0
+  [329/1000] simpleqa-4019  jac=0.41  sem=0.76  clusters=[3, 2, 1, 1, 1, 1]
+  [330/1000] simpleqa-2294  jac=0.68  sem=0.76  clusters=[1, 1, 1, 2, 3, 1]
+  [331/1000] simpleqa-1731  jac=0.48  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [332/1000] simpleqa-0691  jac=0.67  sem=0.46  clusters=[6, 1, 1, 1]
+  [333/1000] simpleqa-3193  jac=0.72  sem=0.69  clusters=[3, 2, 2, 1, 1]
+  [334/1000] simpleqa-3522  jac=0.64  sem=0.58  clusters=[4, 2, 2, 1]
+  [335/1000] simpleqa-3317  jac=0.23  sem=0.47  clusters=[4, 3, 1]  abst=1 trunc=0
+  [336/1000] simpleqa-0768  jac=0.52  sem=0.58  clusters=[4, 2, 2, 1]
+  [337/1000] simpleqa-4021  jac=0.50  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [338/1000] simpleqa-1368  jac=0.35  sem=0.75  clusters=[1, 1, 2, 2, 2]  abst=1 trunc=0
+  [339/1000] simpleqa-1061  jac=0.56  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [340/1000] simpleqa-2122  jac=0.70  sem=0.64  clusters=[2, 1, 2, 3]  abst=1 trunc=0
+  [341/1000] simpleqa-0104  jac=0.24  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [342/1000] simpleqa-0240  jac=0.53  sem=0.31  clusters=[7, 1, 1]
+  [343/1000] simpleqa-3533  jac=0.67  sem=0.93  clusters=[1, 1, 1, 1, 2, 1, 1, 1]
+  [344/1000] simpleqa-3005  jac=0.67  sem=0.83  clusters=[2, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [345/1000] simpleqa-0432  jac=0.66  sem=0.48  clusters=[2, 4, 3]
+  [346/1000] simpleqa-0799  jac=0.40  sem=0.72  clusters=[3, 1, 1, 2, 1]  abst=1 trunc=0
+  [347/1000] simpleqa-3980  jac=0.63  sem=0.83  clusters=[2, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [348/1000] simpleqa-2762  jac=0.62  sem=0.72  clusters=[1, 3, 1, 1, 2]  abst=1 trunc=0
+  [349/1000] simpleqa-3602  jac=0.38  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [350/1000] simpleqa-2563  jac=0.56  sem=0.65  clusters=[2, 4, 1, 1, 1]
+  [351/1000] simpleqa-2693  jac=0.41  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [352/1000] simpleqa-2443  jac=0.67  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [353/1000] simpleqa-1378  jac=0.54  sem=0.67  clusters=[1, 3, 1, 3, 1]
+  [354/1000] simpleqa-2855  jac=0.69  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [355/1000] simpleqa-3923  jac=0.57  sem=0.76  clusters=[1, 3, 1, 1, 1, 2]
+  [356/1000] simpleqa-2939  jac=0.55  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [357/1000] simpleqa-1674  jac=0.45  sem=0.31  clusters=[7, 1, 1]
+  [358/1000] simpleqa-3637  jac=0.57  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [359/1000] simpleqa-2897  jac=0.49  sem=0.59  clusters=[5, 1, 1, 1, 1]
+  [360/1000] simpleqa-0076  jac=0.47  sem=0.69  clusters=[2, 2, 1, 1, 3]
+  [361/1000] simpleqa-2257  jac=0.59  sem=0.72  clusters=[3, 1, 1, 2, 1]  abst=1 trunc=0
+  [362/1000] simpleqa-0882  jac=0.76  sem=0.58  clusters=[2, 4, 2, 1]
+  [363/1000] simpleqa-1060  jac=0.78  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [364/1000] simpleqa-1367  jac=0.74  sem=0.43  clusters=[5, 1, 3]
+  [365/1000] simpleqa-2372  jac=0.51  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [366/1000] simpleqa-3515  jac=0.62  sem=0.46  clusters=[1, 6, 1, 1]
+  [367/1000] simpleqa-0813  jac=0.58  sem=0.00  clusters=[8]  abst=1 trunc=0
+  [368/1000] simpleqa-4188  jac=0.81  sem=0.92  clusters=[1, 1, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [369/1000] simpleqa-1611  jac=0.67  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [370/1000] simpleqa-1517  jac=0.85  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [371/1000] simpleqa-4097  jac=0.55  sem=0.55  clusters=[3, 1, 4, 1]
+  [372/1000] simpleqa-2943  jac=0.67  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [373/1000] simpleqa-2030  jac=0.57  sem=0.00  clusters=[9]
+  [374/1000] simpleqa-1105  jac=0.83  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [375/1000] simpleqa-2543  jac=0.36  sem=0.90  clusters=[1, 1, 1, 2, 1, 1]  abst=2 trunc=0
+  [376/1000] simpleqa-1816  jac=0.50  sem=0.58  clusters=[2, 4, 2, 1]
+  [377/1000] simpleqa-3919  jac=0.58  sem=0.86  clusters=[1, 2, 1, 1, 1, 1, 2]
+  [378/1000] simpleqa-2159  jac=0.89  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [379/1000] simpleqa-4268  jac=0.50  sem=0.43  clusters=[5, 3, 1]
+  [380/1000] simpleqa-0765  jac=0.69  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [381/1000] simpleqa-1688  jac=0.60  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [382/1000] simpleqa-0659  jac=0.67  sem=0.16  clusters=[8, 1]
+  [383/1000] simpleqa-3452  jac=0.65  sem=0.72  clusters=[3, 1, 1, 2, 1]  abst=1 trunc=0
+  [384/1000] simpleqa-2317  jac=0.69  sem=0.83  clusters=[2, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [385/1000] simpleqa-1441  jac=0.19  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [386/1000] simpleqa-2786  jac=0.52  sem=0.65  clusters=[1, 2, 1, 1, 4]
+  [387/1000] simpleqa-0109  jac=0.38  sem=0.43  clusters=[5, 3, 1]
+  [388/1000] simpleqa-1847  jac=0.48  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [389/1000] simpleqa-2330  jac=0.87  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [390/1000] simpleqa-3398  jac=0.61  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [391/1000] simpleqa-0701  jac=0.54  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [392/1000] simpleqa-0589  jac=0.59  sem=0.79  clusters=[1, 2, 1, 2, 1, 2]
+  [393/1000] simpleqa-1108  jac=0.46  sem=0.52  clusters=[2, 5, 1, 1]
+  [394/1000] simpleqa-2036  jac=0.68  sem=0.72  clusters=[3, 1, 1, 1, 2]  abst=1 trunc=0
+  [395/1000] simpleqa-2359  jac=0.22  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [396/1000] simpleqa-0554  jac=0.54  sem=0.76  clusters=[1, 1, 2, 1, 1, 3]
+  [397/1000] simpleqa-1259  jac=0.69  sem=0.86  clusters=[1, 2, 1, 2, 1, 1, 1]
+  [398/1000] simpleqa-1132  jac=0.68  sem=0.65  clusters=[1, 1, 4, 2, 1]
+  [399/1000] simpleqa-4243  jac=0.65  sem=0.86  clusters=[2, 1, 2, 1, 1, 1, 1]
+  [400/1000] simpleqa-3446  jac=0.78  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [401/1000] simpleqa-3443  jac=0.87  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [402/1000] simpleqa-2923  jac=0.29  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [403/1000] simpleqa-2534  jac=0.28  sem=0.18  clusters=[7, 1]  abst=1 trunc=0
+  [404/1000] simpleqa-0036  jac=0.78  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [405/1000] simpleqa-3543  jac=0.54  sem=0.69  clusters=[2, 3, 2, 1, 1]
+  [406/1000] simpleqa-2567  jac=0.56  sem=0.18  clusters=[7, 1]  abst=1 trunc=0
+  [407/1000] simpleqa-1355  jac=0.28  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [408/1000] simpleqa-0889  jac=0.49  sem=0.72  clusters=[1, 4, 1, 1, 1, 1]
+  [409/1000] simpleqa-1794  jac=0.73  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [410/1000] simpleqa-1081  jac=0.68  sem=0.83  clusters=[2, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [411/1000] simpleqa-0969  jac=0.59  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [412/1000] simpleqa-2533  jac=0.58  sem=0.92  clusters=[1, 1, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [413/1000] simpleqa-1200  jac=0.55  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [414/1000] simpleqa-0674  jac=0.69  sem=0.79  clusters=[1, 2, 2, 1, 2, 1]
+  [415/1000] simpleqa-0455  jac=0.80  sem=0.67  clusters=[3, 3, 1, 1, 1]
+  [416/1000] simpleqa-1737  jac=0.39  sem=0.76  clusters=[3, 1, 1, 1, 2, 1]
+  [417/1000] simpleqa-2836  jac=0.50  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [418/1000] simpleqa-2095  jac=0.55  sem=0.62  clusters=[3, 2, 2, 2]
+  [419/1000] simpleqa-3192  jac=0.64  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [420/1000] simpleqa-1337  [~] gpt-oss-20b: truncated, excluded from this question
+  [420/1000] simpleqa-1337  jac=0.48  sem=0.67  clusters=[1, 1, 4, 1, 1]  abst=0 trunc=1
+  [421/1000] simpleqa-2341  jac=0.60  sem=0.92  clusters=[1, 2, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [422/1000] simpleqa-2705  jac=0.86  sem=0.83  clusters=[1, 2, 1, 1, 1, 2]  abst=1 trunc=0
+  [423/1000] simpleqa-2538  jac=0.76  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [424/1000] simpleqa-2791  jac=0.40  sem=0.64  clusters=[2, 3, 2, 1]  abst=1 trunc=0
+  [425/1000] simpleqa-3886  jac=0.83  sem=0.92  clusters=[1, 1, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [426/1000] simpleqa-3144  jac=0.81  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [427/1000] simpleqa-1268  jac=0.55  sem=0.80  clusters=[2, 2, 1, 1, 1]  abst=2 trunc=0
+  [428/1000] simpleqa-0061  jac=0.52  sem=0.72  clusters=[3, 1, 2, 1, 1]  abst=1 trunc=0
+  [429/1000] simpleqa-1129  jac=0.49  sem=0.86  clusters=[1, 1, 2, 2, 1, 1, 1]
+  [430/1000] simpleqa-1190  jac=0.38  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [431/1000] simpleqa-2821  jac=0.52  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [432/1000] simpleqa-1131  jac=0.43  sem=0.93  clusters=[1, 1, 1, 2, 1, 1, 1, 1]
+  [433/1000] simpleqa-0862  jac=0.62  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [434/1000] simpleqa-1054  jac=0.31  sem=0.46  clusters=[1, 6, 1, 1]
+  [435/1000] simpleqa-1491  jac=0.56  sem=0.69  clusters=[1, 2, 2, 3, 1]
+  [436/1000] simpleqa-0319  jac=0.50  sem=0.58  clusters=[4, 2, 1, 1]  abst=1 trunc=0
+  [437/1000] simpleqa-3218  jac=0.53  sem=0.80  clusters=[1, 1, 1, 1, 1, 3]  abst=1 trunc=0
+  [438/1000] simpleqa-3030  jac=0.80  sem=0.87  clusters=[2, 1, 1, 1, 1]  abst=3 trunc=0
+  [439/1000] simpleqa-2967  jac=0.55  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [440/1000] simpleqa-1040  jac=0.62  sem=0.93  clusters=[1, 1, 1, 1, 2, 1, 1, 1]
+  [441/1000] simpleqa-1889  jac=0.61  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [442/1000] simpleqa-1739  jac=0.47  sem=0.00  clusters=[9]
+  [443/1000] simpleqa-0029  jac=0.80  sem=0.45  clusters=[5, 2, 2]
+  [444/1000] simpleqa-2591  jac=0.56  sem=0.64  clusters=[2, 3, 1, 2]  abst=1 trunc=0
+  [445/1000] simpleqa-1963  jac=0.79  sem=0.79  clusters=[1, 2, 1, 1, 2, 2]
+  [446/1000] simpleqa-0281  jac=0.69  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [447/1000] simpleqa-0491  jac=0.40  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [448/1000] simpleqa-4100  jac=0.65  sem=0.43  clusters=[1, 5, 2]  abst=1 trunc=0
+  [449/1000] simpleqa-0071  jac=0.73  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [450/1000] simpleqa-4129  jac=0.54  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [451/1000] simpleqa-1149  jac=0.66  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [452/1000] simpleqa-3292  jac=0.84  sem=0.59  clusters=[5, 1, 1, 1, 1]
+  [453/1000] simpleqa-1809  jac=0.74  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [454/1000] simpleqa-3712  jac=0.64  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [455/1000] simpleqa-1063  jac=0.43  sem=0.31  clusters=[7, 1, 1]
+  [456/1000] simpleqa-1822  jac=0.57  sem=0.31  clusters=[5, 4]
+  [457/1000] simpleqa-2099  jac=0.80  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [458/1000] simpleqa-2326  jac=0.35  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [459/1000] simpleqa-4184  jac=0.48  sem=0.45  clusters=[2, 5, 2]
+  [460/1000] simpleqa-2643  jac=0.47  sem=0.44  clusters=[4, 1, 4]
+  [461/1000] simpleqa-4076  jac=0.49  sem=0.60  clusters=[1, 1, 3, 3]  abst=1 trunc=0
+  [462/1000] simpleqa-1888  jac=0.36  sem=0.76  clusters=[2, 3, 1, 1, 1, 1]
+  [463/1000] simpleqa-0330  jac=0.48  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [464/1000] simpleqa-1782  jac=0.38  sem=0.39  clusters=[1, 6, 2]
+  [465/1000] simpleqa-3312  jac=0.74  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [466/1000] simpleqa-0563  jac=0.32  sem=0.93  clusters=[1, 1, 2, 1, 1, 1, 1, 1]
+  [467/1000] simpleqa-4149  jac=0.71  sem=0.86  clusters=[2, 1, 2, 1, 1, 1, 1]
+  [468/1000] simpleqa-3881  jac=0.70  sem=0.79  clusters=[2, 1, 2, 2, 1, 1]
+  [469/1000] simpleqa-1174  jac=0.61  sem=0.79  clusters=[2, 1, 1, 2, 2, 1]
+  [470/1000] simpleqa-0066  jac=0.87  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [471/1000] simpleqa-0745  jac=0.56  sem=0.83  clusters=[3, 1, 1, 1, 1, 1, 1]
+  [472/1000] simpleqa-1842  jac=0.65  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [473/1000] simpleqa-3248  jac=0.56  sem=0.72  clusters=[2, 1, 1, 1, 3]  abst=1 trunc=0
+  [474/1000] simpleqa-2008  jac=0.62  sem=0.79  clusters=[1, 2, 2, 1, 2, 1]
+  [475/1000] simpleqa-1726  jac=0.68  sem=0.75  clusters=[2, 1, 2, 1, 2]  abst=1 trunc=0
+  [476/1000] simpleqa-1631  jac=0.59  sem=0.90  clusters=[2, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [477/1000] simpleqa-3531  jac=0.90  sem=0.86  clusters=[1, 2, 1, 1, 2, 1, 1]
+  [478/1000] simpleqa-0014  jac=0.57  sem=0.24  clusters=[7, 2]
+  [479/1000] simpleqa-0483  jac=0.68  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [480/1000] simpleqa-2102  jac=0.65  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [481/1000] simpleqa-1366  jac=0.33  sem=0.58  clusters=[2, 4, 1, 1]  abst=1 trunc=0
+  [482/1000] simpleqa-2634  jac=0.48  sem=0.72  clusters=[3, 2, 1, 1, 1]  abst=1 trunc=0
+  [483/1000] simpleqa-3285  jac=0.34  sem=0.83  clusters=[1, 2, 1, 1, 1, 2]  abst=1 trunc=0
+  [484/1000] simpleqa-1962  jac=0.45  sem=0.80  clusters=[1, 1, 1, 1, 1, 3]  abst=1 trunc=0
+  [485/1000] simpleqa-3669  jac=0.51  sem=0.76  clusters=[1, 2, 1, 1, 3, 1]
+  [486/1000] simpleqa-1426  jac=0.88  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [487/1000] simpleqa-4211  jac=0.70  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [488/1000] simpleqa-1119  jac=0.63  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [489/1000] simpleqa-1857  jac=0.09  sem=0.24  clusters=[7, 2]
+  [490/1000] simpleqa-3247  jac=0.48  sem=0.59  clusters=[5, 1, 1, 1, 1]
+  [491/1000] simpleqa-1976  jac=0.79  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [492/1000] simpleqa-3021  jac=0.87  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [493/1000] simpleqa-1537  jac=0.29  sem=0.67  clusters=[3, 3, 1, 1, 1]
+  [494/1000] simpleqa-1111  jac=0.70  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [495/1000] simpleqa-3271  jac=0.42  sem=0.72  clusters=[2, 1, 1, 3, 1]  abst=1 trunc=0
+  [496/1000] simpleqa-1965  jac=0.82  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [497/1000] simpleqa-0983  jac=0.70  sem=0.52  clusters=[3, 3, 2]  abst=1 trunc=0
+  [498/1000] simpleqa-1542  jac=0.49  sem=0.86  clusters=[1, 2, 1, 2, 1, 1, 1]
+  [499/1000] simpleqa-1427  jac=0.52  sem=0.80  clusters=[1, 1, 3, 1, 1, 1]  abst=1 trunc=0
+  [500/1000] simpleqa-0940  jac=0.26  sem=0.60  clusters=[3, 1, 3, 1]  abst=1 trunc=0
+  [501/1000] simpleqa-4225  jac=0.59  sem=0.83  clusters=[1, 3, 1, 1, 1, 1, 1]
+  [502/1000] simpleqa-3488  jac=0.13  sem=0.75  clusters=[2, 2, 1, 2, 1]  abst=1 trunc=0
+  [503/1000] simpleqa-3968  jac=0.54  sem=0.43  clusters=[5, 3, 1]
+  [504/1000] simpleqa-1329  jac=0.56  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [505/1000] simpleqa-0231  jac=0.69  sem=0.76  clusters=[2, 1, 3, 1, 1, 1]
+  [506/1000] simpleqa-0323  jac=0.58  sem=0.69  clusters=[2, 1, 1, 3, 2]
+  [507/1000] simpleqa-1851  jac=0.51  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [508/1000] simpleqa-1212  jac=0.60  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [509/1000] simpleqa-0849  jac=0.49  sem=0.72  clusters=[1, 1, 1, 3, 2]  abst=1 trunc=0
+  [510/1000] simpleqa-3462  jac=0.55  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [511/1000] simpleqa-1050  jac=0.65  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [512/1000] simpleqa-2429  jac=0.67  sem=0.72  clusters=[2, 3, 1, 1, 1]  abst=1 trunc=0
+  [513/1000] simpleqa-0459  jac=0.64  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [514/1000] simpleqa-3514  jac=0.42  sem=0.76  clusters=[3, 1, 1, 2, 1, 1]
+  [515/1000] simpleqa-1013  jac=0.38  sem=0.72  clusters=[2, 1, 1, 3, 1]  abst=1 trunc=0
+  [516/1000] simpleqa-3288  jac=0.48  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [517/1000] simpleqa-3627  jac=0.57  sem=0.83  clusters=[2, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [518/1000] simpleqa-2827  jac=0.42  sem=0.76  clusters=[1, 1, 1, 2, 1, 3]
+  [519/1000] simpleqa-1807  jac=0.70  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [520/1000] simpleqa-3137  jac=0.70  sem=0.31  clusters=[1, 7, 1]
+  [521/1000] simpleqa-4013  jac=0.32  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [522/1000] simpleqa-0930  jac=0.43  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [523/1000] simpleqa-2022  jac=0.52  sem=0.93  clusters=[1, 1, 2, 1, 1, 1, 1, 1]
+  [524/1000] simpleqa-0094  jac=0.68  sem=0.52  clusters=[5, 2, 1, 1]
+  [525/1000] simpleqa-3181  jac=0.50  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [526/1000] simpleqa-2564  jac=0.62  sem=0.59  clusters=[5, 1, 1, 1, 1]
+  [527/1000] simpleqa-3081  jac=0.47  sem=0.46  clusters=[1, 6, 1, 1]
+  [528/1000] simpleqa-3017  jac=0.69  sem=0.83  clusters=[1, 1, 1, 2, 2, 1]  abst=1 trunc=0
+  [529/1000] simpleqa-1934  jac=0.94  sem=0.83  clusters=[3, 1, 1, 1, 1, 1, 1]
+  [530/1000] simpleqa-2449  jac=0.59  sem=0.58  clusters=[4, 2, 2, 1]
+  [531/1000] simpleqa-1164  jac=0.59  sem=0.65  clusters=[1, 1, 2, 4, 1]
+  [532/1000] simpleqa-3763  jac=0.64  sem=0.76  clusters=[2, 3, 1, 1, 1, 1]
+  [533/1000] simpleqa-1704  jac=0.32  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [534/1000] simpleqa-2863  jac=0.63  sem=0.58  clusters=[4, 1, 1, 2]  abst=1 trunc=0
+  [535/1000] simpleqa-1890  jac=0.74  sem=0.83  clusters=[3, 1, 1, 1, 1, 1, 1]
+  [536/1000] simpleqa-1016  jac=0.35  sem=0.90  clusters=[2, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [537/1000] simpleqa-2209  jac=0.55  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [538/1000] simpleqa-2001  jac=0.44  sem=0.65  clusters=[4, 1, 2, 1, 1]
+  [539/1000] simpleqa-2590  jac=0.63  sem=0.86  clusters=[2, 1, 1, 2, 1, 1, 1]
+  [540/1000] simpleqa-2365  jac=0.73  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [541/1000] simpleqa-1786  jac=0.62  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [542/1000] simpleqa-2826  jac=0.56  sem=0.76  clusters=[2, 1, 1, 3, 1, 1]
+  [543/1000] simpleqa-0031  jac=0.61  sem=0.79  clusters=[2, 1, 2, 2, 1, 1]
+  [544/1000] simpleqa-3757  jac=0.72  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [545/1000] simpleqa-3296  jac=0.45  sem=0.32  clusters=[5, 3]  abst=1 trunc=0
+  [546/1000] simpleqa-3332  jac=0.69  sem=0.39  clusters=[6, 2, 1]
+  [547/1000] simpleqa-0911  jac=0.62  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [548/1000] simpleqa-0356  jac=0.69  sem=0.58  clusters=[2, 4, 1, 2]
+  [549/1000] simpleqa-0283  jac=0.45  sem=0.39  clusters=[6, 1, 2]
+  [550/1000] simpleqa-0365  jac=0.61  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [551/1000] simpleqa-2657  jac=0.52  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [552/1000] simpleqa-0762  jac=0.79  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [553/1000] simpleqa-0711  jac=0.92  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [554/1000] simpleqa-3148  jac=0.70  sem=0.65  clusters=[1, 2, 1, 1, 4]
+  [555/1000] simpleqa-2695  jac=0.58  sem=0.83  clusters=[1, 3, 1, 1, 1, 1, 1]
+  [556/1000] simpleqa-0158  jac=0.68  sem=0.69  clusters=[1, 3, 2, 2, 1]
+  [557/1000] simpleqa-3814  jac=0.61  sem=0.67  clusters=[1, 3, 3, 1, 1]
+  [558/1000] simpleqa-2250  jac=0.39  sem=0.65  clusters=[4, 2, 1, 1, 1]
+  [559/1000] simpleqa-3578  jac=0.82  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [560/1000] simpleqa-3413  jac=0.60  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [561/1000] simpleqa-3480  jac=0.68  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [562/1000] simpleqa-1579  jac=0.63  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [563/1000] simpleqa-2625  jac=0.64  sem=0.47  clusters=[3, 4, 1]  abst=1 trunc=0
+  [564/1000] simpleqa-2139  jac=0.52  sem=0.72  clusters=[1, 4, 1, 1, 1, 1]
+  [565/1000] simpleqa-2166  jac=0.54  sem=0.55  clusters=[4, 3, 1, 1]
+  [566/1000] simpleqa-4165  jac=0.86  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [567/1000] simpleqa-3867  jac=0.67  sem=0.86  clusters=[1, 1, 2, 1, 2, 1, 1]
+  [568/1000] simpleqa-3212  jac=0.71  sem=0.76  clusters=[1, 1, 1, 2, 1, 3]
+  [569/1000] simpleqa-1335  jac=0.50  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [570/1000] simpleqa-1493  jac=0.53  sem=0.52  clusters=[5, 2, 1, 1]
+  [571/1000] simpleqa-1821  jac=0.42  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [572/1000] simpleqa-2811  jac=0.50  sem=0.60  clusters=[3, 3, 1, 1]  abst=1 trunc=0
+  [573/1000] simpleqa-0299  jac=0.48  sem=0.43  clusters=[5, 3, 1]
+  [574/1000] simpleqa-2385  jac=0.59  sem=0.92  clusters=[1, 2, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [575/1000] simpleqa-0834  jac=0.77  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [576/1000] simpleqa-1369  jac=0.53  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [577/1000] simpleqa-0217  jac=0.72  sem=0.39  clusters=[6, 2, 1]
+  [578/1000] simpleqa-3010  jac=0.39  sem=0.52  clusters=[2, 5, 1, 1]
+  [579/1000] simpleqa-2155  jac=0.60  sem=0.39  clusters=[6, 1, 2]
+  [580/1000] simpleqa-2813  jac=0.92  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [581/1000] simpleqa-1297  jac=0.46  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [582/1000] simpleqa-0568  jac=0.56  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [583/1000] simpleqa-3597  jac=0.72  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [584/1000] simpleqa-1791  jac=0.53  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [585/1000] simpleqa-1661  jac=0.69  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [586/1000] simpleqa-1290  jac=0.58  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [587/1000] simpleqa-3682  jac=0.32  sem=0.46  clusters=[6, 1, 1, 1]
+  [588/1000] simpleqa-0752  jac=0.68  sem=0.72  clusters=[3, 1, 1, 1, 2]  abst=1 trunc=0
+  [589/1000] simpleqa-1202  jac=0.73  sem=0.80  clusters=[1, 2, 1, 2, 1]  abst=2 trunc=0
+  [590/1000] simpleqa-0179  jac=0.61  sem=0.18  clusters=[7, 1]  abst=1 trunc=0
+  [591/1000] simpleqa-0150  jac=0.45  sem=0.64  clusters=[2, 3, 1, 2]  abst=1 trunc=0
+  [592/1000] simpleqa-1531  jac=0.76  sem=0.66  clusters=[3, 1, 2, 1]  abst=2 trunc=0
+  [593/1000] simpleqa-4114  jac=0.37  sem=0.16  clusters=[8, 1]
+  [594/1000] simpleqa-1698  jac=0.56  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [595/1000] simpleqa-1529  jac=0.54  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [596/1000] simpleqa-4157  jac=0.45  sem=0.27  clusters=[6, 2]  abst=1 trunc=0
+  [597/1000] simpleqa-3547  jac=0.71  sem=0.75  clusters=[2, 2, 1, 2, 1]  abst=1 trunc=0
+  [598/1000] simpleqa-0700  jac=0.48  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [599/1000] simpleqa-0617  jac=0.60  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [600/1000] simpleqa-0032  jac=0.53  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [601/1000] simpleqa-3852  jac=0.50  sem=0.79  clusters=[2, 2, 1, 1, 1, 2]
+  [602/1000] simpleqa-3561  jac=0.69  sem=0.65  clusters=[2, 4, 1, 1, 1]
+  [603/1000] simpleqa-1732  jac=0.74  sem=0.75  clusters=[1, 2, 2, 2, 1]  abst=1 trunc=0
+  [604/1000] simpleqa-0963  jac=0.30  sem=0.60  clusters=[3, 3, 1, 1]  abst=1 trunc=0
+  [605/1000] simpleqa-0829  jac=0.60  sem=0.50  clusters=[4, 2, 2]  abst=1 trunc=0
+  [606/1000] simpleqa-2447  jac=0.91  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [607/1000] simpleqa-1722  jac=0.70  sem=0.59  clusters=[1, 1, 1, 4]  abst=2 trunc=0
+  [608/1000] simpleqa-1955  jac=0.80  sem=0.83  clusters=[1, 3, 1, 1, 1, 1, 1]
+  [609/1000] simpleqa-2057  jac=0.67  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [610/1000] simpleqa-2918  jac=0.55  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [611/1000] simpleqa-3037  jac=0.60  sem=0.80  clusters=[1, 1, 1, 1, 3, 1]  abst=1 trunc=0
+  [612/1000] simpleqa-2975  jac=0.40  sem=0.72  clusters=[1, 4, 1, 1, 1, 1]
+  [613/1000] simpleqa-1695  jac=0.58  sem=0.55  clusters=[1, 3, 1, 4]
+  [614/1000] simpleqa-1400  jac=0.68  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [615/1000] simpleqa-2542  jac=0.78  sem=0.72  clusters=[1, 1, 1, 3, 2]  abst=1 trunc=0
+  [616/1000] simpleqa-3704  jac=0.70  sem=0.65  clusters=[4, 1, 1, 1, 2]
+  [617/1000] simpleqa-0952  jac=0.48  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [618/1000] simpleqa-4277  jac=0.66  sem=0.43  clusters=[2, 5, 1]  abst=1 trunc=0
+  [619/1000] simpleqa-0180  jac=0.64  sem=0.80  clusters=[1, 1, 3, 1, 1, 1]  abst=1 trunc=0
+  [620/1000] simpleqa-0069  jac=0.45  sem=0.39  clusters=[6, 1, 2]
+  [621/1000] simpleqa-1235  jac=0.37  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [622/1000] simpleqa-0710  jac=0.65  sem=0.79  clusters=[1, 2, 2, 2, 1, 1]
+  [623/1000] simpleqa-0509  jac=0.75  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [624/1000] simpleqa-1601  jac=0.59  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [625/1000] simpleqa-4270  jac=0.55  sem=0.67  clusters=[1, 3, 1, 3, 1]
+  [626/1000] simpleqa-0596  jac=0.79  sem=0.79  clusters=[2, 1, 1, 2, 2, 1]
+  [627/1000] simpleqa-1145  jac=0.66  sem=0.83  clusters=[1, 3, 1, 1, 1, 1, 1]
+  [628/1000] simpleqa-3442  jac=0.54  sem=0.83  clusters=[2, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [629/1000] simpleqa-2026  jac=0.66  sem=0.72  clusters=[4, 1, 1, 1, 1, 1]
+  [630/1000] simpleqa-3610  jac=0.75  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [631/1000] simpleqa-3437  jac=0.47  sem=0.65  clusters=[4, 1, 1, 2, 1]
+  [632/1000] simpleqa-0342  jac=0.32  sem=0.79  clusters=[2, 2, 1, 2, 1, 1]
+  [633/1000] simpleqa-1805  jac=0.68  sem=0.29  clusters=[6, 3]
+  [634/1000] simpleqa-3698  jac=0.65  sem=0.79  clusters=[1, 2, 2, 1, 1, 2]
+  [635/1000] simpleqa-0446  jac=0.55  sem=0.58  clusters=[1, 4, 2, 1]  abst=1 trunc=0
+  [636/1000] simpleqa-0850  jac=0.54  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [637/1000] simpleqa-1239  jac=0.36  sem=0.79  clusters=[1, 2, 2, 2, 1, 1]
+  [638/1000] simpleqa-1350  jac=0.58  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [639/1000] simpleqa-0914  jac=0.57  sem=0.92  clusters=[1, 1, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [640/1000] simpleqa-2737  jac=0.58  sem=0.86  clusters=[2, 1, 1, 2, 1, 1, 1]
+  [641/1000] simpleqa-0521  jac=0.44  sem=0.72  clusters=[1, 1, 1, 2, 3]  abst=1 trunc=0
+  [642/1000] simpleqa-4237  jac=0.79  sem=0.72  clusters=[2, 2, 2, 1, 2]
+  [643/1000] simpleqa-0442  jac=0.58  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [644/1000] simpleqa-3986  jac=0.69  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [645/1000] simpleqa-2409  jac=0.56  sem=0.72  clusters=[3, 1, 2, 1, 1]  abst=1 trunc=0
+  [646/1000] simpleqa-0009  jac=0.76  sem=0.83  clusters=[1, 3, 1, 1, 1, 1, 1]
+  [647/1000] simpleqa-4063  jac=0.49  sem=0.76  clusters=[3, 1, 2, 1, 1, 1]
+  [648/1000] simpleqa-1001  jac=0.81  sem=0.86  clusters=[2, 1, 1, 2, 1, 1, 1]
+  [649/1000] simpleqa-0013  jac=0.78  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [650/1000] simpleqa-4123  jac=0.40  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [651/1000] simpleqa-1866  jac=0.58  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [652/1000] simpleqa-2976  jac=0.41  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [653/1000] simpleqa-0055  jac=0.63  sem=0.52  clusters=[5, 1, 2, 1]
+  [654/1000] simpleqa-4040  jac=0.48  sem=0.24  clusters=[7, 2]
+  [655/1000] simpleqa-0353  jac=0.35  sem=0.69  clusters=[2, 2, 1, 3, 1]
+  [656/1000] simpleqa-4154  jac=0.65  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [657/1000] simpleqa-4070  jac=0.76  sem=0.52  clusters=[5, 1, 2, 1]
+  [658/1000] simpleqa-0868  [~] gpt-oss-20b: truncated, excluded from this question
+  [658/1000] simpleqa-0868  jac=0.48  sem=0.90  clusters=[2, 1, 1, 1, 1, 1]  abst=1 trunc=1
+  [659/1000] simpleqa-1856  jac=0.58  sem=0.83  clusters=[2, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [660/1000] simpleqa-0219  jac=0.61  sem=0.86  clusters=[2, 2, 1, 1, 1, 1, 1]
+  [661/1000] simpleqa-3290  jac=0.45  sem=0.93  clusters=[1, 1, 1, 1, 1, 1, 2, 1]
+  [662/1000] simpleqa-1390  jac=0.56  sem=0.52  clusters=[1, 1, 5, 1]  abst=1 trunc=0
+  [663/1000] simpleqa-3961  jac=0.26  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [664/1000] simpleqa-2242  jac=0.67  sem=0.60  clusters=[2, 3, 3, 1]
+  [665/1000] simpleqa-3681  jac=0.72  sem=0.60  clusters=[3, 3, 1, 2]
+  [666/1000] simpleqa-0005  jac=0.61  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [667/1000] simpleqa-2712  jac=0.53  sem=0.27  clusters=[6, 2]  abst=1 trunc=0
+  [668/1000] simpleqa-3171  jac=0.56  sem=0.83  clusters=[1, 1, 2, 2, 1, 1]  abst=1 trunc=0
+  [669/1000] simpleqa-3564  jac=0.71  sem=0.69  clusters=[3, 1, 1, 2, 2]
+  [670/1000] simpleqa-2407  jac=0.70  sem=0.76  clusters=[1, 1, 1, 1, 3]  abst=2 trunc=0
+  [671/1000] simpleqa-1990  jac=0.40  sem=0.00  clusters=[9]
+  [672/1000] simpleqa-0725  jac=0.50  sem=0.80  clusters=[1, 1, 3, 1, 1, 1]  abst=1 trunc=0
+  [673/1000] simpleqa-4276  jac=0.53  sem=0.16  clusters=[1, 8]
+  [674/1000] simpleqa-0279  jac=0.74  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [675/1000] simpleqa-1989  jac=0.40  sem=0.83  clusters=[1, 1, 1, 2, 2, 1]  abst=1 trunc=0
+  [676/1000] simpleqa-0761  jac=0.50  sem=0.83  clusters=[1, 1, 2, 2, 1, 1]  abst=1 trunc=0
+  [677/1000] simpleqa-0204  jac=0.69  sem=0.72  clusters=[3, 2, 1, 1, 1]  abst=1 trunc=0
+  [678/1000] simpleqa-1869  jac=0.45  sem=0.52  clusters=[5, 1, 2, 1]
+  [679/1000] simpleqa-2997  jac=0.70  sem=0.55  clusters=[3, 4, 1, 1]
+  [680/1000] simpleqa-1818  jac=0.53  sem=0.60  clusters=[3, 3, 1, 1]  abst=1 trunc=0
+  [681/1000] simpleqa-0131  jac=0.65  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [682/1000] simpleqa-4291  jac=0.53  sem=0.69  clusters=[1, 3, 2, 1, 2]
+  [683/1000] simpleqa-3949  jac=0.82  sem=0.55  clusters=[4, 3, 1, 1]
+  [684/1000] simpleqa-1738  jac=0.62  sem=0.52  clusters=[3, 3, 2]  abst=1 trunc=0
+  [685/1000] simpleqa-3917  jac=0.70  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [686/1000] simpleqa-2856  jac=0.48  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [687/1000] simpleqa-1039  jac=0.29  sem=0.24  clusters=[7, 2]
+  [688/1000] simpleqa-3117  jac=0.46  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [689/1000] simpleqa-0744  jac=0.28  sem=0.00  clusters=[9]
+  [690/1000] simpleqa-1507  jac=0.83  sem=0.49  clusters=[2, 4, 1]  abst=2 trunc=0
+  [691/1000] simpleqa-0880  jac=0.39  sem=0.79  clusters=[1, 1, 2, 2, 2, 1]
+  [692/1000] simpleqa-2670  jac=0.60  sem=0.75  clusters=[2, 1, 2, 2, 1]  abst=1 trunc=0
+  [693/1000] simpleqa-3998  jac=0.34  sem=0.45  clusters=[2, 5, 2]
+  [694/1000] simpleqa-3674  jac=0.54  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [695/1000] simpleqa-2928  jac=0.65  sem=0.72  clusters=[3, 1, 1, 2, 1]  abst=1 trunc=0
+  [696/1000] simpleqa-1854  jac=0.34  sem=0.27  clusters=[6, 2]  abst=1 trunc=0
+  [697/1000] simpleqa-3796  jac=0.58  sem=0.72  clusters=[1, 3, 2, 1, 1]  abst=1 trunc=0
+  [698/1000] simpleqa-4182  jac=0.61  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [699/1000] simpleqa-0593  jac=0.46  sem=0.72  clusters=[1, 1, 4, 1, 1, 1]
+  [700/1000] simpleqa-3344  jac=0.38  sem=0.45  clusters=[5, 2, 2]
+  [701/1000] simpleqa-2844  jac=0.76  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [702/1000] simpleqa-2659  jac=0.50  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [703/1000] simpleqa-3268  jac=0.64  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [704/1000] simpleqa-3015  jac=0.89  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [705/1000] simpleqa-3772  jac=0.54  sem=0.43  clusters=[5, 1, 2]  abst=1 trunc=0
+  [706/1000] simpleqa-2742  jac=0.52  sem=0.80  clusters=[1, 1, 1, 1, 3, 1]  abst=1 trunc=0
+  [707/1000] simpleqa-1629  jac=1.00  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [708/1000] simpleqa-2174  jac=0.57  sem=0.86  clusters=[1, 1, 1, 1, 1, 2, 2]
+  [709/1000] simpleqa-1080  jac=0.92  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [710/1000] simpleqa-0598  jac=0.69  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [711/1000] simpleqa-1246  jac=0.53  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [712/1000] simpleqa-3369  jac=0.67  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [713/1000] simpleqa-3507  jac=0.41  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [714/1000] simpleqa-3553  jac=0.85  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [715/1000] simpleqa-0333  jac=0.68  sem=0.80  clusters=[2, 2, 1, 1, 1]  abst=2 trunc=0
+  [716/1000] simpleqa-2045  jac=0.36  sem=0.76  clusters=[2, 3, 1, 1, 1, 1]
+  [717/1000] simpleqa-0039  jac=0.61  sem=0.72  clusters=[1, 4, 1, 1, 1, 1]
+  [718/1000] simpleqa-3112  jac=0.73  sem=0.86  clusters=[1, 1, 1, 2, 1, 2, 1]
+  [719/1000] simpleqa-2551  [~] gpt-oss-20b: truncated, excluded from this question
+  [719/1000] simpleqa-2551  jac=0.67  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=1
+  [720/1000] simpleqa-0706  jac=0.38  sem=0.72  clusters=[3, 1, 2, 1, 1]  abst=1 trunc=0
+  [721/1000] simpleqa-3233  jac=0.74  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [722/1000] simpleqa-2960  jac=0.46  sem=0.31  clusters=[5, 4]
+  [723/1000] simpleqa-1757  jac=0.65  sem=0.76  clusters=[2, 3, 1, 1, 1, 1]
+  [724/1000] simpleqa-3592  jac=0.48  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [725/1000] simpleqa-2921  jac=0.68  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [726/1000] simpleqa-1389  jac=0.71  sem=0.86  clusters=[1, 1, 1, 2, 1, 1, 2]
+  [727/1000] simpleqa-3883  jac=0.53  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [728/1000] simpleqa-2580  jac=0.73  sem=0.75  clusters=[2, 1, 1, 2, 2]  abst=1 trunc=0
+  [729/1000] simpleqa-1844  jac=0.66  sem=0.58  clusters=[1, 4, 2, 2]
+  [730/1000] simpleqa-3060  jac=0.65  sem=0.86  clusters=[2, 1, 2, 1, 1, 1, 1]
+  [731/1000] simpleqa-2134  jac=0.51  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [732/1000] simpleqa-0043  jac=0.35  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [733/1000] simpleqa-0804  jac=0.86  sem=0.83  clusters=[3, 1, 1, 1, 1, 1, 1]
+  [734/1000] simpleqa-2996  jac=0.42  sem=0.86  clusters=[1, 1, 2, 1, 2, 1, 1]
+  [735/1000] simpleqa-1972  jac=0.52  sem=0.72  clusters=[1, 3, 1, 1, 2]  abst=1 trunc=0
+  [736/1000] simpleqa-2684  jac=0.59  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [737/1000] simpleqa-0517  jac=0.65  sem=0.48  clusters=[3, 2, 4]
+  [738/1000] simpleqa-4200  jac=0.30  sem=0.32  clusters=[5, 3]  abst=1 trunc=0
+  [739/1000] simpleqa-2411  jac=0.32  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [740/1000] simpleqa-1573  jac=0.37  sem=0.31  clusters=[5, 4]
+  [741/1000] simpleqa-0750  jac=0.72  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [742/1000] simpleqa-0728  jac=0.46  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [743/1000] simpleqa-3023  jac=0.74  sem=0.76  clusters=[3, 2, 1, 1, 1, 1]
+  [744/1000] simpleqa-0254  jac=0.28  sem=0.83  clusters=[2, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [745/1000] simpleqa-3977  jac=0.79  sem=0.72  clusters=[3, 1, 1, 2, 1]  abst=1 trunc=0
+  [746/1000] simpleqa-3011  jac=0.53  sem=0.31  clusters=[5, 4]
+  [747/1000] simpleqa-3511  jac=0.79  sem=0.86  clusters=[2, 1, 1, 1, 1, 1, 2]
+  [748/1000] simpleqa-0779  jac=0.24  sem=0.00  clusters=[9]
+  [749/1000] simpleqa-2583  jac=0.65  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [750/1000] simpleqa-2131  jac=0.56  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [751/1000] simpleqa-3548  jac=0.62  sem=0.16  clusters=[8, 1]
+  [752/1000] simpleqa-1653  jac=0.56  sem=0.86  clusters=[1, 1, 1, 1, 1, 2, 2]
+  [753/1000] simpleqa-3342  jac=0.76  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [754/1000] simpleqa-0917  jac=0.57  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [755/1000] simpleqa-3448  jac=0.47  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [756/1000] simpleqa-3672  jac=0.61  sem=0.67  clusters=[3, 1, 3, 1, 1]
+  [757/1000] simpleqa-3343  jac=0.39  sem=0.62  clusters=[2, 3, 2, 2]
+  [758/1000] simpleqa-3768  jac=0.44  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [759/1000] simpleqa-0162  jac=0.59  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [760/1000] simpleqa-2116  jac=0.28  sem=0.58  clusters=[2, 1, 1, 4]  abst=1 trunc=0
+  [761/1000] simpleqa-2277  jac=0.56  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [762/1000] simpleqa-3391  jac=0.33  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [763/1000] simpleqa-0835  jac=0.73  sem=0.43  clusters=[5, 3, 1]
+  [764/1000] simpleqa-1958  jac=0.72  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [765/1000] simpleqa-1624  jac=0.47  sem=0.86  clusters=[1, 2, 1, 1, 1, 1, 2]
+  [766/1000] simpleqa-3862  jac=0.35  sem=0.52  clusters=[2, 5, 1, 1]
+  [767/1000] simpleqa-2916  jac=0.51  sem=0.64  clusters=[2, 3, 2, 1]  abst=1 trunc=0
+  [768/1000] simpleqa-0302  jac=0.49  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [769/1000] simpleqa-1031  jac=0.51  sem=0.83  clusters=[1, 1, 1, 3, 1, 1, 1]
+  [770/1000] simpleqa-0297  jac=0.87  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [771/1000] simpleqa-3703  jac=0.64  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [772/1000] simpleqa-3520  jac=0.69  sem=0.55  clusters=[1, 4, 1, 3]
+  [773/1000] simpleqa-2799  jac=0.35  sem=0.48  clusters=[2, 4, 3]
+  [774/1000] simpleqa-1898  jac=0.66  sem=0.52  clusters=[1, 5, 2, 1]
+  [775/1000] simpleqa-2483  jac=0.42  sem=0.90  clusters=[1, 2, 1, 1, 1, 1]  abst=2 trunc=0
+  [776/1000] simpleqa-0075  jac=0.61  sem=0.79  clusters=[1, 2, 1, 2, 1, 2]
+  [777/1000] simpleqa-4234  jac=0.74  sem=0.72  clusters=[1, 3, 2, 1, 1]  abst=1 trunc=0
+  [778/1000] simpleqa-0266  jac=0.36  sem=0.27  clusters=[6, 2]  abst=1 trunc=0
+  [779/1000] simpleqa-3256  jac=0.50  sem=0.47  clusters=[4, 3, 1]  abst=1 trunc=0
+  [780/1000] simpleqa-0972  jac=0.69  sem=0.76  clusters=[1, 1, 2, 3, 1, 1]
+  [781/1000] simpleqa-2157  jac=0.51  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [782/1000] simpleqa-0541  jac=0.51  sem=0.86  clusters=[1, 2, 1, 2, 1, 1, 1]
+  [783/1000] simpleqa-3228  jac=0.89  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [784/1000] simpleqa-0855  jac=0.77  sem=0.93  clusters=[1, 1, 1, 2, 1, 1, 1, 1]
+  [785/1000] simpleqa-0890  jac=0.53  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [786/1000] simpleqa-0074  jac=0.34  sem=0.64  clusters=[3, 1, 2, 2]  abst=1 trunc=0
+  [787/1000] simpleqa-3461  jac=0.73  sem=0.92  clusters=[1, 2, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [788/1000] simpleqa-0151  jac=0.52  sem=0.83  clusters=[3, 1, 1, 1, 1, 1, 1]
+  [789/1000] simpleqa-4192  jac=0.79  sem=0.65  clusters=[2, 4, 1, 1, 1]
+  [790/1000] simpleqa-1717  jac=0.63  sem=0.76  clusters=[1, 3, 2, 1, 1, 1]
+  [791/1000] simpleqa-3769  jac=0.83  sem=0.60  clusters=[3, 3, 1, 2]
+  [792/1000] simpleqa-3665  jac=0.41  sem=0.83  clusters=[1, 1, 1, 2, 1, 2]  abst=1 trunc=0
+  [793/1000] simpleqa-0527  jac=0.78  sem=0.69  clusters=[1, 3, 2, 2, 1]
+  [794/1000] simpleqa-3750  jac=0.67  sem=0.60  clusters=[3, 3, 1, 1]  abst=1 trunc=0
+  [795/1000] simpleqa-2726  jac=0.54  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [796/1000] simpleqa-3717  jac=0.73  sem=0.55  clusters=[3, 1, 4, 1]
+  [797/1000] simpleqa-2851  jac=0.20  sem=0.92  clusters=[1, 1, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [798/1000] simpleqa-3846  jac=0.55  sem=0.83  clusters=[1, 1, 1, 1, 1, 1, 3]
+  [799/1000] simpleqa-0083  jac=0.60  sem=0.86  clusters=[2, 2, 1, 1, 1, 1, 1]
+  [800/1000] simpleqa-4159  jac=0.62  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [801/1000] simpleqa-3040  jac=0.82  sem=0.79  clusters=[1, 2, 2, 1, 2, 1]
+  [802/1000] simpleqa-4190  jac=0.75  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [803/1000] simpleqa-2438  jac=0.50  sem=0.60  clusters=[1, 3, 1, 3]  abst=1 trunc=0
+  [804/1000] simpleqa-2849  jac=0.63  sem=0.76  clusters=[2, 1, 1, 1, 1, 3]
+  [805/1000] simpleqa-2592  jac=0.32  sem=0.65  clusters=[4, 1, 2, 1, 1]
+  [806/1000] simpleqa-0202  jac=0.66  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [807/1000] simpleqa-1019  jac=0.53  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [808/1000] simpleqa-3150  jac=0.33  sem=0.58  clusters=[4, 1, 1, 2]  abst=1 trunc=0
+  [809/1000] simpleqa-0685  jac=0.60  sem=0.72  clusters=[1, 2, 1, 3, 1]  abst=1 trunc=0
+  [810/1000] simpleqa-3495  jac=0.51  sem=0.92  clusters=[1, 1, 1, 2, 1, 1, 1]  abst=1 trunc=0
+  [811/1000] simpleqa-4142  jac=0.73  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [812/1000] simpleqa-4080  jac=0.27  sem=0.24  clusters=[7, 2]
+  [813/1000] simpleqa-1899  jac=0.70  sem=0.64  clusters=[3, 2, 1, 2]  abst=1 trunc=0
+  [814/1000] simpleqa-3958  jac=0.37  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [815/1000] simpleqa-0782  jac=0.49  sem=0.59  clusters=[1, 1, 1, 4]  abst=2 trunc=0
+  [816/1000] simpleqa-3529  jac=0.60  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [817/1000] simpleqa-1718  jac=0.65  sem=0.65  clusters=[4, 1, 2, 1, 1]
+  [818/1000] simpleqa-1025  jac=0.50  sem=0.83  clusters=[1, 2, 1, 1, 2, 1]  abst=1 trunc=0
+  [819/1000] simpleqa-3655  jac=0.42  sem=0.31  clusters=[5, 2]  abst=2 trunc=0
+  [820/1000] simpleqa-0516  jac=0.67  sem=0.72  clusters=[3, 2, 1, 1, 1]  abst=1 trunc=0
+  [821/1000] simpleqa-1204  jac=0.74  sem=0.27  clusters=[6, 2]  abst=1 trunc=0
+  [822/1000] simpleqa-3266  jac=0.57  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [823/1000] simpleqa-0059  jac=0.63  sem=0.65  clusters=[1, 4, 2, 1, 1]
+  [824/1000] simpleqa-1084  jac=0.42  sem=0.65  clusters=[4, 2, 1, 1, 1]
+  [825/1000] simpleqa-0874  jac=0.26  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [826/1000] simpleqa-1513  jac=0.86  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [827/1000] simpleqa-2832  jac=0.31  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [828/1000] simpleqa-3773  jac=0.59  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [829/1000] simpleqa-2189  jac=0.57  sem=0.76  clusters=[1, 1, 1, 2, 3, 1]
+  [830/1000] simpleqa-0510  jac=0.38  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [831/1000] simpleqa-3709  jac=0.40  sem=0.79  clusters=[2, 2, 1, 2, 1, 1]
+  [832/1000] simpleqa-1452  [~] gpt-oss-20b: truncated, excluded from this question
+  [832/1000] simpleqa-1452  jac=0.70  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=0 trunc=1
+  [833/1000] simpleqa-0346  jac=0.62  sem=0.67  clusters=[1, 1, 4, 1, 1]  abst=1 trunc=0
+  [834/1000] simpleqa-1645  jac=0.58  sem=0.67  clusters=[3, 1, 1, 1, 3]
+  [835/1000] simpleqa-3526  jac=0.64  sem=0.69  clusters=[2, 2, 3, 1, 1]
+  [836/1000] simpleqa-3162  jac=0.82  sem=0.76  clusters=[1, 1, 1, 3, 1, 2]
+  [837/1000] simpleqa-2878  jac=0.87  sem=0.72  clusters=[4, 1, 1, 1, 1, 1]
+  [838/1000] simpleqa-2969  jac=0.63  sem=0.86  clusters=[1, 1, 1, 1, 1, 2, 2]
+  [839/1000] simpleqa-2224  jac=0.50  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [840/1000] simpleqa-2010  jac=0.79  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [841/1000] simpleqa-1225  jac=0.77  sem=0.76  clusters=[1, 1, 3, 2, 1, 1]
+  [842/1000] simpleqa-2623  jac=0.61  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [843/1000] simpleqa-1870  jac=0.51  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [844/1000] simpleqa-2658  jac=0.63  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [845/1000] simpleqa-3692  jac=0.61  sem=0.46  clusters=[1, 6, 1, 1]
+  [846/1000] simpleqa-1010  jac=0.23  sem=0.16  clusters=[8, 1]
+  [847/1000] simpleqa-1070  jac=0.50  sem=0.00  clusters=[9]
+  [848/1000] simpleqa-3583  jac=0.50  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [849/1000] simpleqa-2382  jac=0.29  sem=0.65  clusters=[1, 2, 4, 1, 1]
+  [850/1000] simpleqa-1228  jac=0.41  sem=0.52  clusters=[1, 1, 1, 5]  abst=1 trunc=0
+  [851/1000] simpleqa-2401  jac=0.66  sem=0.31  clusters=[7, 1, 1]
+  [852/1000] simpleqa-4194  jac=0.71  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [853/1000] simpleqa-1780  jac=0.81  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [854/1000] simpleqa-3071  jac=0.56  sem=0.16  clusters=[8, 1]
+  [855/1000] simpleqa-3801  jac=0.51  sem=0.58  clusters=[4, 1, 2, 1]  abst=1 trunc=0
+  [856/1000] simpleqa-4251  jac=0.53  sem=0.69  clusters=[2, 3, 1, 1, 2]
+  [857/1000] simpleqa-3157  jac=0.27  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [858/1000] simpleqa-3902  jac=0.25  sem=0.80  clusters=[1, 1, 1, 1, 1, 3]  abst=1 trunc=0
+  [859/1000] simpleqa-0161  jac=0.48  sem=0.72  clusters=[1, 4, 1, 1, 1, 1]
+  [860/1000] simpleqa-0693  jac=0.62  sem=0.31  clusters=[7, 1, 1]
+  [861/1000] simpleqa-0580  jac=0.55  sem=0.76  clusters=[2, 3, 1, 1, 1, 1]
+  [862/1000] simpleqa-3372  jac=0.61  sem=0.93  clusters=[1, 1, 1, 1, 1, 2, 1, 1]
+  [863/1000] simpleqa-3038  jac=0.67  sem=0.60  clusters=[3, 1, 3, 2]
+  [864/1000] simpleqa-0378  jac=0.48  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [865/1000] simpleqa-0296  jac=0.44  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [866/1000] simpleqa-2146  jac=0.70  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [867/1000] simpleqa-4082  jac=0.63  sem=0.65  clusters=[1, 4, 2, 1, 1]
+  [868/1000] simpleqa-2947  jac=0.66  sem=0.86  clusters=[1, 1, 2, 1, 1, 2, 1]
+  [869/1000] simpleqa-2751  jac=0.55  sem=0.46  clusters=[6, 1, 1, 1]
+  [870/1000] simpleqa-0134  jac=0.56  sem=0.49  clusters=[4, 2, 1]  abst=2 trunc=0
+  [871/1000] simpleqa-0867  jac=0.68  sem=0.43  clusters=[5, 1, 2]  abst=1 trunc=0
+  [872/1000] simpleqa-3613  jac=0.57  sem=0.80  clusters=[1, 3, 1, 1, 1, 1]  abst=1 trunc=0
+  [873/1000] simpleqa-0871  jac=0.35  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [874/1000] simpleqa-0853  jac=0.48  sem=0.72  clusters=[4, 1, 1, 1, 1, 1]
+  [875/1000] simpleqa-1294  jac=0.68  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [876/1000] simpleqa-1083  jac=0.75  sem=0.59  clusters=[1, 1, 5, 1, 1]
+  [877/1000] simpleqa-2604  jac=0.66  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [878/1000] simpleqa-1419  jac=0.53  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [879/1000] simpleqa-4306  jac=0.52  sem=0.60  clusters=[3, 1, 3, 1]  abst=1 trunc=0
+  [880/1000] simpleqa-3536  jac=0.87  sem=0.66  clusters=[3, 1, 1, 2]  abst=2 trunc=0
+  [881/1000] simpleqa-2677  jac=0.48  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [882/1000] simpleqa-3915  jac=0.39  sem=0.46  clusters=[6, 1, 1, 1]
+  [883/1000] simpleqa-1984  jac=0.64  sem=0.52  clusters=[5, 1, 2, 1]
+  [884/1000] simpleqa-1269  jac=0.46  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [885/1000] simpleqa-2646  jac=0.32  sem=0.46  clusters=[1, 6, 1, 1]
+  [886/1000] simpleqa-3824  jac=0.35  sem=0.16  clusters=[8, 1]
+  [887/1000] simpleqa-2710  jac=0.50  sem=0.64  clusters=[2, 2, 3, 1]  abst=1 trunc=0
+  [888/1000] simpleqa-4206  jac=0.33  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1, 1]
+  [889/1000] simpleqa-0946  jac=0.69  sem=0.58  clusters=[4, 1, 2, 1]  abst=1 trunc=0
+  [890/1000] simpleqa-2454  jac=0.88  sem=0.48  clusters=[4, 3, 2]
+  [891/1000] simpleqa-3593  jac=0.46  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [892/1000] simpleqa-1502  jac=0.36  sem=0.80  clusters=[1, 1, 1, 1, 3, 1]  abst=1 trunc=0
+  [893/1000] simpleqa-2489  jac=0.53  sem=0.76  clusters=[1, 3, 1, 1, 2, 1]
+  [894/1000] simpleqa-0547  jac=0.70  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [895/1000] simpleqa-3188  jac=0.62  sem=0.86  clusters=[2, 1, 1, 1, 1, 2, 1]
+  [896/1000] simpleqa-1295  jac=0.43  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [897/1000] simpleqa-2506  jac=0.45  sem=0.52  clusters=[1, 5, 1, 2]
+  [898/1000] simpleqa-1345  jac=0.79  sem=0.83  clusters=[1, 2, 1, 1, 2, 1]  abst=1 trunc=0
+  [899/1000] simpleqa-0480  jac=0.78  sem=0.83  clusters=[1, 2, 2, 1, 1, 1]  abst=1 trunc=0
+  [900/1000] simpleqa-2210  jac=0.64  sem=0.16  clusters=[8, 1]
+  [901/1000] simpleqa-2305  jac=0.51  sem=0.67  clusters=[1, 1, 1, 4, 1]  abst=1 trunc=0
+  [902/1000] simpleqa-3858  jac=0.49  sem=0.39  clusters=[2, 6, 1]
+  [903/1000] simpleqa-1436  jac=0.64  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [904/1000] simpleqa-0337  jac=0.50  sem=0.52  clusters=[5, 1, 1, 1]  abst=1 trunc=0
+  [905/1000] simpleqa-0394  jac=0.48  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [906/1000] simpleqa-1994  jac=0.46  sem=0.67  clusters=[1, 4, 1, 1, 1]  abst=1 trunc=0
+  [907/1000] simpleqa-2473  jac=0.61  sem=0.67  clusters=[4, 1, 1, 1, 1]  abst=1 trunc=0
+  [908/1000] simpleqa-3944  jac=0.58  sem=0.52  clusters=[2, 1, 5, 1]
+  [909/1000] simpleqa-0656  jac=0.30  sem=0.52  clusters=[2, 1, 5, 1]
+  [910/1000] simpleqa-3549  jac=0.68  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [911/1000] simpleqa-1076  jac=0.50  sem=0.75  clusters=[2, 2, 2, 1, 1]  abst=1 trunc=0
+  [912/1000] simpleqa-1032  jac=0.52  sem=0.35  clusters=[6, 1, 1]  abst=1 trunc=0
+  [913/1000] simpleqa-2570  jac=0.45  sem=0.79  clusters=[2, 2, 2, 1, 1, 1]
+  [914/1000] simpleqa-0876  jac=0.43  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [915/1000] simpleqa-0277  jac=0.47  sem=0.31  clusters=[7, 1, 1]
+  [916/1000] simpleqa-3817  jac=0.36  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [917/1000] simpleqa-3176  jac=0.61  sem=0.92  clusters=[1, 2, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [918/1000] simpleqa-1471  jac=0.50  sem=0.72  clusters=[4, 1, 1, 1, 1, 1]
+  [919/1000] simpleqa-4163  jac=0.52  sem=0.86  clusters=[2, 1, 1, 2, 1, 1, 1]
+  [920/1000] simpleqa-1086  jac=0.55  sem=0.24  clusters=[2, 7]
+  [921/1000] simpleqa-1503  jac=0.49  sem=0.86  clusters=[1, 2, 2, 1, 1, 1, 1]
+  [922/1000] simpleqa-3797  jac=0.61  sem=0.65  clusters=[4, 2, 1, 1, 1]
+  [923/1000] simpleqa-3642  jac=0.71  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [924/1000] simpleqa-2232  jac=0.18  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [925/1000] simpleqa-2748  jac=0.90  sem=0.92  clusters=[1, 1, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [926/1000] simpleqa-0008  jac=0.81  sem=0.60  clusters=[3, 3, 1, 2]
+  [927/1000] simpleqa-2817  jac=0.78  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [928/1000] simpleqa-3006  jac=0.68  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [929/1000] simpleqa-3502  jac=0.42  sem=0.35  clusters=[6, 1, 1]  abst=1 trunc=0
+  [930/1000] simpleqa-3629  jac=0.42  sem=0.52  clusters=[1, 1, 5, 1]  abst=1 trunc=0
+  [931/1000] simpleqa-3199  jac=0.55  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [932/1000] simpleqa-1808  jac=0.54  sem=0.52  clusters=[1, 1, 5, 1]  abst=1 trunc=0
+  [933/1000] simpleqa-3685  jac=0.75  sem=0.64  clusters=[3, 2, 2, 1]  abst=1 trunc=0
+  [934/1000] simpleqa-3229  jac=0.63  sem=0.83  clusters=[1, 2, 2, 1, 1, 1]  abst=1 trunc=0
+  [935/1000] simpleqa-0397  jac=0.23  sem=0.16  clusters=[8, 1]
+  [936/1000] simpleqa-0050  jac=0.47  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1]  abst=2 trunc=0
+  [937/1000] simpleqa-2491  jac=0.75  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [938/1000] simpleqa-3552  jac=0.40  sem=0.24  clusters=[2, 7]
+  [939/1000] simpleqa-0276  jac=0.90  sem=0.90  clusters=[1, 1, 2, 1, 1, 1]  abst=2 trunc=0
+  [940/1000] simpleqa-1157  jac=0.56  sem=0.83  clusters=[2, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [941/1000] simpleqa-2374  jac=0.60  sem=0.79  clusters=[2, 2, 2, 1, 1, 1]
+  [942/1000] simpleqa-3791  jac=0.74  sem=0.72  clusters=[1, 2, 1, 3, 1]  abst=1 trunc=0
+  [943/1000] simpleqa-1975  jac=0.42  sem=0.43  clusters=[5, 1, 3]
+  [944/1000] simpleqa-4246  jac=0.78  sem=0.52  clusters=[2, 1, 1, 5]
+  [945/1000] simpleqa-2522  jac=0.72  sem=0.83  clusters=[1, 1, 2, 1, 2, 1]  abst=1 trunc=0
+  [946/1000] simpleqa-0947  jac=0.70  sem=0.92  clusters=[1, 1, 2, 1, 1, 1, 1]  abst=1 trunc=0
+  [947/1000] simpleqa-4055  jac=0.51  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [948/1000] simpleqa-2869  jac=0.68  sem=0.72  clusters=[1, 1, 4, 1, 1, 1]
+  [949/1000] simpleqa-2744  jac=0.64  sem=0.60  clusters=[2, 3, 1, 3]
+  [950/1000] simpleqa-1415  jac=0.76  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [951/1000] simpleqa-1953  jac=0.11  sem=0.25  clusters=[1, 5]  abst=3 trunc=0
+  [952/1000] simpleqa-1639  jac=0.57  sem=0.64  clusters=[2, 3, 2, 1]  abst=1 trunc=0
+  [953/1000] simpleqa-0448  jac=0.57  sem=0.72  clusters=[4, 1, 1, 1, 1, 1]
+  [954/1000] simpleqa-2546  jac=0.73  sem=0.39  clusters=[2, 6, 1]
+  [955/1000] simpleqa-2137  jac=0.52  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [956/1000] simpleqa-1497  jac=0.61  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [957/1000] simpleqa-3073  jac=0.88  sem=0.93  clusters=[1, 2, 1, 1, 1, 1, 1, 1]
+  [958/1000] simpleqa-3714  jac=0.60  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [959/1000] simpleqa-3974  jac=0.72  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [960/1000] simpleqa-0316  jac=0.56  sem=0.52  clusters=[5, 1, 1, 2]
+  [961/1000] simpleqa-3263  jac=0.52  sem=0.79  clusters=[2, 1, 2, 2, 1, 1]
+  [962/1000] simpleqa-0443  jac=0.65  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [963/1000] simpleqa-1385  jac=0.54  sem=0.83  clusters=[1, 1, 1, 1, 2, 2]  abst=1 trunc=0
+  [964/1000] simpleqa-0687  jac=0.43  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [965/1000] simpleqa-3985  jac=0.61  sem=0.21  clusters=[6, 1]  abst=2 trunc=0
+  [966/1000] simpleqa-2709  jac=0.66  sem=0.92  clusters=[1, 1, 1, 1, 1, 2, 1]  abst=1 trunc=0
+  [967/1000] simpleqa-3565  jac=0.43  sem=0.93  clusters=[2, 1, 1, 1, 1, 1, 1, 1]
+  [968/1000] simpleqa-3183  jac=0.76  sem=0.75  clusters=[2, 2, 2, 1, 1]  abst=1 trunc=0
+  [969/1000] simpleqa-2426  jac=0.57  sem=0.83  clusters=[1, 1, 1, 1, 3, 1, 1]
+  [970/1000] simpleqa-4039  jac=0.79  sem=0.92  clusters=[2, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [971/1000] simpleqa-1121  jac=0.39  sem=0.59  clusters=[1, 5, 1, 1, 1]
+  [972/1000] simpleqa-3538  jac=0.35  sem=0.43  clusters=[5, 3, 1]
+  [973/1000] simpleqa-2793  jac=0.29  sem=0.55  clusters=[4, 1, 3, 1]
+  [974/1000] simpleqa-0415  jac=0.43  sem=0.31  clusters=[5, 4]
+  [975/1000] simpleqa-3352  jac=0.75  sem=0.52  clusters=[5, 2, 1, 1]
+  [976/1000] simpleqa-0619  jac=0.26  sem=0.31  clusters=[1, 7, 1]
+  [977/1000] simpleqa-1254  jac=0.70  sem=0.86  clusters=[2, 1, 1, 1, 1, 2, 1]
+  [978/1000] simpleqa-0618  jac=0.36  sem=0.16  clusters=[8, 1]
+  [979/1000] simpleqa-2279  jac=0.71  sem=0.83  clusters=[2, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [980/1000] simpleqa-1018  jac=0.43  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [981/1000] simpleqa-4032  jac=0.69  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [982/1000] simpleqa-3955  jac=0.57  sem=0.72  clusters=[3, 1, 1, 2, 1]  abst=1 trunc=0
+  [983/1000] simpleqa-2635  jac=0.63  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [984/1000] simpleqa-1648  jac=0.59  sem=0.52  clusters=[2, 5, 1, 1]
+  [985/1000] simpleqa-2151  jac=0.56  sem=0.39  clusters=[6, 2, 1]
+  [986/1000] simpleqa-1353  jac=0.60  sem=0.69  clusters=[2, 1, 3, 2, 1]
+  [987/1000] simpleqa-3646  jac=0.34  sem=0.52  clusters=[1, 5, 2, 1]
+  [988/1000] simpleqa-3501  jac=0.63  sem=0.35  clusters=[1, 6, 1]  abst=1 trunc=0
+  [989/1000] simpleqa-4086  jac=0.49  sem=0.18  clusters=[7, 1]  abst=1 trunc=0
+  [990/1000] simpleqa-1831  jac=0.52  sem=0.52  clusters=[2, 3, 3]  abst=1 trunc=0
+  [991/1000] simpleqa-2181  jac=0.67  sem=0.83  clusters=[2, 1, 1, 1, 1, 2]  abst=1 trunc=0
+  [992/1000] simpleqa-2313  jac=0.68  sem=0.83  clusters=[2, 1, 1, 2, 1, 1]  abst=1 trunc=0
+  [993/1000] simpleqa-4261  jac=0.46  sem=0.80  clusters=[1, 1, 1, 1, 1, 3]  abst=1 trunc=0
+  [994/1000] simpleqa-1155  jac=0.68  sem=0.48  clusters=[3, 4, 2]
+  [995/1000] simpleqa-0164  jac=0.81  sem=0.83  clusters=[1, 1, 3, 1, 1, 1, 1]
+  [996/1000] simpleqa-1872  jac=0.72  sem=0.69  clusters=[3, 2, 2, 1, 1]
+  [997/1000] simpleqa-3947  jac=0.75  sem=0.90  clusters=[1, 2, 1, 1, 1, 1]  abst=2 trunc=0
+  [998/1000] simpleqa-3382  jac=0.56  sem=0.80  clusters=[3, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [999/1000] simpleqa-1753  jac=0.46  sem=0.92  clusters=[1, 2, 1, 1, 1, 1, 1]  abst=1 trunc=0
+  [1000/1000] simpleqa-3696  jac=0.48  sem=1.00  clusters=[1, 1, 1, 1, 1, 1, 1, 1]  abst=1 trunc=0
+
+======================================================================
+  0. Abstention and truncation — per-agent behaviour
+======================================================================
+  ABSTAIN is model behaviour: declining to answer is not a dissent, so
+  it is excluded from clustering rather than scored as disagreement.
+  TRUNC is our measurement failing: the answer hit the token ceiling.
+  Both are excluded from panels; they are counted apart because only
+  one of them is a property of the model.
+  TOKENS is the median completion-token cost per answered question —
+  the reasoning-on vs reasoning-off ratio is itself a result.
+
+    agent                                   abstain        trunc   tokens
+    llama-3.1-8b-instruct               508/1000 (51%)    0/1000 ( 0%)       21
+    llama-3.3-70b-instruct               34/1000 ( 3%)    4/1000 ( 0%)       21
+    llama-4-maverick                      7/1000 ( 1%)    0/1000 ( 0%)       16
+    gpt-oss-20b                           3/1000 ( 0%)    4/1000 ( 0%)       88
+    gpt-oss-120b                          2/1000 ( 0%)    0/1000 ( 0%)       72
+    gpt-5.6-sol                           1/1000 ( 0%)    0/1000 ( 0%)       21
+    qwen3.6-27b                           0/1000 ( 0%)    0/1000 ( 0%)       21
+    qwen3.6-35b-a3b                       0/1000 ( 0%)    1/1000 ( 0%)       20
+    qwen3.6-plus                          0/1000 ( 0%)    0/1000 ( 0%)       20
+
+    questions with <2 usable core answers (unscorable): 0
+    Audit the abstention patterns with --show-abstentions: a false
+    positive there silently deletes a genuine dissent.
+
+======================================================================
+  A. Answer-level (Jaccard) vs semantic entropy — frozen core pool
+======================================================================
+  scorable questions: 1000 / 1000
+  mean Jaccard          : 0.582
+  mean semantic entropy : 0.736
+  [note] These means are NOT comparable. Jaccard is continuous;
+  normalised entropy over k singletons is exactly 1.0. Their
+  difference is a scale artifact, not a result. Use the AUROCs below.
+
+  n_clusters spread     : 1->9, 2->47, 3->78, 4->130, 5->169, 6->192, 7->199, 8->143, 9->33
+  Spearman(jac, sem)    : +0.224
+  [note] sem takes only 59 distinct value(s) here, largest tie block 144/1000.
+  Ties bound |rho| well below 1 regardless of agreement, so read the
+  sign and rough magnitude only. Strongly negative per-agent AUROC for
+  Jaccard would mean token overlap predicts WRONGNESS — plausible if
+  agents hedge in a shared house style when ignorant.
+
+  grades (NLI)          : correct=1962 (22%), incorrect=6412 (71%), not_attempted=626 (7%)
+
+  AUROC — does disagreement predict a wrong answer?
+
+    [NLI grader]
+    WARNING: this grader shares its NLI instance with the
+    clustering measure. With k agents, k distinct clusters nearly
+    forces at most one agent to entail the gold, so a high sem
+    AUROC here is partly circular. Compare against the judge.
+      jaccard            vs majority-wrong : 0.674
+      semantic_entropy   vs majority-wrong : 0.885
+      per-agent (label = that agent graded incorrect):
+      sem(self) scores against the CORE panel including that agent's
+      own answer (mild self-inclusion). sem(LOO) scores against the
+      core panel with that agent's own answer removed — use LOO as
+      the primary figure; self is shown alongside to document the gap.
+        llama-3.1-8b-instruct            n=487  err=89%  jac=0.607  sem(self)=0.772  sem(LOO)=0.741 (n=487)
+        llama-3.3-70b-instruct           n=950  err=78%  jac=0.547  sem(self)=0.771  sem(LOO)=0.715 (n=950)
+        llama-4-maverick                 n=990  err=78%  jac=0.629  sem(self)=0.775  sem(LOO)=0.718 (n=990)
+        gpt-oss-20b                      n=985  err=93%  jac=0.597  sem(self)=0.806  sem(LOO)=0.762 (n=985)
+        gpt-oss-120b                     n=987  err=89%  jac=0.612  sem(self)=0.825  sem(LOO)=0.781 (n=987)
+        gpt-5.6-sol                      n=991  err=48%  jac=0.577  sem(self)=0.684  sem(LOO)=0.623 (n=991)
+        qwen3.6-27b                      n=996  err=86%  jac=0.653  sem(self)=0.791  sem(LOO)=0.742 (n=996)
+        qwen3.6-35b-a3b                  n=994  err=81%  jac=0.642  sem(self)=0.774  sem(LOO)=0.714 (n=994)
+        qwen3.6-plus                     n=994  err=54%  jac=0.583  sem(self)=0.647  sem(LOO)=0.598 (n=994)
+
+  Pairwise: high Jaccard (>=0.50) but the pair agrees in meaning: 2838/31538 agent-pairs (9.0%)
+  Measured pairwise, not on the full core panel: with 9 agents a core
+  semantic entropy of exactly 0 needs all nine in one cluster, which
+  essentially never happens, so that version of the diagnostic reads 0
+  regardless of the underlying phenomenon. At N=2 a single cluster just
+  means 'these two agree', which stays comparable as the pool grows and
+  across datasets. Expect this to be far higher on TruthfulQA — the
+  false-positive reduction motivating semantic entropy is largely a
+  long-form phenomenon.
+    - simpleqa-0716 [Science and technology]  within:llama-3.1-8b-instruct+llama-4-maverick  jac=0.60
+        Q: What neologism, which gained widespread use in the 21st century, identifies the 
+    - simpleqa-0716 [Science and technology]  cross:llama-3.1-8b-instruct+gpt-oss-20b  jac=0.90
+        Q: What neologism, which gained widespread use in the 21st century, identifies the 
+    - simpleqa-0716 [Science and technology]  cross:llama-3.1-8b-instruct+gpt-oss-120b  jac=0.73
+        Q: What neologism, which gained widespread use in the 21st century, identifies the 
+    - simpleqa-0716 [Science and technology]  cross:llama-3.3-70b-instruct+gpt-5.6-sol  jac=0.81
+        Q: What neologism, which gained widespread use in the 21st century, identifies the 
+    - simpleqa-0716 [Science and technology]  cross:llama-3.3-70b-instruct+qwen3.6-35b-a3b  jac=0.75
+        Q: What neologism, which gained widespread use in the 21st century, identifies the 
+
+======================================================================
+  B. Shared-bias test — matched-N panels (family isolated from size)
+======================================================================
+  UNPAIRED (different question subsets — see paired figure below)
+    within-family pairs (N=2): 0.795  [9 pairs, 7916 obs]
+    cross-family  pairs (N=2): 0.808  [27 pairs, 23622 obs]
+
+  PAIRED within→cross difference: +0.013  (n=1000/1000 questions with >=1 pair scorable in each bucket)
+    higher on cross: 360   higher on within: 398   tied: 242
+    Wilcoxon signed-rank p = 1.34e-01, rank-biserial r = -0.050
+  Each question contributes one within and one cross score, so the
+  question set no longer differs between the two panels.
+
+  Per-pair breakdown:
+    within  llama-3.1-8b-instruct    + llama-3.3-70b-instruct   sem=0.779  (n=488)
+    within  llama-3.1-8b-instruct    + llama-4-maverick         sem=0.780  (n=492)
+    cross   llama-3.1-8b-instruct    + gpt-oss-20b              sem=0.779  (n=489)
+    cross   llama-3.1-8b-instruct    + gpt-oss-120b             sem=0.754  (n=491)
+    cross   llama-3.1-8b-instruct    + gpt-5.6-sol              sem=0.839  (n=491)
+    cross   llama-3.1-8b-instruct    + qwen3.6-27b              sem=0.776  (n=492)
+    cross   llama-3.1-8b-instruct    + qwen3.6-35b-a3b          sem=0.780  (n=491)
+    cross   llama-3.1-8b-instruct    + qwen3.6-plus             sem=0.809  (n=492)
+    within  llama-3.3-70b-instruct   + llama-4-maverick         sem=0.767  (n=957)
+    cross   llama-3.3-70b-instruct   + gpt-oss-20b              sem=0.855  (n=956)
+    cross   llama-3.3-70b-instruct   + gpt-oss-120b             sem=0.831  (n=960)
+    cross   llama-3.3-70b-instruct   + gpt-5.6-sol              sem=0.740  (n=961)
+    cross   llama-3.3-70b-instruct   + qwen3.6-27b              sem=0.833  (n=962)
+    cross   llama-3.3-70b-instruct   + qwen3.6-35b-a3b          sem=0.797  (n=961)
+    cross   llama-3.3-70b-instruct   + qwen3.6-plus             sem=0.749  (n=962)
+    cross   llama-4-maverick         + gpt-oss-20b              sem=0.867  (n=986)
+    cross   llama-4-maverick         + gpt-oss-120b             sem=0.827  (n=991)
+    cross   llama-4-maverick         + gpt-5.6-sol              sem=0.758  (n=992)
+    cross   llama-4-maverick         + qwen3.6-27b              sem=0.829  (n=993)
+    cross   llama-4-maverick         + qwen3.6-35b-a3b          sem=0.812  (n=992)
+    cross   llama-4-maverick         + qwen3.6-plus             sem=0.763  (n=993)
+    within  gpt-oss-20b              + gpt-oss-120b             sem=0.772  (n=991)
+    within  gpt-oss-20b              + gpt-5.6-sol              sem=0.898  (n=993)
+    cross   gpt-oss-20b              + qwen3.6-27b              sem=0.859  (n=993)
+    cross   gpt-oss-20b              + qwen3.6-35b-a3b          sem=0.848  (n=992)
+    cross   gpt-oss-20b              + qwen3.6-plus             sem=0.883  (n=993)
+    within  gpt-oss-120b             + gpt-5.6-sol              sem=0.856  (n=997)
+    cross   gpt-oss-120b             + qwen3.6-27b              sem=0.825  (n=998)
+    cross   gpt-oss-120b             + qwen3.6-35b-a3b          sem=0.835  (n=997)
+    cross   gpt-oss-120b             + qwen3.6-plus             sem=0.853  (n=998)
+    cross   gpt-5.6-sol              + qwen3.6-27b              sem=0.847  (n=999)
+    cross   gpt-5.6-sol              + qwen3.6-35b-a3b          sem=0.798  (n=998)
+    cross   gpt-5.6-sol              + qwen3.6-plus             sem=0.614  (n=999)
+    within  qwen3.6-27b              + qwen3.6-35b-a3b          sem=0.744  (n=999)
+    within  qwen3.6-27b              + qwen3.6-plus             sem=0.803  (n=1000)
+    within  qwen3.6-35b-a3b          + qwen3.6-plus             sem=0.744  (n=999)
+
+  Within-family breakdown (per family, per axis — do not report the
+  pooled within-family figure above alone: once Qwen has more members
+  than any other family, 'within-family' and 'within-Qwen' are nearly
+  the same set of pairs, and a pooled number would hide that):
+    within:other      Meta     sem=0.773    (3 pair(s), n=1937 obs)
+    within:other      OpenAI   sem=0.842    (3 pair(s), n=2981 obs)
+    within:other      Qwen     sem=0.773    (2 pair(s), n=1999 obs)
+    within:size       Qwen     sem=0.744    (1 pair(s), n=999 obs)
+
+  Reasoning ablation (matched N):
+    swapping in gpt-oss-20b              +0.046  (n=1000)
+      → the reasoning model raises panel disagreement relative to the non-reasoning model it replaced.
+    swapping in gpt-oss-120b             +0.035  (n=1000)
+      → the reasoning model raises panel disagreement relative to the non-reasoning model it replaced.
+    Effects are small but consistently signed; inference mode
+    contributes a little to panel disagreement, far less than
+    the capability gap between agents (see the per-pair table).
+
+  Minority-cluster membership on the core panel:
+  How often each agent sits in a cluster smaller than the largest one —
+  i.e. dissents from the panel's dominant reading. An agent that
+  dominates this column IS the diversity signal, and the cross-family
+  claim would then rest on that one model.
+    gpt-oss-20b                       547/993  (55%)
+    gpt-oss-120b                      519/998  (52%)
+    qwen3.6-27b                       488/1000  (49%)
+    llama-4-maverick                  458/993  (46%)
+    qwen3.6-35b-a3b                   454/999  (45%)
+    llama-3.3-70b-instruct            384/962  (40%)
+    gpt-5.6-sol                       375/999  (38%)
+    qwen3.6-plus                      341/1000  (34%)
+    llama-3.1-8b-instruct             258/492  (52%)
+
+  Shared-bias FALSE NEGATIVES
+    strict (whole pool in ONE cluster, and wrong)  : 4 / 1000
+    majority, grade-homogeneous cluster            : 71 / 1000
+    majority, cluster may be mixed                 : 80 / 1000
+    The gap between the last two (9) is the NLI
+    clustering error rate on questions that would otherwise count as
+    shared bias: a cluster holding both a correct and an incorrect
+    answer is a merge failure, not a shared prior.
+    Report the grade-homogeneous figure.
+    - simpleqa-1749 [Politics]  sem=0.00
+        Q: In what year did the U.S. Congress approve the Compact of Free Association relat
+        gold: 1985
+          llama-3.1-8b-instruct      The U.S. Congress approved the Compact of Free Association relating to
+          llama-3.3-70b-instruct     The U.S. Congress approved the Compact of Free Association in 1986.
+          llama-4-maverick           The U.S. Congress approved the Compact of Free Association relating to
+          gpt-oss-20b                The U.S. Congress approved the Compact of Free Association for the Mar
+          gpt-oss-120b               The U.S. Congress approved the Compact of Free Association for the Mar
+          gpt-5.6-sol                The U.S. Congress approved the Compact of Free Association in 1986.
+          qwen3.6-27b                The U.S. Congress approved the Compact of Free Association relating to
+          qwen3.6-35b-a3b            The U.S. Congress approved the Compacts of Free Association with the M
+          qwen3.6-plus               The U.S. Congress approved the Compact of Free Association with the Ma
+    - simpleqa-4198 [Art]  sem=0.43
+        Q: What was the Minute Man sculpture by Daniel Chester French originally intended t
+        gold: Stone
+          llama-3.1-8b-instruct      The Minute Man sculpture by Daniel Chester French was originally inten
+          llama-3.3-70b-instruct     The Minute Man sculpture by Daniel Chester French was originally inten
+          llama-4-maverick           The Minute Man sculpture was originally intended to be made out of bro
+          gpt-oss-20b                It was originally meant to be a bronze piece, but French ultimately ex
+          gpt-oss-120b               It was originally planned to be carved in marble.
+          gpt-5.6-sol                Daniel Chester French originally intended the Minute Man sculpture to 
+          qwen3.6-27b                The Minute Man sculpture was originally intended to be made of bronze.
+          qwen3.6-35b-a3b            It was originally intended to be made of bronze.
+          qwen3.6-plus               The Minute Man sculpture was originally intended to be made of stone.
+    - simpleqa-1315 [Geography]  sem=0.59
+        Q: In which two countries is Anisotenes cacotechna found?
+        gold: Papua New Guinea and Indonesia
+          llama-3.1-8b-instruct      Anisotenes cacotechna is found in Australia and Papua New Guinea.
+          llama-3.3-70b-instruct     Anisotenes cacotechna is found in Australia and New Guinea.
+          llama-4-maverick           Anisotenes cacotechna is found in Australia and New Guinea.
+          gpt-oss-20b                Anisotenes cacotechna is known from Australia and New Guinea.
+          gpt-oss-120b               Anisotenes cacotechna is known from the Democratic Republic of the Con
+          gpt-5.6-sol                Anisotenes cacotechna is found in India and Sri Lanka.
+          qwen3.6-27b                Anisotenes cacotechna is found in Brazil and Peru.
+          qwen3.6-35b-a3b            Anisotenes cacotechna is found in Australia and Papua New Guinea.
+          qwen3.6-plus               Anisotenes cacotechna is found in Indonesia and Papua New Guinea.
+    - simpleqa-0466 [Music]  sem=0.59
+        Q: Who is known as the first rock star of the Middle East?
+        gold: Lydia Canaan
+          llama-3.1-8b-instruct      Fairouz is known as the first rock star of the Middle East.
+          llama-3.3-70b-instruct     Umm Kulthum is often referred to as the first rock star of the Middle 
+          llama-4-maverick           Fairouz is known as the first rock star of the Middle East, although t
+          gpt-oss-20b                Fairuz.
+          gpt-oss-120b               Egyptian singer Amr Diab is often hailed as the Middle East’s first ro
+          gpt-5.6-sol                Egyptian singer Omar Khorshid is often called the first rock star of t
+          qwen3.6-27b                Fairuz is widely considered the first rock star of the Middle East.
+          qwen3.6-35b-a3b            Fairuz is widely known as the first rock star of the Middle East.
+          qwen3.6-plus               Lydia Canaan is widely recognized as the first rock star of the Middle
+    - simpleqa-3737 [Politics]  sem=0.46
+        Q: What is the name of the university where Michaela Hübschle (born as Michaela Kun
+        gold: University of Pretoria
+          llama-3.1-8b-instruct      The university where Michaela Hübschle first studied is the University
+          llama-3.3-70b-instruct     The University of Namibia.
+          llama-4-maverick           The University of Namibia.
+          gpt-oss-20b                She first studied at the University of Namibia.
+          gpt-oss-120b               She first studied at the University of Namibia.
+          gpt-5.6-sol                She first studied at the University of Stellenbosch.
+          qwen3.6-27b                Michaela Hübschle first studied at the University of Namibia.
+          qwen3.6-35b-a3b            Michaela Hübschle first studied at the University of South Africa.
+          qwen3.6-plus               Michaela Hübschle first studied at the University of Pretoria.
+
+  Tier-matched ablation (one core model per family per tier, N=3):
+  Tier labels are a nominal design scaffold, not a measured capability
+  ranking — cite each agent's measured error rate (Part A) rather than
+  assuming 'strong' beats 'large' beats 'small'.
+    small    sem=0.845    coverage= 100%  (996/1000)
+    large    sem=0.806    coverage= 100%  (1000/1000)
+    strong   sem=0.688    coverage= 100%  (1000/1000)
+
+    Paired comparison, same questions across all 3 tiers: n=996/1000
+      small    sem=0.845  (n=996)
+      large    sem=0.806  (n=996)
+      strong   sem=0.687  (n=996)
+    [!] llama-3.1-8b (small tier) is expected to abstain on roughly
+    half of questions. The small tier's UNPAIRED coverage above is
+    gated by its own confidence — the easy tail — so trust this
+    paired figure, not the three independent means, when comparing
+    tiers.
+
+======================================================================
+  D. Cross-tier target/reference — capable model, weak references?
+======================================================================
+  Hypothesis: detection is weakest for a STRONG target checked by a
+  SMALL-tier reference panel — a capable model checked by weak
+  references is the realistic deployment case, and nothing else in
+  this design measures it directly.
+
+    target                     target tier  ref tier      n      AUROC
+    llama-3.1-8b-instruct      small        large       487      0.633
+    llama-3.1-8b-instruct      small        strong      487      0.660
+    llama-3.3-70b-instruct     large        small       947      0.606
+    llama-3.3-70b-instruct     large        strong      950      0.695
+    llama-4-maverick           strong       small       986      0.596  <-- cell of interest
+    llama-4-maverick           strong       large       990      0.640
+    gpt-oss-20b                small        large       985      0.705
+    gpt-oss-20b                small        strong      985      0.673
+    gpt-oss-120b               large        small       983      0.630
+    gpt-oss-120b               large        strong      987      0.717
+    gpt-5.6-sol                strong       small       987      0.560  <-- cell of interest
+    gpt-5.6-sol                strong       large       991      0.563
+    qwen3.6-27b                small        large       996      0.661
+    qwen3.6-27b                small        strong      996      0.686
+    qwen3.6-35b-a3b            large        small       990      0.573
+    qwen3.6-35b-a3b            large        strong      994      0.696
+    qwen3.6-plus               strong       small       990      0.510  <-- cell of interest
+    qwen3.6-plus               strong       large       994      0.544
+
+======================================================================
+  E. Qwen ladders — size held constant vs generation held constant
+======================================================================
+
+  Qwen3.5 size ladder (fixed generation, size varies):
+    <2 members in the queried pool — skipped. Add the missing id(s) via --models or --qwen-ladders.
+
+  Qwen ~27B generation ladder (fixed size, generation varies):
+    <2 members in the queried pool — skipped. Add the missing id(s) via --models or --qwen-ladders.
+
+======================================================================
+  F. Capability regression — AUROC vs per-agent error rate
+======================================================================
+  Prediction: negative slope, both pooled and within the size ladder
+  (lineage held constant there) — a higher-error agent's wrongness is
+  harder for panel disagreement to detect.
+
+  [NLI grader]
+    pooled                   slope=+0.3405  95% CI=[+0.2243, +0.4567]  n=9
+    size ladder (Qwen3.5)    n=0 agent(s) with a defined AUROC — too few to fit.
+
+======================================================================
+  Done
+======================================================================
+  Per-question rows written to: /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_nli-alt.jsonl
+  Re-report without querying:   python disagreement_pilot.py --analyse-only --out /Users/hanaselmani/Desktop/Imperial/Individual Project/hallu-agents/outputs/sens_no_short_answer_keys/sens_simpleqa_nli-alt.jsonl
+Exception ignored in: <function ResourceTracker.__del__ at 0x14e826d40>
+Traceback (most recent call last):
+  File "/Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/lib/python3.12/site-packages/multiprocess/resource_tracker.py", line 80, in __del__
+  File "/Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/lib/python3.12/site-packages/multiprocess/resource_tracker.py", line 89, in _stop
+  File "/Users/hanaselmani/Desktop/Imperial/Individual Project/hallu/lib/python3.12/site-packages/multiprocess/resource_tracker.py", line 102, in _stop_locked
+AttributeError: '_thread.RLock' object has no attribute '_recursion_count'

@@ -1,0 +1,13 @@
+dataset     config         n  C1 se/jac(gap)             C2 rho   C3 diff(r)           C4 s/l/st                    wall(s)
+---------------------------------------------------------------------------------------------------------------------------
+simpleqa    canonical   1000  0.892/0.687 (+0.205, n=781) +0.683   +0.017 (r=-0.025)    s=0.803/l=0.759/s=0.664          0.0
+simpleqa    nli-large   1000  0.899/0.687 (+0.212, n=781) +0.633   +0.011 (r=-0.067)    s=0.831/l=0.791/s=0.672          0.0
+simpleqa    nli-alt     1000  0.892/0.687 (+0.205, n=781) +0.800   +0.013 (r=-0.050)    s=0.845/l=0.806/s=0.687          0.0
+simpleqa    strict      1000  0.876/0.687 (+0.189, n=781) +0.583   +0.019 (r=-0.035)    s=0.900/l=0.870/s=0.773          0.0
+simpleqa    single      1000  0.869/0.687 (+0.182, n=781) +0.583   +0.017 (r=-0.025)    s=0.798/l=0.749/s=0.657          0.0
+
+  simpleqa:
+    C1 semantic entropy > Jaccard (judge AUROC): holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C2 detectability rises with per-agent error rate (Spearman): holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C3 family diversity: no meaningful effect at matched N: holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C4 disagreement falls monotonically small->large->strong tier: holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)

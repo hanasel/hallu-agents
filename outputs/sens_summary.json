@@ -1,0 +1,955 @@
+{
+  "simpleqa": {
+    "canonical": {
+      "metrics": {
+        "n_rows": 1000,
+        "clustering": {
+          "n": 1000,
+          "mean_entropy": 0.722053845941014,
+          "n_clusters_dist": {
+            "9": 39,
+            "8": 119,
+            "3": 89,
+            "5": 168,
+            "4": 137,
+            "6": 189,
+            "7": 191,
+            "1": 9,
+            "2": 59
+          },
+          "saturated_frac": 0.142,
+          "distinct_values": 56,
+          "largest_tie_block": 142
+        },
+        "detection": {
+          "panel_auroc_nli": 0.8776631134381463,
+          "panel_auroc_judge": 0.8842674127940007,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.6660367570772195,
+              "n": 385,
+              "err_rate": 0.8987012987012987
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6881502860488286,
+              "n": 750,
+              "err_rate": 0.7773333333333333
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.6907263334150127,
+              "n": 775,
+              "err_rate": 0.7948387096774193
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.6293386026593354,
+              "n": 780,
+              "err_rate": 0.4641025641025641
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.7788319932289463,
+              "n": 780,
+              "err_rate": 0.8910256410256411
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.7358096606021918,
+              "n": 775,
+              "err_rate": 0.9329032258064516
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.7295375761451217,
+              "n": 777,
+              "err_rate": 0.8893178893178894
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.7010278563980337,
+              "n": 774,
+              "err_rate": 0.8229974160206718
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.6003041946845982,
+              "n": 779,
+              "err_rate": 0.5545571245186136
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 4,
+          "majority_homogeneous": 73,
+          "majority_possibly_mixed": 81,
+          "clustering_error_gap": 8,
+          "n_rows": 1000
+        },
+        "c1": {
+          "jaccard_auroc": 0.6868537666174298,
+          "semantic_auroc": 0.8842674127940007,
+          "gap": 0.19741364617657087,
+          "n": 781
+        },
+        "c2": 0.7,
+        "c3": {
+          "mean_diff": 0.02055178571428571,
+          "n": 1000,
+          "pos": 387,
+          "neg": 373,
+          "wilcoxon_p": 0.005648877402473142,
+          "rank_biserial": 0.018421052631578946
+        },
+        "c4": {
+          "means": {
+            "small": 0.8181797436173235,
+            "large": 0.7843245292096898,
+            "strong": 0.6681463453456612
+          },
+          "n_paired": 996
+        }
+      },
+      "wall_clock_s": 1494.2,
+      "n_backfilled_judge": 0
+    },
+    "nli-large": {
+      "metrics": {
+        "n_rows": 1000,
+        "clustering": {
+          "n": 1000,
+          "mean_entropy": 0.7366734166450645,
+          "n_clusters_dist": {
+            "9": 43,
+            "8": 131,
+            "3": 85,
+            "5": 169,
+            "4": 122,
+            "6": 185,
+            "7": 208,
+            "1": 8,
+            "2": 49
+          },
+          "saturated_frac": 0.151,
+          "distinct_values": 56,
+          "largest_tie_block": 151
+        },
+        "detection": {
+          "panel_auroc_nli": 0.8881191254898494,
+          "panel_auroc_judge": 0.8954664242699694,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.6998666073810582,
+              "n": 385,
+              "err_rate": 0.8987012987012987
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.7041269091319933,
+              "n": 750,
+              "err_rate": 0.7773333333333333
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.7001449808053581,
+              "n": 775,
+              "err_rate": 0.7948387096774193
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.6357985936715218,
+              "n": 780,
+              "err_rate": 0.4641025641025641
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.7875412611087601,
+              "n": 780,
+              "err_rate": 0.8910256410256411
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.7360357484838813,
+              "n": 775,
+              "err_rate": 0.9329032258064516
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.7318177228822401,
+              "n": 777,
+              "err_rate": 0.8893178893178894
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.7172420905476171,
+              "n": 774,
+              "err_rate": 0.8229974160206718
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.6008512114419895,
+              "n": 779,
+              "err_rate": 0.5545571245186136
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 4,
+          "majority_homogeneous": 70,
+          "majority_possibly_mixed": 76,
+          "clustering_error_gap": 6,
+          "n_rows": 1000
+        },
+        "c1": {
+          "jaccard_auroc": 0.6868537666174298,
+          "semantic_auroc": 0.8954664242699694,
+          "gap": 0.20861265765253956,
+          "n": 781
+        },
+        "c2": 0.6833333333333333,
+        "c3": {
+          "mean_diff": 0.014637433862433859,
+          "n": 1000,
+          "pos": 364,
+          "neg": 398,
+          "wilcoxon_p": 0.15985186768731519,
+          "rank_biserial": -0.04461942257217848
+        },
+        "c4": {
+          "means": {
+            "small": 0.8445470724397561,
+            "large": 0.8063011132458346,
+            "strong": 0.6771824899239745
+          },
+          "n_paired": 996
+        }
+      },
+      "wall_clock_s": 4578.6,
+      "n_backfilled_judge": 0
+    },
+    "nli-alt": {
+      "metrics": {
+        "n_rows": 1000,
+        "clustering": {
+          "n": 1000,
+          "mean_entropy": 0.7434393530740359,
+          "n_clusters_dist": {
+            "9": 42,
+            "8": 151,
+            "3": 79,
+            "5": 155,
+            "4": 121,
+            "6": 194,
+            "7": 203,
+            "1": 8,
+            "2": 47
+          },
+          "saturated_frac": 0.163,
+          "distinct_values": 56,
+          "largest_tie_block": 163
+        },
+        "detection": {
+          "panel_auroc_nli": 0.8905184582625547,
+          "panel_auroc_judge": 0.8941455516418588,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.7030532088335557,
+              "n": 385,
+              "err_rate": 0.8987012987012987
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6984675588788118,
+              "n": 750,
+              "err_rate": 0.7773333333333333
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.7070979335130279,
+              "n": 775,
+              "err_rate": 0.7948387096774193
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.6340043352983161,
+              "n": 780,
+              "err_rate": 0.4641025641025641
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.7843927211172239,
+              "n": 780,
+              "err_rate": 0.8910256410256411
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.7427651877859347,
+              "n": 775,
+              "err_rate": 0.9329032258064516
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.7370511224043348,
+              "n": 777,
+              "err_rate": 0.8893178893178894
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.7133346319999083,
+              "n": 774,
+              "err_rate": 0.8229974160206718
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.6032360710854947,
+              "n": 779,
+              "err_rate": 0.5545571245186136
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 3,
+          "majority_homogeneous": 71,
+          "majority_possibly_mixed": 77,
+          "clustering_error_gap": 6,
+          "n_rows": 1000
+        },
+        "c1": {
+          "jaccard_auroc": 0.6868537666174298,
+          "semantic_auroc": 0.8941455516418588,
+          "gap": 0.20729178502442902,
+          "n": 781
+        },
+        "c2": 0.7833333333333333,
+        "c3": {
+          "mean_diff": 0.014662632275132271,
+          "n": 1000,
+          "pos": 353,
+          "neg": 396,
+          "wilcoxon_p": 0.1412729251568069,
+          "rank_biserial": -0.05740987983978638
+        },
+        "c4": {
+          "means": {
+            "small": 0.8543719504733192,
+            "large": 0.8142691009251237,
+            "strong": 0.6892783112378014
+          },
+          "n_paired": 996
+        }
+      },
+      "wall_clock_s": 1823.0,
+      "n_backfilled_judge": 0
+    },
+    "strict": {
+      "metrics": {
+        "n_rows": 1000,
+        "clustering": {
+          "n": 1000,
+          "mean_entropy": 0.7955906104365852,
+          "n_clusters_dist": {
+            "9": 77,
+            "8": 206,
+            "5": 138,
+            "4": 88,
+            "7": 216,
+            "6": 197,
+            "1": 4,
+            "2": 26,
+            "3": 48
+          },
+          "saturated_frac": 0.227,
+          "distinct_values": 52,
+          "largest_tie_block": 227
+        },
+        "detection": {
+          "panel_auroc_nli": 0.8591822271077105,
+          "panel_auroc_judge": 0.8900267015111919,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.6778197717504076,
+              "n": 385,
+              "err_rate": 0.8987012987012987
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6824087673709185,
+              "n": 750,
+              "err_rate": 0.7773333333333333
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.7123100955648125,
+              "n": 775,
+              "err_rate": 0.7948387096774193
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.6455497105395331,
+              "n": 780,
+              "err_rate": 0.4641025641025641
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.7509098603470165,
+              "n": 780,
+              "err_rate": 0.8910256410256411
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.7193983402489627,
+              "n": 775,
+              "err_rate": 0.9329032258064516
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.7367061555548077,
+              "n": 777,
+              "err_rate": 0.8893178893178894
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.7122804203096174,
+              "n": 774,
+              "err_rate": 0.8229974160206718
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.6154038584694205,
+              "n": 779,
+              "err_rate": 0.5545571245186136
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 3,
+          "majority_homogeneous": 52,
+          "majority_possibly_mixed": 53,
+          "clustering_error_gap": 1,
+          "n_rows": 1000
+        },
+        "c1": {
+          "jaccard_auroc": 0.6868537666174298,
+          "semantic_auroc": 0.8900267015111919,
+          "gap": 0.2031729348937621,
+          "n": 781
+        },
+        "c2": 0.6333333333333333,
+        "c3": {
+          "mean_diff": 0.01881481481481481,
+          "n": 1000,
+          "pos": 346,
+          "neg": 367,
+          "wilcoxon_p": 0.007387267829599174,
+          "rank_biserial": -0.029453015427769985
+        },
+        "c4": {
+          "means": {
+            "small": 0.8950977877438304,
+            "large": 0.8624929882601792,
+            "strong": 0.7533511729919621
+          },
+          "n_paired": 996
+        }
+      },
+      "wall_clock_s": 1474.9,
+      "n_backfilled_judge": 0
+    },
+    "single": {
+      "metrics": {
+        "n_rows": 1000,
+        "clustering": {
+          "n": 1000,
+          "mean_entropy": 0.7025180044546526,
+          "n_clusters_dist": {
+            "9": 39,
+            "8": 117,
+            "2": 67,
+            "4": 127,
+            "6": 179,
+            "7": 179,
+            "1": 15,
+            "3": 112,
+            "5": 165
+          },
+          "saturated_frac": 0.142,
+          "distinct_values": 58,
+          "largest_tie_block": 142
+        },
+        "detection": {
+          "panel_auroc_nli": 0.8580396013827217,
+          "panel_auroc_judge": 0.8611166344733553,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.6416555506150882,
+              "n": 385,
+              "err_rate": 0.8987012987012987
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6835283121578456,
+              "n": 750,
+              "err_rate": 0.7773333333333333
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.6758964306134118,
+              "n": 775,
+              "err_rate": 0.7948387096774193
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.6243226096381084,
+              "n": 780,
+              "err_rate": 0.4641025641025641
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.7709267879813796,
+              "n": 780,
+              "err_rate": 0.8910256410256411
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.7183875944249388,
+              "n": 775,
+              "err_rate": 0.9329032258064516
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.7143001379867399,
+              "n": 777,
+              "err_rate": 0.8893178893178894
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.685243328100471,
+              "n": 774,
+              "err_rate": 0.8229974160206718
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.5940868822713203,
+              "n": 779,
+              "err_rate": 0.5545571245186136
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 7,
+          "majority_homogeneous": 87,
+          "majority_possibly_mixed": 107,
+          "clustering_error_gap": 20,
+          "n_rows": 1000
+        },
+        "c1": {
+          "jaccard_auroc": 0.6868537666174298,
+          "semantic_auroc": 0.8611166344733553,
+          "gap": 0.17426286785592549,
+          "n": 781
+        },
+        "c2": 0.6833333333333333,
+        "c3": {
+          "mean_diff": 0.02055178571428571,
+          "n": 1000,
+          "pos": 387,
+          "neg": 373,
+          "wilcoxon_p": 0.005648877402473142,
+          "rank_biserial": 0.018421052631578946
+        },
+        "c4": {
+          "means": {
+            "small": 0.8141077946715405,
+            "large": 0.7738538033491049,
+            "strong": 0.6629109824153687
+          },
+          "n_paired": 996
+        }
+      },
+      "wall_clock_s": 1488.5,
+      "n_backfilled_judge": 0
+    }
+  },
+  "truthfulqa": {
+    "canonical": {
+      "metrics": {
+        "n_rows": 790,
+        "clustering": {
+          "n": 790,
+          "mean_entropy": 0.2620227176690521,
+          "n_clusters_dist": {
+            "1": 190,
+            "3": 177,
+            "2": 329,
+            "4": 61,
+            "5": 25,
+            "7": 2,
+            "6": 6
+          },
+          "saturated_frac": 0.0,
+          "distinct_values": 46,
+          "largest_tie_block": 190
+        },
+        "detection": {
+          "panel_auroc_nli": 0.6465238402061856,
+          "panel_auroc_judge": 0.6334049130101762,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.685490960652251,
+              "n": 759,
+              "err_rate": 0.5718050065876152
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6350125249018719,
+              "n": 782,
+              "err_rate": 0.4641943734015345
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.6323508762545385,
+              "n": 778,
+              "err_rate": 0.44601542416452444
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.5811041630478837,
+              "n": 777,
+              "err_rate": 0.22007722007722008
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.6655549509971854,
+              "n": 774,
+              "err_rate": 0.46124031007751937
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.700368492224476,
+              "n": 775,
+              "err_rate": 0.5612903225806452
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.5513286301287087,
+              "n": 783,
+              "err_rate": 0.31545338441890164
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.5724947543593083,
+              "n": 781,
+              "err_rate": 0.34699103713188223
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.535203326838421,
+              "n": 782,
+              "err_rate": 0.23785166240409208
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 67,
+          "majority_homogeneous": 194,
+          "majority_possibly_mixed": 292,
+          "clustering_error_gap": 98,
+          "n_rows": 790
+        },
+        "c1": {
+          "jaccard_auroc": 0.6090142521063574,
+          "semantic_auroc": 0.6334049130101762,
+          "gap": 0.024390660903818806,
+          "n": 790
+        },
+        "c2": 0.8666666666666667,
+        "c3": {
+          "mean_diff": 0.07453131374017449,
+          "n": 790,
+          "pos": 371,
+          "neg": 157,
+          "wilcoxon_p": 9.626018826377298e-25,
+          "rank_biserial": 0.4053030303030303
+        },
+        "c4": {
+          "means": {
+            "small": 0.3414601784063729,
+            "large": 0.24864506272693265,
+            "strong": 0.2147898871080076
+          },
+          "n_paired": 779
+        }
+      },
+      "wall_clock_s": 26514.1,
+      "n_backfilled_judge": 0
+    },
+    "nli-alt": {
+      "metrics": {
+        "n_rows": 790,
+        "clustering": {
+          "n": 790,
+          "mean_entropy": 0.3054882060240307,
+          "n_clusters_dist": {
+            "2": 280,
+            "4": 93,
+            "5": 36,
+            "1": 154,
+            "3": 205,
+            "6": 14,
+            "7": 6,
+            "8": 2
+          },
+          "saturated_frac": 0.0,
+          "distinct_values": 47,
+          "largest_tie_block": 154
+        },
+        "detection": {
+          "panel_auroc_nli": 0.6618893512097396,
+          "panel_auroc_judge": 0.6496847302768355,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.6969088975540588,
+              "n": 759,
+              "err_rate": 0.5718050065876152
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6635042111284246,
+              "n": 782,
+              "err_rate": 0.4641943734015345
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.6521660637750155,
+              "n": 778,
+              "err_rate": 0.44601542416452444
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.5977698647057689,
+              "n": 777,
+              "err_rate": 0.22007722007722008
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.6631031309406257,
+              "n": 774,
+              "err_rate": 0.46124031007751937
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.6888302907369844,
+              "n": 775,
+              "err_rate": 0.5612903225806452
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.5611970511813402,
+              "n": 783,
+              "err_rate": 0.31545338441890164
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.5913284132841329,
+              "n": 781,
+              "err_rate": 0.34699103713188223
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.5415539077722451,
+              "n": 782,
+              "err_rate": 0.23785166240409208
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 54,
+          "majority_homogeneous": 197,
+          "majority_possibly_mixed": 256,
+          "clustering_error_gap": 59,
+          "n_rows": 790
+        },
+        "c1": {
+          "jaccard_auroc": 0.6090142521063574,
+          "semantic_auroc": 0.6496847302768355,
+          "gap": 0.040670478170478086,
+          "n": 790
+        },
+        "c2": 0.9,
+        "c3": {
+          "mean_diff": 0.08139756516338795,
+          "n": 790,
+          "pos": 385,
+          "neg": 174,
+          "wilcoxon_p": 8.524000833241035e-29,
+          "rank_biserial": 0.3774597495527728
+        },
+        "c4": {
+          "means": {
+            "small": 0.40726487610488754,
+            "large": 0.2972428623601612,
+            "strong": 0.2706108166422083
+          },
+          "n_paired": 779
+        }
+      },
+      "wall_clock_s": 39117.8,
+      "n_backfilled_judge": 0
+    },
+    "strict": {
+      "metrics": {
+        "n_rows": 790,
+        "clustering": {
+          "n": 790,
+          "mean_entropy": 0.7674046324158738,
+          "n_clusters_dist": {
+            "5": 82,
+            "7": 136,
+            "9": 146,
+            "2": 26,
+            "3": 52,
+            "6": 100,
+            "4": 71,
+            "8": 161,
+            "1": 16
+          },
+          "saturated_frac": 0.19873417721518988,
+          "distinct_values": 42,
+          "largest_tie_block": 157
+        },
+        "detection": {
+          "panel_auroc_nli": 0.6201965206185567,
+          "panel_auroc_judge": 0.6225277656198709,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.6044416873449131,
+              "n": 759,
+              "err_rate": 0.5718050065876152
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6465446392762514,
+              "n": 782,
+              "err_rate": 0.4641943734015345
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.6396624698275574,
+              "n": 778,
+              "err_rate": 0.44601542416452444
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.5886360565881149,
+              "n": 777,
+              "err_rate": 0.22007722007722008
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.6120045140358301,
+              "n": 774,
+              "err_rate": 0.46124031007751937
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.6287221095334685,
+              "n": 775,
+              "err_rate": 0.5612903225806452
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.548590549277902,
+              "n": 783,
+              "err_rate": 0.31545338441890164
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.5628608639027567,
+              "n": 781,
+              "err_rate": 0.34699103713188223
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.557173269827524,
+              "n": 782,
+              "err_rate": 0.23785166240409208
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 5,
+          "majority_homogeneous": 42,
+          "majority_possibly_mixed": 44,
+          "clustering_error_gap": 2,
+          "n_rows": 790
+        },
+        "c1": {
+          "jaccard_auroc": 0.6090142521063574,
+          "semantic_auroc": 0.6225277656198709,
+          "gap": 0.013513513513513487,
+          "n": 790
+        },
+        "c2": 0.6333333333333333,
+        "c3": {
+          "mean_diff": 0.052968572098318935,
+          "n": 790,
+          "pos": 383,
+          "neg": 188,
+          "wilcoxon_p": 6.568223023756749e-28,
+          "rank_biserial": 0.3415061295971979
+        },
+        "c4": {
+          "means": {
+            "small": 0.853213592114428,
+            "large": 0.799859376554185,
+            "strong": 0.8180243793874882
+          },
+          "n_paired": 779
+        }
+      },
+      "wall_clock_s": 73701.7,
+      "n_backfilled_judge": 0
+    },
+    "single": {
+      "metrics": {
+        "n_rows": 790,
+        "clustering": {
+          "n": 790,
+          "mean_entropy": 0.19959878643078147,
+          "n_clusters_dist": {
+            "1": 287,
+            "3": 106,
+            "2": 337,
+            "4": 43,
+            "5": 11,
+            "7": 1,
+            "6": 5
+          },
+          "saturated_frac": 0.0,
+          "distinct_values": 41,
+          "largest_tie_block": 287
+        },
+        "detection": {
+          "panel_auroc_nli": 0.6220747422680413,
+          "panel_auroc_judge": 0.615928301783565,
+          "loo_by_agent": {
+            "openrouter/meta-llama/llama-3.1-8b-instruct": {
+              "auroc": 0.6860794044665013,
+              "n": 759,
+              "err_rate": 0.5718050065876152
+            },
+            "openrouter/meta-llama/llama-3.3-70b-instruct": {
+              "auroc": 0.6124841384116715,
+              "n": 782,
+              "err_rate": 0.4641943734015345
+            },
+            "openrouter/meta-llama/llama-4-maverick": {
+              "auroc": 0.6187139351551583,
+              "n": 778,
+              "err_rate": 0.44601542416452444
+            },
+            "openrouter/openai/gpt-5.6-sol": {
+              "auroc": 0.554431320325015,
+              "n": 777,
+              "err_rate": 0.22007722007722008
+            },
+            "openrouter/openai/gpt-oss-120b": {
+              "auroc": 0.6500581047766829,
+              "n": 774,
+              "err_rate": 0.46124031007751937
+            },
+            "openrouter/openai/gpt-oss-20b": {
+              "auroc": 0.6863995943204868,
+              "n": 775,
+              "err_rate": 0.5612903225806452
+            },
+            "openrouter/qwen/qwen3.6-27b": {
+              "auroc": 0.5449800592180797,
+              "n": 783,
+              "err_rate": 0.31545338441890164
+            },
+            "openrouter/qwen/qwen3.6-35b-a3b": {
+              "auroc": 0.5602995441719123,
+              "n": 781,
+              "err_rate": 0.34699103713188223
+            },
+            "openrouter/qwen/qwen3.6-plus": {
+              "auroc": 0.5325467272858483,
+              "n": 782,
+              "err_rate": 0.23785166240409208
+            }
+          }
+        },
+        "shared_bias_fn": {
+          "strict": 111,
+          "majority_homogeneous": 182,
+          "majority_possibly_mixed": 331,
+          "clustering_error_gap": 149,
+          "n_rows": 790
+        },
+        "c1": {
+          "jaccard_auroc": 0.6090142521063574,
+          "semantic_auroc": 0.615928301783565,
+          "gap": 0.0069140496772075455,
+          "n": 790
+        },
+        "c2": 0.8833333333333333,
+        "c3": {
+          "mean_diff": 0.07453131374017449,
+          "n": 790,
+          "pos": 371,
+          "neg": 157,
+          "wilcoxon_p": 9.626018826377298e-25,
+          "rank_biserial": 0.4053030303030303
+        },
+        "c4": {
+          "means": {
+            "small": 0.31840397161194856,
+            "large": 0.2278201017513236,
+            "strong": 0.19693992055748552
+          },
+          "n_paired": 779
+        }
+      },
+      "wall_clock_s": 31818.3,
+      "n_backfilled_judge": 0
+    }
+  }
+}

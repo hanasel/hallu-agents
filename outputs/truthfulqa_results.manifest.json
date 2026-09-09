@@ -109,9 +109,11 @@
   "nli_model": "cross-encoder/nli-deberta-v3-base",
   "clustering": {
     "strict_entailment": false,
-    "linkage": "complete"
+    "linkage": "complete",
+    "short_answer_keys": false,
+    "short_entity_keys": false
   },
   "judge_model": "google/gemini-3.7-flash",
   "judge_provider": "openrouter",
-  "git_commit": "0ff66701f944378839f654d40adee6014817ae16"
+  "git_commit": "e5c03e60b17b93068b1a886aff9817d976f804ff"
 }

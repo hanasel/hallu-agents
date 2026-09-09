@@ -180,6 +180,92 @@ def test_reasoning_strip() -> None:
     print("  [OK] <think>...</think> stripped from response body")
 
 
+def test_key_fn_overrides_nli_and_is_reported_in_details() -> None:
+    # FakeNLI groups "1986" and "1985" together (both contain "19"), which is
+    # exactly the failure mode the key_fn branch exists to short-circuit: a
+    # date key_fn must split them even though the injected NLI would merge
+    # them, and score() must report that the split was key- not NLI-decided.
+    def date_key_fn(text, answer_type, question=None):
+        digits = "".join(ch for ch in text if ch.isdigit())
+        return frozenset([digits]) if digits else None
+
+    nli = FakeNLI(groups=[["19"]])   # would merge "...1986" and "...1985"
+    se = SemanticEntropyDisagreement(nli=nli, key_fn=date_key_fn)
+    r = se.score(["It happened in 1986.", "It happened in 1985."],
+                question="When?", answer_type="Date")
+
+    assert r.details["n_clusters"] == 2, r.details
+    assert r.details["key_fn_used"] is True
+    assert r.details["key_decided_comparisons"] == 1
+    print(f"  [OK] key_fn split a pair FakeNLI would have merged "
+          f"(n_clusters={r.details['n_clusters']}, "
+          f"key_decided={r.details['key_decided_comparisons']})")
+
+
+def test_key_fn_none_falls_back_to_nli_unchanged() -> None:
+    # key_fn returning None for both responses must fall straight through to
+    # NLI, with nothing recorded as key-decided — the no-op path.
+    def always_none(text, answer_type, question=None):
+        return None
+
+    nli = FakeNLI(groups=[["armstrong"]])
+    se = SemanticEntropyDisagreement(nli=nli, key_fn=always_none)
+    r = se.score(["Armstrong.", "Neil Armstrong."], question="Who?")
+
+    assert r.details["n_clusters"] == 1, r.details
+    assert r.details["key_fn_used"] is True
+    assert r.details["key_decided_comparisons"] == 0
+    print("  [OK] key_fn returning None everywhere defers entirely to NLI")
+
+
+def test_key_fn_subset_merges_and_is_counted_separately_from_equality() -> None:
+    # A terse key contained in a more detailed key must merge (Edit 2), and
+    # the merge must be counted as "subset", not "equality" (Edit 3) — this
+    # is what lets the eval attribute any improvement to the right edit.
+    def number_key_fn(text, answer_type, question=None):
+        digits = frozenset(ch for ch in text.split() if ch.isdigit())
+        return digits or None
+
+    nli = FakeNLI(groups=[])   # would never merge on its own
+    se = SemanticEntropyDisagreement(nli=nli, key_fn=number_key_fn)
+    r = se.score(["300", "300 1780"], question="How many?", answer_type="Number")
+
+    assert r.details["n_clusters"] == 1, r.details
+    assert r.details["key_decided_comparisons"] == 1
+    assert r.details["key_decided_by_subset"] == 1
+    assert r.details["key_decided_by_equality"] == 0
+    print("  [OK] subset match merges a terse/detailed pair, counted as 'subset'")
+
+    r2 = se.score(["300", "300"], question="How many?", answer_type="Number")
+    assert r2.details["n_clusters"] == 1, r2.details
+    assert r2.details["key_decided_by_equality"] == 1
+    assert r2.details["key_decided_by_subset"] == 0
+    print("  [OK] identical keys are counted as 'equality', not 'subset'")
+
+
+def test_key_fn_emptied_by_subtraction_falls_through_to_nli() -> None:
+    # A key_fn that empties under a question-conditioned key (Edit 1) must
+    # fall through to NLI for that pair, and the emptying must be counted —
+    # this is what lets the eval attribute any improvement to Edit 1 itself.
+    def subtracting_key_fn(text, answer_type, question=None):
+        nums = frozenset(ch for ch in text.split() if ch.isdigit())
+        if question:
+            q_nums = frozenset(ch for ch in question.split() if ch.isdigit())
+            nums = nums - q_nums
+        return nums or None
+
+    nli = FakeNLI(groups=[["1864"]])   # NLI merges once the key is emptied
+    se = SemanticEntropyDisagreement(nli=nli, key_fn=subtracting_key_fn)
+    r = se.score(["1864", "1864"], question="It happened in 1864",
+                answer_type="Number")
+
+    assert r.details["n_clusters"] == 1, r.details
+    assert r.details["key_decided_comparisons"] == 0
+    assert r.details["key_emptied_by_subtraction"] == 2
+    print("  [OK] both keys emptied by question-subtraction -> NLI decided, "
+          f"key_emptied_by_subtraction={r.details['key_emptied_by_subtraction']}")
+
+
 def main() -> None:
     section("Semantic entropy — offline clustering tests (FakeNLI)")
     for fn in (
@@ -190,6 +276,10 @@ def main() -> None:
         test_empty_response_is_singleton,
         test_relaxed_vs_strict,
         test_reasoning_strip,
+        test_key_fn_overrides_nli_and_is_reported_in_details,
+        test_key_fn_none_falls_back_to_nli_unchanged,
+        test_key_fn_subset_merges_and_is_counted_separately_from_equality,
+        test_key_fn_emptied_by_subtraction_falls_through_to_nli,
     ):
         print(f"\n-- {fn.__name__}")
         fn()

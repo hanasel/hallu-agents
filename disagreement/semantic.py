@@ -69,7 +69,10 @@ DeBERTa-v3 MNLI cross-encoder via `sentence-transformers`.
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Literal, Optional, Protocol, Sequence, Tuple, runtime_checkable
+from typing import (
+    Any, Callable, Dict, FrozenSet, List, Literal, Optional, Protocol,
+    Sequence, Tuple, runtime_checkable,
+)
 
 from .base import DisagreementResult, ResponseLike
 
@@ -278,6 +281,16 @@ class SemanticEntropyDisagreement:
                         more robust to noisy NLI on heterogeneous answers.
     context_template  : how the question/context is prepended for NLI. Default
                         "{context} {text}". Only used when a context is given.
+    key_fn            : optional `(text, answer_type, question) -> Optional[frozenset]`.
+                        `question` lets the key extractor subtract atoms that
+                        are given in the question rather than asserted by the
+                        answer (e.g. a year restated from the question is not
+                        part of the answer) — see `make_short_answer_key_fn`.
+                        When both responses in a pair reduce to a non-empty
+                        key, equivalence is decided by subset-or-equal
+                        (`ka <= kb or kb <= ka`) and the NLI model is not
+                        consulted for that pair — see `_equivalent`. `None`
+                        (default) reproduces the NLI-only behaviour exactly.
     """
 
     def __init__(
@@ -288,6 +301,9 @@ class SemanticEntropyDisagreement:
         normalise: bool = True,
         context_template: str = "{context} {text}",
         linkage: str = "complete",
+        key_fn: Optional[
+            Callable[[str, Optional[str], Optional[str]], Optional[FrozenSet]]
+        ] = None,
     ):
         self._nli = nli
         self.strict_entailment = bool(strict_entailment)
@@ -296,6 +312,7 @@ class SemanticEntropyDisagreement:
         if linkage not in ("complete", "single"):
             raise ValueError("linkage must be 'complete' or 'single'")
         self.linkage = linkage
+        self.key_fn = key_fn
 
     @property
     def name(self) -> str:
@@ -315,12 +332,43 @@ class SemanticEntropyDisagreement:
             return text
         return self.context_template.format(context=context.strip(), text=text)
 
-    def _equivalent(self, a: str, b: str, context: Optional[str]) -> bool:
+    def _equivalent(
+        self, a: str, b: str, context: Optional[str],
+        answer_type: Optional[str] = None,
+    ) -> Tuple[bool, Optional[str], int]:
         """Are answers `a` and `b` the same meaning-class?
 
         Empty responses (e.g. an errored agent) never merge — they form their
         own singleton, which correctly registers as extra disagreement.
+
+        Returns `(is_equivalent, key_verdict, emptied_by_subtraction)`:
+          - `key_verdict` is `"equality"` or `"subset"` when `key_fn` merged
+            the pair, `"differ"` when it split it, or `None` when NLI decided
+            (see `score`'s `details["key_decided_comparisons"]`, which counts
+            every non-`None` verdict).
+          - `emptied_by_subtraction` counts how many of a/b's keys (0, 1 or
+            2) were non-empty before question-subtraction but emptied by it,
+            and so fell through to NLI instead of being key-decided —
+            diagnostic only (`details["key_emptied_by_subtraction"]`).
         """
+        emptied = 0
+        if self.key_fn is not None:
+            ka, kb = self.key_fn(a, answer_type, context), self.key_fn(b, answer_type, context)
+            if context:
+                if ka is None and self.key_fn(a, answer_type, None) is not None:
+                    emptied += 1
+                if kb is None and self.key_fn(b, answer_type, None) is not None:
+                    emptied += 1
+            if ka is not None and kb is not None:
+                # Subset, not equality: a terse answer whose key is contained
+                # in a more detailed answer's key asserts the same thing plus
+                # less context, and should not be split. Equality punished
+                # verbosity asymmetry and drove the Bucket A regression in v1.
+                if ka == kb:
+                    return True, "equality", emptied
+                if ka <= kb or kb <= ka:
+                    return True, "subset", emptied
+                return False, "differ", emptied
         return semantically_equivalent(
             self.nli,
             a,
@@ -328,9 +376,12 @@ class SemanticEntropyDisagreement:
             context=context,
             strict_entailment=self.strict_entailment,
             context_template=self.context_template,
-        )
+        ), None, emptied
 
-    def _cluster(self, texts: Sequence[str], context: Optional[str]) -> List[List[int]]:
+    def _cluster(
+        self, texts: Sequence[str], context: Optional[str],
+        answer_type: Optional[str] = None,
+    ) -> Tuple[List[List[int]], int, int, int, int, int]:
         """Greedy clustering.
 
         linkage='complete' (default): a response joins a cluster only if it is
@@ -339,17 +390,40 @@ class SemanticEntropyDisagreement:
         linkage='single': compares only to the cluster's first member (the
         Kuhn/Farquhar shortcut). Faster, but a wrong label on the
         representative pair can wrongly merge or split a whole cluster.
+
+        Returns `(clusters, key_decided_comparisons, total_comparisons,
+        key_decided_by_equality, key_decided_by_subset,
+        key_emptied_by_subtraction)`.
         """
         clusters: List[List[int]] = []
+        key_decided = 0
+        total = 0
+        key_equality = 0
+        key_subset = 0
+        key_emptied = 0
         for i, _t in enumerate(texts):
             for cluster in clusters:
                 members = cluster if self.linkage == "complete" else cluster[:1]
-                if all(self._equivalent(texts[j], texts[i], context) for j in members):
+                all_equiv = True
+                for j in members:
+                    eq, verdict, emptied = self._equivalent(texts[j], texts[i], context, answer_type)
+                    total += 1
+                    key_emptied += emptied
+                    if verdict is not None:
+                        key_decided += 1
+                        if verdict == "equality":
+                            key_equality += 1
+                        elif verdict == "subset":
+                            key_subset += 1
+                    if not eq:
+                        all_equiv = False
+                        break
+                if all_equiv:
                     cluster.append(i)
                     break
             else:
                 clusters.append([i])
-        return clusters
+        return clusters, key_decided, total, key_equality, key_subset, key_emptied
 
     # -- public API ------------------------------------------------------
 
@@ -359,11 +433,14 @@ class SemanticEntropyDisagreement:
         *,
         context: Optional[str] = None,
         question: Optional[str] = None,
+        answer_type: Optional[str] = None,
     ) -> DisagreementResult:
         """Cluster `responses` by meaning and return their entropy.
 
         `context`/`question` (aliases) is the shared question, prepended to
         every response before NLI so answers are compared *in context*.
+        `answer_type` is forwarded to `key_fn` (if set) — e.g. SimpleQA's
+        "Number" / "Date" / "Other" — and is otherwise unused.
         """
         ctx = context if context is not None else question
         texts = [_extract_text(r) for r in responses]
@@ -371,7 +448,8 @@ class SemanticEntropyDisagreement:
         if n < 2:
             raise ValueError(f"Need at least 2 responses to compute disagreement; got {n}")
 
-        clusters = self._cluster(texts, ctx)
+        (clusters, key_decided, total_compared,
+         key_equality, key_subset, key_emptied) = self._cluster(texts, ctx, answer_type)
         sizes = [len(c) for c in clusters]
         probs = [s / n for s in sizes]
 
@@ -397,5 +475,11 @@ class SemanticEntropyDisagreement:
                 "strict_entailment": self.strict_entailment,
                 "linkage": self.linkage,
                 "context_used": bool(ctx),
+                "key_fn_used": self.key_fn is not None,
+                "key_decided_comparisons": key_decided,
+                "total_comparisons": total_compared,
+                "key_decided_by_equality": key_equality,
+                "key_decided_by_subset": key_subset,
+                "key_emptied_by_subtraction": key_emptied,
             },
         )

@@ -170,16 +170,28 @@ DATASETS = {
 }
 
 
-def default_out_path(dataset: str, prompt_format: str) -> str:
-    """--out default: DATASETS[dataset]['out'], with the prompt format folded
-    into the filename whenever it isn't 'open'. MC responses are letters and
-    open responses are prose — two formats writing to the same file would
-    silently mix rows that no report function here could compare, so this
+def default_out_path(dataset: str, prompt_format: str,
+                     short_answer_keys: bool = False,
+                     short_entity_keys: bool = False) -> str:
+    """--out default: DATASETS[dataset]['out'], with the prompt format and
+    short-answer-key flags folded into the filename whenever they aren't the
+    defaults. MC responses are letters and open responses are prose — two
+    formats writing to the same file would silently mix rows that no report
+    function here could compare; the same is true of the short-answer-key
+    branch against the NLI-only baseline (see the branch's own note not to
+    overwrite the baseline results file it is compared against) — so this
     keeps them apart by construction rather than by caller discipline."""
     base = Path(DATASETS[dataset]["out"])
-    if prompt_format == "open":
+    suffix_parts = []
+    if prompt_format != "open":
+        suffix_parts.append(prompt_format)
+    if short_answer_keys:
+        suffix_parts.append("keys")
+    if short_entity_keys:
+        suffix_parts.append("entitykeys")
+    if not suffix_parts:
         return str(base)
-    return str(base.with_name(f"{base.stem}_{prompt_format}{base.suffix}"))
+    return str(base.with_name(f"{base.stem}_{'_'.join(suffix_parts)}{base.suffix}"))
 
 
 def select_prompt(s, prompt_format: str) -> str:
@@ -565,7 +577,8 @@ def build_panel_specs(agents) -> List[PanelSpec]:
 
 def score_panel(spec: PanelSpec, texts_by_name: Dict[str, str],
                 excluded_by_name: Dict[str, bool],
-                jaccard, semantic, mc_exact, question: str, is_mc: bool) -> dict:
+                jaccard, semantic, mc_exact, question: str, is_mc: bool,
+                answer_type: Optional[str] = None) -> dict:
     """Disagreement over one panel, with excluded responses removed first.
 
     `excluded_by_name` covers both abstentions (model behaviour: declining to
@@ -615,12 +628,28 @@ def score_panel(spec: PanelSpec, texts_by_name: Dict[str, str],
         clusters.extend(by_letter.values())
         n_clusters = len(clusters)
         cluster_sizes = [len(c) for c in clusters]
+        # key_fn is a semantic-entropy concept only — MC clusters on letter
+        # identity, so there is nothing for it to have decided.
+        key_fn_used, key_decided, total_compared = False, 0, 0
+        key_equality, key_subset, key_emptied = 0, 0, 0
     else:
-        sem = semantic.score(texts, question=question)
+        sem = semantic.score(texts, question=question, answer_type=answer_type)
         score_val = sem.score
         clusters = sem.details["clusters"]
         n_clusters = sem.details["n_clusters"]
         cluster_sizes = sem.details["cluster_sizes"]
+        # Propagated so --short-answer-keys' coverage (the fraction of
+        # pairwise comparisons decided by the key rather than NLI) can be
+        # read back out of the written rows — see eval_short_answer_branch.py.
+        key_fn_used = sem.details.get("key_fn_used", False)
+        key_decided = sem.details.get("key_decided_comparisons", 0)
+        total_compared = sem.details.get("total_comparisons", 0)
+        # v2 breakdown of key_decided (Edit 3) — how much of it is exact
+        # equality vs proper subset, and how many keys question-subtraction
+        # (Edit 1) emptied out to NLI — see disagreement/semantic.py's score().
+        key_equality = sem.details.get("key_decided_by_equality", 0)
+        key_subset = sem.details.get("key_decided_by_subset", 0)
+        key_emptied = sem.details.get("key_emptied_by_subtraction", 0)
 
     cluster_of = {}
     for cid, members in enumerate(clusters):
@@ -630,7 +659,12 @@ def score_panel(spec: PanelSpec, texts_by_name: Dict[str, str],
     return {"jaccard": jac, "semantic_entropy": score_val,
             "n_clusters": n_clusters, "cluster_sizes": cluster_sizes,
             "n_scored": len(attempted), "n_excluded": n_excluded,
-            "cluster_of": cluster_of, "measure": measure}
+            "cluster_of": cluster_of, "measure": measure,
+            "key_fn_used": key_fn_used, "key_decided_comparisons": key_decided,
+            "total_comparisons": total_compared,
+            "key_decided_by_equality": key_equality,
+            "key_decided_by_subset": key_subset,
+            "key_emptied_by_subtraction": key_emptied}
 
 
 # ---------------------------------------------------------------------------
@@ -672,6 +706,164 @@ def _date_parts(s: str) -> set:
         if n not in years:
             parts.add(("d", str(int(n))))
     return parts
+
+
+# ---------------------------------------------------------------------------
+# Short-answer clustering keys — injected into SemanticEntropyDisagreement as
+# `key_fn` (see disagreement/semantic.py's `_equivalent`) to short-circuit NLI
+# on responses that reduce to a comparable short-form answer. DeBERTa-v3
+# reliably labels two *different* short-form values (dates, numbers, chemical
+# formulae) NEUTRAL rather than CONTRADICTION, which relaxed clustering then
+# merges — see simpleqa-3278 (nine distinct chemical formulae, six of them
+# merged into one cluster) and the module docstring's "Grader independence"
+# section for the same failure mode in grading.
+#
+# Each extractor returns a frozenset of comparable atoms, or None when it
+# finds nothing — the pair then falls through to NLI unchanged. The key is a
+# frozenset rather than a string so that answers differing only in order
+# ("Indonesia and Papua New Guinea" vs "Papua New Guinea and Indonesia")
+# still compare equal; see _short_entity_key below.
+# ---------------------------------------------------------------------------
+
+# DeBERTa/NLI compare the *chemical formula embedded in a sentence*, not a
+# bare formula — "The chemical formula of atogepant is C29H31N5O3S." — so the
+# gate is a distinctive pattern (>=3 element/count pairs in one unbroken
+# alphanumeric run), not `answer_type`: SimpleQA labels the atogepant
+# question's answer_type "Other", not "Number".
+_CHEM_CHUNK_RE = re.compile(r"[A-Za-z0-9]{5,}")
+_CHEM_TOKEN_RE = re.compile(r"[A-Z][a-z]?\d*")
+_UNICODE_SUBSCRIPT_TABLE = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+
+
+def _tokenize_chemical_chunk(chunk: str) -> Optional[List[str]]:
+    """Split `chunk` into element tokens (e.g. 'C29H31N5O3S' -> ['C29', 'H31',
+    'N5', 'O3', 'S']), or None if any part of the chunk doesn't fit the
+    element-symbol grammar (rules out plain words/acronyms/numbers)."""
+    pos, tokens = 0, []
+    while pos < len(chunk):
+        m = _CHEM_TOKEN_RE.match(chunk, pos)
+        if not m or m.end() == pos:
+            return None
+        tokens.append(m.group(0))
+        pos = m.end()
+    return tokens
+
+
+def _chemical_formula_key(text: str) -> Optional[frozenset]:
+    """frozenset of (element, count) pairs, count='1' when a symbol has no
+    explicit subscript (e.g. the Cl in 'C35H38ClN5O3'). Requires >=3 pairs
+    AND >=2 of them to carry an explicit digit, so a bare capitalised
+    acronym like 'CGRP' (all implied-1, no digits at all) is never mistaken
+    for a formula."""
+    t = text.translate(_UNICODE_SUBSCRIPT_TABLE)   # normalise C₂₉H₃₁... -> C29H31...
+    for chunk in _CHEM_CHUNK_RE.findall(t):
+        tokens = _tokenize_chemical_chunk(chunk)
+        if not tokens or len(tokens) < 3:
+            continue
+        pairs = []
+        n_with_digit = 0
+        for tok in tokens:
+            m = re.match(r"([A-Z][a-z]?)(\d*)", tok)
+            sym, count = m.group(1), m.group(2)
+            if count:
+                n_with_digit += 1
+            pairs.append((sym, count or "1"))
+        if n_with_digit >= 2:
+            return frozenset(pairs)
+    return None
+
+
+def _date_key(text: str, question: Optional[str] = None) -> Optional[frozenset]:
+    """Date atoms, minus any year/month/day whose surface form is already
+    in the question (simpleqa-0097: the '7' and '8' in a response date come
+    from the question's "Notepad++ 7.8.8", not the date). `_date_parts` uses
+    the same extraction on both texts, so a shared atom IS a shared surface
+    form by construction — no separate surface-matching pass needed."""
+    parts = _date_parts(text)
+    if question:
+        parts = parts - _date_parts(question)
+    return frozenset(parts) if parts else None
+
+
+def _number_key(text: str, question: Optional[str] = None) -> Optional[frozenset]:
+    """Number atoms, minus any numeric token that also occurs in the
+    question (simpleqa-0150: the question's "1864 chess match" restates the
+    year, so it is context, not part of the "1 loss" answer)."""
+    nums = _numbers(text)
+    if question:
+        nums = nums - _numbers(question)
+    return frozenset(nums) if nums else None
+
+
+# Short-entity extractor — off by default (--short-entity-keys). Naive
+# substring extraction of proper-noun phrases is far more likely to cause a
+# FALSE SPLIT than the other three extractors: "New Guinea" vs "Papua New
+# Guinea" would separate two mentions of the same place, exactly the
+# partial-name-match trap `grade_short_answer` already has a STOP-word guard
+# for. Requiring >=2 distinct entities (not >=1) is what avoids that here —
+# a single-entity answer ("Neil Armstrong" vs "Armstrong") always defers to
+# NLI, and only multi-entity list-style answers ("Australia and Papua New
+# Guinea" vs "Indonesia and Papua New Guinea", simpleqa-1315) get a key.
+_PROPER_NOUN_RE = re.compile(r"[A-Z][A-Za-z'\-]*(?:\s+[A-Z][A-Za-z'\-]*)*")
+# Common sentence-starters that capitalise only by position, not because
+# they're a proper noun — same idea as grade_short_answer's STOP set for
+# partial-name matches, just for sentence-initial capitals instead of gold
+# words. Necessarily incomplete (any generic capitalised subject noun, e.g.
+# "Scientists believe...", slips through) — a known gap, see the eval
+# script's sampled false-split pairs.
+_ENTITY_STOPWORDS = {"the", "a", "an", "and", "or", "of", "in", "on", "at",
+                     "to", "for", "is", "are", "was", "were", "it", "this",
+                     "that", "these", "those", "there", "no", "yes"}
+
+
+def _short_entity_key(text: str) -> Optional[frozenset]:
+    """frozenset of >=2 lowercased proper-noun phrases, or None.
+
+    Requiring >=2 (not >=1) is what keeps this safe for single-entity
+    answers: a sentence-initial entity ('Indonesia and Papua New Guinea...')
+    must NOT be dropped just for being first, or order-swapped mentions of
+    the same list would stop comparing equal — so filtering is by stopword
+    only, not position.
+    """
+    entities = {span.lower() for span in _PROPER_NOUN_RE.findall(text)
+                if span.lower() not in _ENTITY_STOPWORDS}
+    return frozenset(entities) if len(entities) >= 2 else None
+
+
+def make_short_answer_key_fn(short_entity: bool = False):
+    """Build the `key_fn` injected into SemanticEntropyDisagreement.
+
+    Chemical-formula is tried unconditionally (pattern-gated); date/number
+    are gated on `answer_type`; the short-entity extractor only runs when
+    `short_entity=True` (--short-entity-keys), so its false-split rate can be
+    measured as its own row rather than silently folded into the others'.
+
+    `question`, when given, is subtracted from the date/number extraction
+    (see `_date_key`/`_number_key`) — a token restated from the question is
+    context, not the answer. Chemical formulae and entities are unaffected: a
+    formula appearing in the question would be very unusual, and the entity
+    extractor was not implicated in the Bucket A regression this addresses.
+    """
+    def key_fn(text: str, answer_type: Optional[str],
+              question: Optional[str] = None) -> Optional[frozenset]:
+        key = _chemical_formula_key(text)
+        if key:
+            return key
+        at = (answer_type or "").lower()
+        if at == "date":
+            key = _date_key(text, question)
+            if key:
+                return key
+        elif at == "number":
+            key = _number_key(text, question)
+            if key:
+                return key
+        if short_entity:
+            key = _short_entity_key(text)
+            if key:
+                return key
+        return None
+    return key_fn
 
 
 def grade_short_answer(text: str, gold: str, answer_type: str):
@@ -806,7 +998,9 @@ def write_manifest(path: Path, *, agents, args) -> None:
         "system_prompt": a0.system_prompt,
         "nli_model": args.nli_model,
         "clustering": {"strict_entailment": args.strict,
-                       "linkage": "single" if args.single_linkage else "complete"},
+                       "linkage": "single" if args.single_linkage else "complete",
+                       "short_answer_keys": getattr(args, "short_answer_keys", False),
+                       "short_entity_keys": getattr(args, "short_entity_keys", False)},
         "judge_model": args.judge_model or None,
         "judge_provider": (args.judge_provider if args.judge_model else None),
         "git_commit": _git_sha(),
@@ -974,7 +1168,8 @@ def run_queries(samples, agents, jaccard, semantic, mc_exact, nli, panel_specs,
                       for n in names}
 
         panels = {spec.key: score_panel(spec, texts, excluded, jaccard, semantic,
-                                        mc_exact, s.question, is_mc)
+                                        mc_exact, s.question, is_mc,
+                                        answer_type=getattr(s, "answer_type", None))
                   for spec in panel_specs}
 
         core_panel = panels["core"]
@@ -1740,6 +1935,21 @@ def main() -> None:
                          "years/names that NLI labels neutral rather than "
                          "contradictory.")
     ap.add_argument("--single-linkage", action="store_true")
+    ap.add_argument("--short-answer-keys", action="store_true",
+                    help="short-circuit NLI clustering with extracted "
+                         "comparable keys (date/number/chemical-formula) "
+                         "before falling back to entailment. Off by default "
+                         "so the baseline results files stay reproducible; "
+                         "combine with a distinct --out (see "
+                         "scripts/eval_short_answer_branch.py for the "
+                         "before/after comparison against a baseline run).")
+    ap.add_argument("--short-entity-keys", action="store_true",
+                    help="also extract a key for multi-entity short answers "
+                         "(e.g. 'Australia and Papua New Guinea'). Off by "
+                         "default and reported as its own row — naive "
+                         "entity extraction is more prone to false splits "
+                         "than the date/number/formula extractors. Has no "
+                         "effect without --short-answer-keys.")
     ap.add_argument("--no-concise", action="store_true",
                     help="do NOT force short answers (reproduces the saturated baseline)")
     ap.add_argument("--no-exact-match", action="store_true",
@@ -1767,9 +1977,13 @@ def main() -> None:
         ap.error(f"--dataset {args.dataset!r} has no {args.prompt_format!r} prompt "
                   f"format — available: {dataset_cfg['formats']}")
     is_mc = args.prompt_format == "mc"
+    if args.short_entity_keys and not args.short_answer_keys:
+        print("  [!] --short-entity-keys has no effect without --short-answer-keys "
+              "(no key_fn is injected) — continuing without it.")
 
     out_path = Path(args.out) if args.out else Path(
-        default_out_path(args.dataset, args.prompt_format))
+        default_out_path(args.dataset, args.prompt_format,
+                         args.short_answer_keys, args.short_entity_keys))
 
     dataset_label = {"simpleqa": "SimpleQA Verified", "truthfulqa": "TruthfulQA"}[args.dataset]
     section(f"Loading {args.n} {dataset_label} questions (seed={args.seed})"
@@ -1875,9 +2089,13 @@ def main() -> None:
     jaccard = JaccardDisagreement()
     mc_exact = MCExactMatch()
     linkage = "single" if args.single_linkage else "complete"
+    key_fn = (make_short_answer_key_fn(short_entity=args.short_entity_keys)
+             if args.short_answer_keys else None)
     semantic = SemanticEntropyDisagreement(nli=nli, strict_entailment=args.strict,
-                                           linkage=linkage)
-    print(f"  clustering: {'strict' if args.strict else 'relaxed'} + {linkage}-linkage")
+                                           linkage=linkage, key_fn=key_fn)
+    print(f"  clustering: {'strict' if args.strict else 'relaxed'} + {linkage}-linkage"
+          + ("" if key_fn is None else
+             f" + short-answer keys{' (+entities)' if args.short_entity_keys else ''}"))
 
     judge_agent = None
     if args.judge_model:

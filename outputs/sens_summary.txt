@@ -1,0 +1,25 @@
+dataset     config         n  C1 se/jac(gap)             C2 rho   C3 diff(r)           C4 s/l/st                    wall(s)
+---------------------------------------------------------------------------------------------------------------------------
+simpleqa    canonical   1000  0.884/0.687 (+0.197, n=781) +0.700   +0.021 (r=+0.018)    s=0.818/l=0.784/s=0.668       1494.2
+simpleqa    nli-large   1000  0.895/0.687 (+0.209, n=781) +0.683   +0.015 (r=-0.045)    s=0.845/l=0.806/s=0.677       4578.6
+simpleqa    nli-alt     1000  0.894/0.687 (+0.207, n=781) +0.783   +0.015 (r=-0.057)    s=0.854/l=0.814/s=0.689       1823.0
+simpleqa    strict      1000  0.890/0.687 (+0.203, n=781) +0.633   +0.019 (r=-0.029)    s=0.895/l=0.862/s=0.753       1474.9
+simpleqa    single      1000  0.861/0.687 (+0.174, n=781) +0.683   +0.021 (r=+0.018)    s=0.814/l=0.774/s=0.663       1488.5
+truthfulqa  canonical    790  0.633/0.609 (+0.024, n=790) +0.867   +0.075 (r=+0.405)    s=0.341/l=0.249/s=0.215      26514.1
+truthfulqa  nli-large   -- not run --
+truthfulqa  nli-alt      790  0.650/0.609 (+0.041, n=790) +0.900   +0.081 (r=+0.377)    s=0.407/l=0.297/s=0.271      39117.8
+truthfulqa  strict       790  0.623/0.609 (+0.014, n=790) +0.633   +0.053 (r=+0.342)    s=0.853/l=0.800/s=0.818      73701.7
+truthfulqa  single       790  0.616/0.609 (+0.007, n=790) +0.883   +0.075 (r=+0.405)    s=0.318/l=0.228/s=0.197      31818.3
+
+  simpleqa:
+    C1 semantic entropy > Jaccard (judge AUROC): holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C2 detectability rises with per-agent error rate (Spearman): holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C3 family diversity: no meaningful effect at matched N: holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+    C4 disagreement falls monotonically small->large->strong tier: holds in 5/5 run(s) (canonical=True, nli-large=True, nli-alt=True, strict=True, single=True)
+
+  truthfulqa:
+    C1 semantic entropy > Jaccard (judge AUROC): holds in 2/4 run(s) (canonical=True, nli-alt=True, strict=False, single=False)
+    C2 detectability rises with per-agent error rate (Spearman): holds in 4/4 run(s) (canonical=True, nli-alt=True, strict=True, single=True)
+    C3 family diversity: no meaningful effect at matched N: holds in 4/4 run(s) (canonical=True, nli-alt=True, strict=True, single=True)
+    C4 disagreement falls monotonically small->large->strong tier: holds in 3/4 run(s) (canonical=True, nli-alt=True, strict=False, single=True)
+    [FLIP] direction did not hold for: c1 in strict, c1 in single, c4 in strict
