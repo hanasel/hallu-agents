@@ -464,7 +464,7 @@ self-check). `rgt_verify_pilot.py` takes `--task {qa,summarization,data2txt}`,
 
 ---
 
-## Known gotchas
+## Notes to avoid errors
 
 * **Run scripts from the repo root** — `python scripts/foo.py`, not
   `cd scripts && python foo.py`. Each script does
