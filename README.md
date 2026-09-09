@@ -39,7 +39,7 @@ hallucination signal against graded correctness.
 8. [Running the tests](#running-the-tests)
 9. [Reproducibility & determinism notes](#reproducibility--determinism-notes)
 10. [Configuration reference](#configuration-reference)
-11. [Known gotchas](#known-gotchas)
+11. [Notes on avoiding errors](#notes-on-avoiding-errors)
 12. [Citation, license, acknowledgements](#citation-license-acknowledgements)
 
 ---
@@ -464,7 +464,7 @@ self-check). `rgt_verify_pilot.py` takes `--task {qa,summarization,data2txt}`,
 
 ---
 
-## Notes to avoid errors
+## Notes on avoiding errors
 
 * **Run scripts from the repo root** — `python scripts/foo.py`, not
   `cd scripts && python foo.py`. Each script does
