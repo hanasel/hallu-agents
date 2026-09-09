@@ -235,6 +235,8 @@ Notes:
 `python-dotenv` loads a `.env` file from the repo root automatically. **No keys are
 needed to reproduce reported results** — only to query models afresh.
 
+Below is what was used in the different stages of development.
+
 | Variable | Needed for | Notes |
 |---|---|---|
 | `OPENROUTER_API_KEY` | `disagreement_pilot.py`, `harvest*.py`, `pilot_sampled.py`, `rgt_pilot.py` (re-querying the pool / judge) | The panel and the default independent judge run here. |
